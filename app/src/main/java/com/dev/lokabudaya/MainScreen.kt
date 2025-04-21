@@ -62,7 +62,7 @@ fun MainScreen() {
     ) { innerPadding ->
         Text(
             modifier = Modifier.padding(innerPadding),
-            text = "LokaBudaya"
+            text = "LokaBudaya APP"
         )
     }
 }
