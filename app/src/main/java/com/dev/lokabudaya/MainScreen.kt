@@ -1,65 +1,129 @@
 package com.dev.lokabudaya
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
+import com.dev.lokabudaya.pages.BookPage
+import com.dev.lokabudaya.pages.FilterPage
 import com.dev.lokabudaya.pages.HomePage
+import com.dev.lokabudaya.pages.ProfilePage
+import com.dev.lokabudaya.pages.TicketPage
 
 @Composable
 fun MainScreen() {
-    var selectedIcon by remember { mutableStateOf(-1) }
+
+    val navController = rememberNavController()
 
     Scaffold(
-        bottomBar = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                BottomAppBar {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        val icons = listOf(
-                            R.drawable.ic_home to "Home",
-                            R.drawable.ic_filter to "Filter",
-                            R.drawable.ic_ticket to "Ticket",
-                            R.drawable.ic_book to "Book",
-                            R.drawable.ic_profile to "Profile"
-                        )
+        modifier = Modifier
+            .fillMaxSize(),
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { innerPadding ->
 
-                        icons.forEachIndexed { index, (iconRes, contentDescription) ->
-                            IconButton(onClick = { selectedIcon = index }) {
-                                Icon(
-                                    painter = painterResource(iconRes),
-                                    contentDescription = contentDescription,
-                                    modifier = Modifier.size(28.dp),
-                                    tint = if (selectedIcon == index) Color.Black else Color.Unspecified
-                                )
-                            }
-                        }
-                    }
+        val graph =
+            navController.createGraph(startDestination = ScreenRoute.Home.route) {
+                composable(route = ScreenRoute.Home.route) {
+                    HomePage(modifier = Modifier)
+                }
+                composable(route = ScreenRoute.Filter.route) {
+                    FilterPage()
+                }
+                composable(route = ScreenRoute.Ticket.route) {
+                    TicketPage()
+                }
+                composable(route = ScreenRoute.Book.route) {
+                    BookPage()
+                }
+                composable(route = ScreenRoute.Profile.route) {
+                    ProfilePage()
                 }
             }
-        },
-    ) { innerPadding ->
-        HomePage(modifier = Modifier.padding(innerPadding))
+        NavHost(
+            navController = navController,
+            graph = graph,
+            modifier = Modifier.padding(innerPadding)
+        )
+
     }
 }
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavController
+) {
+    val selectedNavigationIndex = rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    val navigationItems = listOf(
+        NavigationItem(
+            icon = R.drawable.ic_home,
+            route = ScreenRoute.Home.route
+        ),
+        NavigationItem(
+            icon = R.drawable.ic_filter,
+            route = ScreenRoute.Filter.route
+        ),
+        NavigationItem(
+            icon = R.drawable.ic_ticket,
+            route = ScreenRoute.Ticket.route
+        ),
+        NavigationItem(
+            icon = R.drawable.ic_book,
+            route = ScreenRoute.Book.route
+        ),
+        NavigationItem(
+            icon = R.drawable.ic_profile,
+            route = ScreenRoute.Profile.route
+        )
+    )
+
+    NavigationBar(
+        containerColor = Color.White
+    ) {
+        navigationItems.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedNavigationIndex.intValue == index,
+                onClick = {
+                    selectedNavigationIndex.intValue = index
+                    navController.navigate(item.route)
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = item.icon),
+                        contentDescription = "Nav icon",
+                        modifier = Modifier.alpha(
+                            if (selectedNavigationIndex.intValue == index) 1f else 0.5f
+                        )
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    indicatorColor = Color.Transparent
+                )
+
+            )
+        }
+    }
+}
+
+data class NavigationItem(
+    val icon: Int,
+    val route: String
+)
