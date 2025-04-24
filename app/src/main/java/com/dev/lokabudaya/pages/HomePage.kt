@@ -33,12 +33,15 @@ import kotlinx.coroutines.delay
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.data.DataProvider
@@ -158,6 +161,7 @@ fun Recommended() {
 
 @Composable
 fun RecommendedCard(title: String) {
+    val checkLove = remember { mutableStateOf(true) }
     val imageRes = when (title) {
         "Mangkunegaran" -> R.drawable.img_mangkunegaran
         "Candi Borobudur" -> R.drawable.img_borobudur
@@ -166,7 +170,7 @@ fun RecommendedCard(title: String) {
     }
     val locationRes = when (title) {
         "Mangkunegaran" -> "Surakarta"
-        "Candi Borobudur" -> "Yogyakarta"
+        "Candi Borobudur" -> "Magelang"
         "Pasar Gede" -> "Surakarta"
         else -> ""
     }
@@ -202,7 +206,7 @@ fun RecommendedCard(title: String) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 12.dp, top = 60.dp),
+                    .padding(start = 12.dp, top = 96.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -229,15 +233,19 @@ fun RecommendedCard(title: String) {
                         fontSize = 10.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_love),
-                        contentDescription = "Love Icon",
-                        tint = White,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .size(20.dp)
-                            .offset(y = 12.dp)
-                    )
+                    IconToggleButton(checked = checkLove.value, onCheckedChange = {
+                        checkLove.value = !checkLove.value
+                    }) {
+                        Icon(
+                            tint = White,
+                            modifier = Modifier
+                            .size(20.dp),
+                            painter = if (checkLove.value) {
+                                painterResource(id = R.drawable.ic_love)
+                        } else {
+                            painterResource(id = R.drawable.ic_love_filled)
+                        }, contentDescription = "Love Icon")
+                    }
                 }
             }
         }
