@@ -1,14 +1,41 @@
 package com.dev.lokabudaya.data
 
+import com.dev.lokabudaya.R
+import com.dev.lokabudaya.pages.EventItem
+
 object DataProvider {
     val recommendedItems = listOf(
         "Mangkunegaran",
         "Candi Borobudur",
         "Pasar Gede"
     )
-    val eventItems = listOf(
-        "Wayang Kulit",
-        "Pencak Silat",
-        "Jajar Festival"
+    val eventList = listOf(
+        EventItem(
+            title = "Wayang Kulit",
+            imageRes = R.drawable.img_event,
+            rating = 4.5,
+            category = "Pertunjukan Seni",
+            location = "Surakarta",
+            time = "16:00 WIB",
+            price = "Rp 90.000\n/Orang"
+        ),
+        EventItem(
+            title = "Tari Saman",
+            imageRes = R.drawable.img_event,
+            rating = 4.8,
+            category = "Pertunjukan Seni",
+            location = "Yogyakarta",
+            time = "13:00 WIB",
+            price = "Rp 20.000\n/Orang"
+        ),
+        EventItem(
+            title = "Tari Tor-tor",
+            imageRes = R.drawable.img_event,
+            rating = 4.4,
+            category = "Pertunjukan Seni",
+            location = "Purwokerto",
+            time = "09:00 WIB",
+            price = "Rp 35.000\n/Orang"
+        )
     )
 }

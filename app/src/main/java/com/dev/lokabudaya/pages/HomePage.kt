@@ -49,10 +49,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.ui.theme.White
+import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
-import com.dev.lokabudaya.ui.theme.titleColor
 
 @Composable
 fun HomePage(modifier: Modifier) {
@@ -151,6 +151,25 @@ fun TopAdsCarousel(
                         fontSize = 12.sp
                     )
                 }
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 20.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(imageList.size) { index ->
+                        val isSelected = (actualPage == index)
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .size(if (isSelected) 8.dp else 8.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(
+                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
+                                )
+                        )
+                    }
+                }
             }
         }
     }
@@ -198,11 +217,11 @@ fun Recommended() {
             text = "Recommended",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = titleColor,
+            color = bigTextColor,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Selengkapnya>",
+            text = "Selengkapnya >",
             fontSize = 16.sp,
             color = mediumTextColor,
             modifier = Modifier
@@ -297,14 +316,15 @@ fun RecommendedCard(title: String) {
                         checkLove.value = !checkLove.value
                     }) {
                         Icon(
-                            tint = White,
-                            modifier = Modifier
-                            .size(20.dp),
                             painter = if (checkLove.value) {
                                 painterResource(id = R.drawable.ic_love)
-                        } else {
-                            painterResource(id = R.drawable.ic_love_filled)
-                        }, contentDescription = "Love Icon")
+                            } else {
+                                painterResource(id = R.drawable.ic_love_filled)
+                            },
+                            contentDescription = "Love Icon",
+                            tint = if (checkLove.value) Color.White else Color.Red,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
             }
@@ -326,7 +346,7 @@ fun CurrentLocation() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = "Location Icon",
-                tint = titleColor,
+                tint = bigTextColor,
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -334,7 +354,7 @@ fun CurrentLocation() {
                 text = "What's in Solo?",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = titleColor
+                color = bigTextColor
             )
         }
     }
@@ -346,25 +366,192 @@ fun ListEvent() {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        DataProvider.eventItems.forEach { item ->
-            ListEventCard(title = item)
+        DataProvider.eventList.forEach { event ->
+            ListEventCard(event = event)
         }
     }
 }
 
 @Composable
-fun ListEventCard(title: String) {
-    val imageRes = when (title) {
-        "Wayang Kulit" -> R.drawable.img_event
-        "Pencak Silat" -> R.drawable.img_event
-        "Jajar Festival" -> R.drawable.img_event
-        else -> R.drawable.img_event
-    }
+fun ListEventCard(event: EventItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .width(360.dp)
             .height(296.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Gray
+        )
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource(id = event.imageRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color(0xCC222222))
+                        )
+                    )
+            )
+            Card(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 6.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = event.title,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = null,
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = event.rating.toString(),
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(start = 2.dp, end = 6.dp)
+                        )
+                        Text(
+                            text = event.category,
+                            color = Color(0xFF3B82F6),
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .background(Color(0xFFEEF6FF), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = event.price,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = null,
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = event.location,
+                            color = Color.Black,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = null,
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = event.time,
+                            color = Color.Black,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF3B82F6))
+                                .clickable { }
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "Buy Now",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Blog section
+@Composable
+fun Blog() {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Text(
+            text = "Blog Journeys",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = bigTextColor,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = "Selengkapnya >",
+            fontSize = 16.sp,
+            color = mediumTextColor,
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+        )
+    }
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(DataProvider.recommendedItems) { item ->
+            BlogCard(title = item)
+        }
+    }
+}
+
+@Composable
+fun BlogCard(title: String) {
+    val imageRes = when (title) {
+        "Blog 1" -> R.drawable.img_people
+        "Blog 2" -> R.drawable.img_people
+        "Blog 3" -> R.drawable.img_people
+        else -> R.drawable.img_people
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .width(296.dp)
+            .height(232.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Gray
@@ -409,7 +596,19 @@ fun HomePageContent() {
                 CurrentLocation()
                 Spacer(modifier = Modifier.height(16.dp))
                 ListEvent()
+                Spacer(modifier = Modifier.height(16.dp))
+                Blog()
             }
         }
     }
 }
+
+data class EventItem(
+    val title: String,
+    val imageRes: Int,
+    val rating: Double,
+    val category: String,
+    val location: String,
+    val time: String,
+    val price: String
+)
