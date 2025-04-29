@@ -2,6 +2,7 @@ package com.dev.lokabudaya.pages
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,16 +37,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.ui.theme.White
+import com.dev.lokabudaya.ui.theme.categoryColor
+import com.dev.lokabudaya.ui.theme.mediumTextColor
+import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import com.dev.lokabudaya.ui.theme.titleColor
 
 @Composable
 fun HomePage(modifier: Modifier) {
@@ -105,7 +112,8 @@ fun TopAdsCarousel(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(340.dp)
+                    .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
             ) {
                 Image(
                     painter = painterResource(id = imageList[actualPage]),
@@ -113,11 +121,19 @@ fun TopAdsCarousel(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
+                Image(
+                    painter = painterResource(R.drawable.img_gradient),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .offset(y = 10.dp)
+                )
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(start = 24.dp, bottom = 24.dp, end = 40.dp)
+                        .padding(start = 24.dp, bottom = 44.dp, end = 40.dp)
                 ) {
                     Text(
                         text = bannerText,
@@ -140,15 +156,59 @@ fun TopAdsCarousel(
     }
 }
 
+// HomeTab category section
+@Composable
+fun HomeTab() {
+    var selectedCategoryTab by remember { mutableStateOf(0) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(50.dp))
+            .background(White),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        val categoryTab = listOf("Event", "Kuliner", "Wisata")
+        categoryTab.forEachIndexed { index, category ->
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(if (selectedCategoryTab == index) selectedCategoryColor else Color.Transparent)
+                    .clickable { selectedCategoryTab = index }
+                    .padding(horizontal = 36.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = category,
+                    color = if (selectedCategoryTab == index) White else categoryColor,
+                    fontWeight = if (selectedCategoryTab == index) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.clickable { selectedCategoryTab = index }
+                )
+            }
+        }
+    }
+}
+
 // Recommended section
 @Composable
 fun Recommended() {
-    Text(
-        text = "Recommended",
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 92.dp, bottom = 8.dp, start = 12.dp)
-    )
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Text(
+            text = "Recommended",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = titleColor,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = "Selengkapnya>",
+            fontSize = 16.sp,
+            color = mediumTextColor,
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+        )
+    }
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -262,18 +322,19 @@ fun CurrentLocation() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .padding(end = 16.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = "Location Icon",
+                tint = titleColor,
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "What's in Solo?",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = titleColor
             )
         }
     }
@@ -341,6 +402,8 @@ fun HomePageContent() {
         }
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                HomeTab()
+                Spacer(modifier = Modifier.height(16.dp))
                 Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
                 CurrentLocation()

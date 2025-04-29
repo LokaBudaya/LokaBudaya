@@ -9,13 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun FilterPage(){
+fun SearchPage(){
     Box (modifier = Modifier
         .fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
         Text(
-            text = "Filter Screen",
+            text = "Search Screen",
             style = MaterialTheme.typography.headlineLarge
         )
     }
