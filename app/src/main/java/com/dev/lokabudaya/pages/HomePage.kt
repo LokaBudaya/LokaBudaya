@@ -72,9 +72,11 @@ fun TopAdsCarousel(
     val virtualPageCount = 3000
     val startIndex = virtualPageCount / 2
     val pagerState = rememberPagerState(pageCount = { virtualPageCount })
+    
     LaunchedEffect(Unit) {
         pagerState.animateScrollToPage(startIndex)
     }
+    
     LaunchedEffect(pagerState) {
         delay(1000)
         while (true) {
@@ -87,14 +89,16 @@ fun TopAdsCarousel(
             }
         }
     }
-    Column(
-        modifier
+
+    Box(
+        modifier = modifier
             .defaultMinSize(minHeight = 300.dp)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) { page ->
             val actualPage = page % imageList.size
             val bannerText = when (actualPage) {
@@ -109,11 +113,9 @@ fun TopAdsCarousel(
                 "Festival Budaya Nusantara" -> "Jakarta, 12 Februari 2025\t\t\t\t\t09:00 WIB"
                 else -> ""
             }
+            
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(340.dp)
-                    .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                modifier = Modifier.fillMaxSize()
             ) {
                 Image(
                     painter = painterResource(id = imageList[actualPage]),
@@ -151,25 +153,26 @@ fun TopAdsCarousel(
                         fontSize = 12.sp
                     )
                 }
-                Row(
+            }
+        }
+        
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(imageList.size) { index ->
+                val isSelected = (pagerState.currentPage % imageList.size == index)
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 20.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    repeat(imageList.size) { index ->
-                        val isSelected = (actualPage == index)
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(if (isSelected) 8.dp else 8.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(
-                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
-                                )
+                        .padding(horizontal = 4.dp)
+                        .size(if (isSelected) 8.dp else 8.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
                         )
-                    }
-                }
+                )
             }
         }
     }
