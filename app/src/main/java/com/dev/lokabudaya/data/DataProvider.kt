@@ -12,12 +12,12 @@ object DataProvider {
     val eventList = listOf(
         EventItem(
             title = "Wayang Kulit",
-            imageRes = R.drawable.img_event,
+            imageRes = R.drawable.img_reogponorogo,
             rating = 4.5,
             category = "Pertunjukan Seni",
             location = "Surakarta",
             time = "16:00 WIB",
-            price = "Rp 90.000\n/Orang"
+            price = "90.000"
         ),
         EventItem(
             title = "Tari Saman",
@@ -26,7 +26,7 @@ object DataProvider {
             category = "Pertunjukan Seni",
             location = "Yogyakarta",
             time = "13:00 WIB",
-            price = "Rp 20.000\n/Orang"
+            price = "20.000"
         ),
         EventItem(
             title = "Tari Tor-tor",
@@ -35,7 +35,7 @@ object DataProvider {
             category = "Pertunjukan Seni",
             location = "Purwokerto",
             time = "09:00 WIB",
-            price = "Rp 35.000\n/Orang"
+            price = "35.000"
         )
     )
 }
