@@ -84,7 +84,7 @@ fun TopAdsCarousel(
             if (!pagerState.isScrollInProgress) {
                 pagerState.animateScrollToPage(
                     pagerState.currentPage + 1,
-                    animationSpec = tween(durationMillis = 1000)
+                    animationSpec = tween(durationMillis = 350)
                 )
             }
         }
