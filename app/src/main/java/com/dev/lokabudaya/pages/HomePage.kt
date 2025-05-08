@@ -66,15 +66,17 @@ fun TopAdsCarousel(
 ) {
     val imageList = listOf(
         R.drawable.img_reogponorogo,
-        R.drawable.img_reogponorogo,
+        R.drawable.img_event,
         R.drawable.img_reogponorogo
     )
     val virtualPageCount = 3000
     val startIndex = virtualPageCount / 2
     val pagerState = rememberPagerState(pageCount = { virtualPageCount })
+    
     LaunchedEffect(Unit) {
         pagerState.animateScrollToPage(startIndex)
     }
+    
     LaunchedEffect(pagerState) {
         delay(1000)
         while (true) {
@@ -82,19 +84,21 @@ fun TopAdsCarousel(
             if (!pagerState.isScrollInProgress) {
                 pagerState.animateScrollToPage(
                     pagerState.currentPage + 1,
-                    animationSpec = tween(durationMillis = 1000)
+                    animationSpec = tween(durationMillis = 350)
                 )
             }
         }
     }
-    Column(
-        modifier
+
+    Box(
+        modifier = modifier
             .defaultMinSize(minHeight = 300.dp)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) { page ->
             val actualPage = page % imageList.size
             val bannerText = when (actualPage) {
@@ -109,26 +113,29 @@ fun TopAdsCarousel(
                 "Festival Budaya Nusantara" -> "Jakarta, 12 Februari 2025\t\t\t\t\t09:00 WIB"
                 else -> ""
             }
+            
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(340.dp)
-                    .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painter = painterResource(id = imageList[actualPage]),
-                    contentDescription = "Top ads banner",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(300.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = imageList[actualPage]),
+                        contentDescription = "Top ads banner",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 Image(
                     painter = painterResource(R.drawable.img_gradient),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .height(120.dp)
-                        .offset(y = 10.dp)
+                        .height(276.dp)
                 )
                 Column(
                     modifier = Modifier
@@ -151,25 +158,26 @@ fun TopAdsCarousel(
                         fontSize = 12.sp
                     )
                 }
-                Row(
+            }
+        }
+        
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(imageList.size) { index ->
+                val isSelected = (pagerState.currentPage % imageList.size == index)
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 20.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    repeat(imageList.size) { index ->
-                        val isSelected = (actualPage == index)
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(if (isSelected) 8.dp else 8.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(
-                                    if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
-                                )
+                        .padding(horizontal = 4.dp)
+                        .size(if (isSelected) 8.dp else 8.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
                         )
-                    }
-                }
+                )
             }
         }
     }
@@ -407,7 +415,7 @@ fun ListEventCard(event: EventItem) {
             Card(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(16.dp)
+                    .padding(12.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
@@ -416,26 +424,45 @@ fun ListEventCard(event: EventItem) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(horizontal = 6.dp, vertical = 6.dp)
+                    modifier = Modifier.padding(12.dp)
                 ) {
-                    Text(
-                        text = event.title,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = event.title,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "Rp. ${event.price}",
+                                color = Color(0xFFF57C00),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = "/orang",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_location),
+                            painter = painterResource(id = R.drawable.ic_star),
                             contentDescription = null,
-                            tint = Color(0xFFFFC107),
+                            tint = Color(0xFFFFCC00),
                             modifier = Modifier.size(12.dp)
                         )
                         Text(
                             text = event.rating.toString(),
                             color = Color.Black,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             modifier = Modifier.padding(start = 2.dp, end = 6.dp)
                         )
                         Text(
@@ -444,55 +471,50 @@ fun ListEventCard(event: EventItem) {
                             fontSize = 12.sp,
                             modifier = Modifier
                                 .background(Color(0xFFEEF6FF), RoundedCornerShape(6.dp))
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(
-                            text = event.price,
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_location),
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = event.location,
-                            color = Color.Black,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_location),
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = event.time,
-                            color = Color.Black,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_location),
+                                    contentDescription = null,
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Text(
+                                    text = event.location,
+                                    color = Color.Black,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_location),
+                                    contentDescription = null,
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Text(
+                                    text = event.time,
+                                    color = Color.Black,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF3B82F6))
+                                .background(Color(0xFF222222))
                                 .clickable { }
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                                .padding(horizontal = 20.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = "Buy Now",
