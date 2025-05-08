@@ -92,7 +92,7 @@ fun TopAdsCarousel(
 
     Box(
         modifier = modifier
-            .defaultMinSize(minHeight = 300.dp)
+            .height(300.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
     ) {
@@ -118,25 +118,22 @@ fun TopAdsCarousel(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Box(modifier = Modifier
-                    .fillMaxSize()
-                    .fillMaxWidth()
-                    .height(300.dp)
+                    .fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
                     Image(
                         painter = painterResource(id = imageList[actualPage]),
                         contentDescription = "Top ads banner",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
-                    )
+                        )
+                    Image(
+                        painter = painterResource(R.drawable.img_gradient),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                        )
                 }
-                Image(
-                    painter = painterResource(R.drawable.img_gradient),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(276.dp)
-                )
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
