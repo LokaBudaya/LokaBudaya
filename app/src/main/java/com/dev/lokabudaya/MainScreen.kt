@@ -91,9 +91,8 @@ fun MainScreen() {
 fun BottomNavigationBar(
     navController: NavController
 ) {
-    val selectedNavigationIndex = rememberSaveable {
-        mutableIntStateOf(0)
-    }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     val navigationItems = listOf(
         NavigationItem(
@@ -121,12 +120,16 @@ fun BottomNavigationBar(
     NavigationBar(
         containerColor = Color.White
     ) {
-        navigationItems.forEachIndexed { index, item ->
+        navigationItems.forEach { item ->
             NavigationBarItem(
-                selected = selectedNavigationIndex.intValue == index,
+                selected = currentRoute == item.route,
                 onClick = {
-                    selectedNavigationIndex.intValue = index
-                    navController.navigate(item.route)
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 },
                 icon = {
                     Icon(
@@ -139,7 +142,6 @@ fun BottomNavigationBar(
                     selectedIconColor = Color.Black,
                     indicatorColor = Color.Transparent
                 )
-
             )
         }
     }
