@@ -1,6 +1,7 @@
 package com.dev.lokabudaya.pages.Ticket
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.bigTextColor
 
+// Main Screen
 @Composable
-fun TicketPage(){
+fun TicketPage() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -31,24 +33,39 @@ fun TicketPage(){
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        HeaderSection()
+    }
+}
+
+// Header Section
+@Composable
+fun HeaderSection() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = "My Orders",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = bigTextColor
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = "Search",
-                tint = bigTextColor,
-                modifier = Modifier.size(20.dp)
+                )
             )
         }
+        SearchIcon()
     }
+}
+
+// Search Icon Component
+@Composable
+fun SearchIcon() {
+    Icon(
+        painter = painterResource(id = R.drawable.ic_search),
+        contentDescription = "Search",
+        tint = bigTextColor,
+        modifier = Modifier.size(20.dp)
+    )
 }

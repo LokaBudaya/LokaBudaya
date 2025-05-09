@@ -1,6 +1,7 @@
 package com.dev.lokabudaya.pages.Search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,8 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.ui.theme.bigTextColor
 
+// Main Screen
 @Composable
-fun SearchPage(){
+fun SearchPage() {
     var searchQuery by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -40,27 +42,49 @@ fun SearchPage(){
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        HeaderSection()
+        SearchBarSection(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it }
+        )
+    }
+}
+
+// Header Section
+@Composable
+fun HeaderSection() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = "Explore",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = bigTextColor
-                ),
-                modifier = Modifier.weight(1f)
+                )
             )
         }
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
+// Search Bar Section
+@Composable
+fun SearchBarSection(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    SearchBar(
+        query = query,
+        onQueryChange = onQueryChange,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+// Search Bar Component
 @Composable
 fun SearchBar(
     query: String,
@@ -83,7 +107,11 @@ fun SearchBar(
             unfocusedIndicatorColor = Color.Transparent
         ),
         placeholder = {
-            Text("Search Your Destination..", color = Color.Gray, fontSize = 12.sp)
+            Text(
+                text = "Search Your Destination..",
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
         },
         leadingIcon = {
             Icon(
