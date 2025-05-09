@@ -2,6 +2,7 @@ package com.dev.lokabudaya.data
 
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Home.EventItem
+import com.dev.lokabudaya.pages.Book.WishlistItem
 
 object DataProvider {
     val recommendedItems = listOf(
@@ -38,4 +39,12 @@ object DataProvider {
             price = "35.000"
         )
     )
+    val wishlistItems = List(7) {
+        WishlistItem(
+            title = "Mangkunegaran",
+            subtitle = "istana resmi Kadipaten Mangkunegaran",
+            location = "Surakarta",
+            price = "Rp 30.000 - Rp 50.000"
+        )
+    }
 }
