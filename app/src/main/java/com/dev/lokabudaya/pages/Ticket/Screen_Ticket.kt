@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages
+package com.dev.lokabudaya.pages.Ticket
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

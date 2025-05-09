@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages
+package com.dev.lokabudaya.pages.Home
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +16,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -45,9 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
@@ -378,6 +383,15 @@ fun ListEvent() {
 }
 
 @Composable
+@Preview
+fun PreviewListEvent() {
+    LokaBudayaTheme {
+        val event = DataProvider.eventList[0]
+        ListEventCard(event)
+    }
+}
+
+@Composable
 fun ListEventCard(event: EventItem) {
     Card(
         modifier = Modifier
@@ -390,7 +404,8 @@ fun ListEventCard(event: EventItem) {
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
         ) {
             Image(
                 painter = painterResource(id = event.imageRes),
@@ -402,7 +417,6 @@ fun ListEventCard(event: EventItem) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
-                    .align(Alignment.BottomCenter)
                     .background(
                         brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                             colors = listOf(Color.Transparent, Color(0xCC222222))
@@ -411,7 +425,6 @@ fun ListEventCard(event: EventItem) {
             )
             Card(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .padding(12.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -423,59 +436,77 @@ fun ListEventCard(event: EventItem) {
                 Column(
                     modifier = Modifier.padding(12.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Top,
                         modifier = Modifier.fillMaxWidth()
                     ) {
+                        // title
                         Text(
                             text = event.title,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
+                            fontSize = 24.sp,
                             modifier = Modifier.weight(1f)
                         )
-                        Column(horizontalAlignment = Alignment.End) {
+                        // price
+                        Box(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .height(36.dp),
+                            contentAlignment = Alignment.TopEnd
+                        ) {
                             Text(
                                 text = "Rp. ${event.price}",
-                                color = Color(0xFFF57C00),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                color = Color(0xFF2C4CA5),
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 20.sp,
+                                modifier = Modifier
                             )
                             Text(
                                 text = "/orang",
                                 color = Color.Gray,
-                                fontSize = 12.sp
+                                fontSize = 16.sp,
+                                modifier = Modifier
+                                    .graphicsLayer {
+                                        translationY = 48f
+                                    }
                             )
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        // star
                         Icon(
                             painter = painterResource(id = R.drawable.ic_star),
                             contentDescription = null,
                             tint = Color(0xFFFFCC00),
                             modifier = Modifier.size(12.dp)
                         )
+                        // rating
                         Text(
                             text = event.rating.toString(),
                             color = Color.Black,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 2.dp, end = 6.dp)
                         )
+                        // category
                         Text(
                             text = event.category,
-                            color = Color(0xFF3B82F6),
+                            color = Color(0xFF00B6EA),
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .background(Color(0xFFEEF6FF), RoundedCornerShape(6.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .background(Color(0xFFC3F2FF), RoundedCornerShape(6.dp))
+                                .wrapContentSize()
+                                .padding(horizontal = 8.dp)
                         )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
+                        Column (
+                        ){
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_location),
@@ -490,9 +521,12 @@ fun ListEventCard(event: EventItem) {
                                     modifier = Modifier.padding(start = 4.dp)
                                 )
                             }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                            ){
                                 Icon(
-                                    painter = painterResource(id = R.drawable.ic_location),
+                                    painter = painterResource(id = R.drawable.ic_time),
                                     contentDescription = null,
                                     tint = Color.Gray,
                                     modifier = Modifier.size(12.dp)
@@ -501,17 +535,18 @@ fun ListEventCard(event: EventItem) {
                                     text = event.time,
                                     color = Color.Black,
                                     fontSize = 12.sp,
-                                    modifier = Modifier.padding(start = 4.dp)
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.weight(1f))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF222222))
+                                .background(Color(0xFF9D8C3A))
+                                .wrapContentSize()
+                                .padding(horizontal = 20.dp, vertical = 4.dp)
                                 .clickable { }
-                                .padding(horizontal = 20.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = "Buy Now",

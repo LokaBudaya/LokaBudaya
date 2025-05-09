@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages
+package com.dev.lokabudaya.pages.Profile
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

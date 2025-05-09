@@ -1,7 +1,7 @@
 package com.dev.lokabudaya.data
 
 import com.dev.lokabudaya.R
-import com.dev.lokabudaya.pages.EventItem
+import com.dev.lokabudaya.pages.Home.EventItem
 
 object DataProvider {
     val recommendedItems = listOf(

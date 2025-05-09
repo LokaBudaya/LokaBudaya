@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages
+package com.dev.lokabudaya.pages.Book
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme

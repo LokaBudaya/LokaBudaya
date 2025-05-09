@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages
+package com.dev.lokabudaya.pages.Search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

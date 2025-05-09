@@ -11,8 +11,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -23,11 +21,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
-import com.dev.lokabudaya.pages.BookPage
-import com.dev.lokabudaya.pages.HomePage
-import com.dev.lokabudaya.pages.ProfilePage
-import com.dev.lokabudaya.pages.SearchPage
-import com.dev.lokabudaya.pages.TicketPage
+import com.dev.lokabudaya.pages.Book.BookPage
+import com.dev.lokabudaya.pages.Home.HomePage
+import com.dev.lokabudaya.pages.Profile.ProfilePage
+import com.dev.lokabudaya.pages.Search.SearchPage
+import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
 import com.dev.lokabudaya.ui.theme.navColor
