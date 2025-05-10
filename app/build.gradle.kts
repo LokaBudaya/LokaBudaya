@@ -42,6 +42,7 @@ android {
 dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.4")
     implementation("androidx.core:core-splashscreen:1.0.0-beta02")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

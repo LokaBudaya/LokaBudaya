@@ -81,7 +81,6 @@ fun TopAdsCarousel(
     LaunchedEffect(Unit) {
         pagerState.animateScrollToPage(startIndex)
     }
-    
     LaunchedEffect(pagerState) {
         delay(1000)
         while (true) {
