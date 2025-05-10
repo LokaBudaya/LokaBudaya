@@ -563,21 +563,20 @@ fun ListEventCard(event: EventItem) {
 fun Blog() {
     Column { Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
     ){
         Text(
             text = "Blog Journeys",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = bigTextColor,
-            modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
             text = "Selengkapnya >",
             fontSize = 16.sp,
-            color = mediumTextColor,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
+            color = mediumTextColor
         )
     }
         LazyRow(
@@ -594,7 +593,7 @@ fun Blog() {
 fun BlogCard(title: String, desc: String, imageId: Int) {
     Card(
         modifier = Modifier
-            .width(336.dp)
+            .width(320.dp)
             .height(240.dp)
             .padding(2.dp, 12.dp)
             .shadow(2.dp, shape = RoundedCornerShape(12.dp), clip = false)
@@ -616,7 +615,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                         alignment = Alignment.BottomEnd
                     )
                     .fillMaxWidth(4f/5f)
-                    .fillMaxHeight(2f/3f)
+                    .fillMaxHeight(2.3f/3f)
             ) {
                 Box(
                     modifier = Modifier
@@ -646,7 +645,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                             text = desc,
                             fontSize = 12.sp,
                             lineHeight = 12.sp,
-                            fontWeight = FontWeight.ExtraLight,
+                            fontWeight = FontWeight.Light,
                             textAlign = TextAlign.Justify
                         )
                     }
