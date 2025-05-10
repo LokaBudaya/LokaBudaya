@@ -10,25 +10,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
-fun ProfilePage() {
+fun ProfilePage(userID:String) {    // ambil argumen userID
+    val interactionSource = remember {MutableInteractionSource()}
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,137 +42,105 @@ fun ProfilePage() {
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "My Profile",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = bigTextColor
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_setting),
-                contentDescription = "Settings",
-                tint = bigTextColor
-            )
-        }
+
+        ProfileTopBar(interactionSource)
+
         Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.img_banner),
-                contentDescription = "Profile Picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = "Admin",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF1A2758)
-                )
-                Text(
-                    text = "@admin",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(
-                painter = painterResource(id = R.drawable.ic_edit),
-                contentDescription = "Edit",
-                tint = bigTextColor
-            )
-        }
+
+        ProfileTag(interactionSource)
+
         Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(Color(0xFFF3E6FF), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "My Blog",
-                            color = Color(0xFFB388FF),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_location),
-//                            contentDescription = "Blog Icon",
-//                            tint = Color(0xFFB388FF),
-//                            modifier = Modifier.size(18.dp)
-//                        )
-                    }
-                    Text(
-                        text = "0",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        color = Color(0xFFB388FF)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(Color(0xFFE3E6FF), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "My Trip",
-                            color = Color(0xFFB3B8FF),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_location),
-//                            contentDescription = "Trip Icon",
-//                            tint = Color(0xFFB3B8FF),
-//                            modifier = Modifier.size(18.dp)
-//                        )
-                    }
-                    Text(
-                        text = "0",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
-                        color = Color(0xFFB3B8FF)
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        ProfileMenuItem("Activity", "Pantau aktivitas harian")
-        ProfileMenuItem("Payment", "Cek pembayaran tiket")
-        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi")
-        ProfileMenuItem("Privacy", "Privasi aplikasi dan data")
-        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi")
-        ProfileMenuItem("Log out", "Keluar dari sesi saat ini")
+
+        ProfileMyBlogMyTrip(24, 2, interactionSource)
+
+        Spacer(modifier = Modifier.height(12.dp))
+        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource)
+        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource)
+        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource)
+        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource)
+        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource)
+        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource)
     }
 }
 
 @Composable
-fun ProfileMenuItem(title: String, subtitle: String) {
+fun ProfileTopBar(interactionSource: MutableInteractionSource) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "My Profile",
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = bigTextColor
+            ),
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_setting),
+            contentDescription = "Settings",
+            tint = bigTextColor,
+            modifier = Modifier
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = {}
+                )
+        )
+    }
+}
+
+@Composable
+fun ProfileTag(interactionSource: MutableInteractionSource) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.img_banner),
+            //if (userID.profilePict != null){
+            // painterResource(userID.profilePict)
+            // else painterResource(id = R.drawble.ic_img_banner
+            contentDescription = "Profile Picture",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+//                  text = userID.name
+                text = "Admin",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color(0xFF1A2758)
+            )
+            Text(
+//                  text = userID.email
+                text = "@admin",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            painter = painterResource(id = R.drawable.ic_edit),
+            contentDescription = "Edit",
+            tint = bigTextColor,
+            modifier = Modifier
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = {}
+                )
+        )
+    }
+}
+
+@Composable
+fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource) {
     val imageRes = when (title) {
         "Activity" -> R.drawable.ic_activity
         "Payment" -> R.drawable.ic_payment
@@ -177,13 +150,18 @@ fun ProfileMenuItem(title: String, subtitle: String) {
         "Log out" -> R.drawable.ic_logout
         else -> R.drawable.ic_activity
     }
-    Column {
+    Column (
+        modifier = Modifier
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = {}
+            )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp)
-                .padding(start = 12.dp)
-                .clickable { },
+                .padding(vertical = 12.dp, horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -213,5 +191,143 @@ fun ProfileMenuItem(title: String, subtitle: String) {
             )
         }
         HorizontalDivider(thickness = 2.dp, color = Color(0xFFE0E0E0))
+    }
+}
+
+@Composable
+fun ProfileMyBlogMyTrip(blogCount: Int, tripCount: Int, interactionSource: MutableInteractionSource) {
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(124.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        // Blog
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(
+                    bottomStart = 16.dp,
+                    topStart = 16.dp
+                ))
+                .width(144.dp)
+                .wrapContentWidth()
+                .fillMaxHeight()
+                .background(Color(0xFFEDC3EF)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Image(
+                painter = painterResource(R.drawable.img_profile_myblog_background),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Column (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "My Blog",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable (
+                                onClick = {},
+                                interactionSource = interactionSource,
+                                indication = null
+                            )
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_profile_myblog_button),
+                            contentDescription = null
+                        )
+                    }
+                }
+                Text(
+                    text = blogCount.toString(),
+                    fontSize = 56.sp,
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+        
+        // My Trip
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(
+                    bottomEnd = 16.dp,
+                    topEnd = 16.dp
+                ))
+                .width(144.dp)
+                .wrapContentWidth()
+                .fillMaxHeight()
+                .background(Color(0xFFC5C3EF)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Image(
+                painter = painterResource(R.drawable.img_profile_mytrip_background),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Column (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "My Trip",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 20.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable (
+                                onClick = {},
+                                interactionSource = interactionSource,
+                                indication = null
+                            )
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_profile_mytrip_button),
+                            contentDescription = null
+                        )
+                    }
+                }
+                Text(
+                    text = tripCount.toString(),
+                    fontSize = 56.sp,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun Previewer(){
+    LokaBudayaTheme {
+        ProfilePage("blabla")
     }
 }

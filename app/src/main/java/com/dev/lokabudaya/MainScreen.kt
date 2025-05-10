@@ -73,7 +73,7 @@ fun MainScreen() {
                     BookPage()
                 }
                 composable(route = ScreenRoute.Profile.route) {
-                    ProfilePage()
+                    ProfilePage("blablala")
                 }
             }
         NavHost(
