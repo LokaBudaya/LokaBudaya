@@ -3,6 +3,7 @@ package com.dev.lokabudaya.data
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Home.EventItem
 import com.dev.lokabudaya.pages.Book.WishlistItem
+import com.dev.lokabudaya.pages.Home.BlogCardClass
 
 object DataProvider {
     val recommendedItems = listOf(
@@ -47,4 +48,38 @@ object DataProvider {
             price = "Rp 30.000 - Rp 50.000"
         )
     }
+
+    val blogCards = listOf(
+        BlogCardClass(
+            title = "My Blog #1",
+            desc = "ini blog pertamaku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        ),
+        BlogCardClass(
+            title = "My Blog #2",
+            desc = "ini blog keduaku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        ),
+        BlogCardClass(
+            title = "My Blog #3",
+            desc = "ini blog ketigaku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        ),
+        BlogCardClass(
+            title = "My Blog #4",
+            desc = "ini blog keempatku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        ),
+        BlogCardClass(
+            title = "My Blog #5",
+            desc = "ini blog kelimaku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        ),
+        BlogCardClass(
+            title = "My Blog #6",
+            desc = "ini blog keenamku ges, salam kenal semuanya!!",
+            imageId = R.drawable.img_event
+        )
+
+    )
 }

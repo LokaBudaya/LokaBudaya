@@ -1,14 +1,17 @@
 package com.dev.lokabudaya.pages.Home
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,10 +49,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.dev.lokabudaya.data.DataProvider
@@ -382,15 +389,6 @@ fun ListEvent() {
 }
 
 @Composable
-@Preview
-fun PreviewListEvent() {
-    LokaBudayaTheme {
-        val event = DataProvider.eventList[0]
-        ListEventCard(event)
-    }
-}
-
-@Composable
 fun ListEventCard(event: EventItem) {
     Card(
         modifier = Modifier
@@ -563,7 +561,7 @@ fun ListEventCard(event: EventItem) {
 // Blog section
 @Composable
 fun Blog() {
-    Row(
+    Column { Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ){
@@ -582,46 +580,117 @@ fun Blog() {
                 .padding(bottom = 8.dp)
         )
     }
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(DataProvider.recommendedItems) { item ->
-            BlogCard(title = item)
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(DataProvider.blogCards) { blogCard ->
+                BlogCard(title = blogCard.title, desc = blogCard.desc, imageId = blogCard.imageId)
+            }
         }
     }
 }
 
 @Composable
-fun BlogCard(title: String) {
-    val imageRes = when (title) {
-        "Blog 1" -> R.drawable.img_people
-        "Blog 2" -> R.drawable.img_people
-        "Blog 3" -> R.drawable.img_people
-        else -> R.drawable.img_people
-    }
+fun BlogCard(title: String, desc: String, imageId: Int) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .width(296.dp)
-            .height(232.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Gray
-        )
+            .width(336.dp)
+            .height(240.dp)
+            .padding(2.dp, 12.dp)
+            .shadow(2.dp, shape = RoundedCornerShape(12.dp), clip = false)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = imageRes),
+                painter = painterResource(id = imageId),
                 contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxSize(),
-                contentScale = ContentScale.Crop
+                    .fillMaxSize()
+            )
+            Box(
+                modifier = Modifier
+                    .align(
+                        alignment = Alignment.BottomEnd
+                    )
+                    .fillMaxWidth(4f/5f)
+                    .fillMaxHeight(2f/3f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(
+                            alignment = Alignment.BottomEnd
+                        )
+                        .fillMaxWidth(3.2f/4f)
+                        .fillMaxHeight(3f/4f)
+                        .background(White)
+                        .padding(vertical = 12.dp)
+                        .padding(start = 36.dp, end = 20.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Column {
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            lineHeight = 16.sp
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .height(8.dp)
+                        )
+                        Text(
+//                            text = desc,
+                            text = desc,
+                            fontSize = 12.sp,
+                            lineHeight = 12.sp,
+                            fontWeight = FontWeight.ExtraLight,
+                            textAlign = TextAlign.Justify
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .align(
+                            alignment = Alignment.TopStart
+                        )
+                        .size(84.dp)
+                        .clip(CircleShape)
+                        .border(
+                            border = BorderStroke(3.dp, Color.White),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        // painter = painterResource(id = userId.profilepict)
+                        painter = painterResource(id = R.drawable.img_people),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(4.dp, White, shape = RoundedCornerShape(12.dp))
             )
         }
+
+    }
+}
+
+
+@Composable
+@Preview
+fun PreviewListEvent() {
+    LokaBudayaTheme {
+        Blog()
     }
 }
 
@@ -664,4 +733,11 @@ data class EventItem(
     val location: String,
     val time: String,
     val price: String
+)
+
+data class BlogCardClass(
+    // val userId : UserId //object UserId -> ada profile pict, sama username
+    val title: String,
+    val desc: String,
+    val imageId: Int
 )
