@@ -1,6 +1,7 @@
 package com.dev.lokabudaya.pages.Search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -43,6 +45,7 @@ fun SearchPage() {
     ) {
         Spacer(modifier = Modifier.height(32.dp))
         HeaderSection()
+        Spacer(modifier = Modifier.height(16.dp))
         SearchBarSection(
             query = searchQuery,
             onQueryChange = { searchQuery = it }
@@ -96,7 +99,9 @@ fun SearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(2.dp, Color.Black, RoundedCornerShape(12.dp)),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
@@ -113,13 +118,14 @@ fun SearchBar(
                 fontSize = 12.sp
             )
         },
-        leadingIcon = {
+        trailingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search",
-                tint = bigTextColor
+                tint = Color.Black
             )
         },
-        singleLine = true
+        singleLine = true,
+        textStyle = LocalTextStyle.current.copy(fontSize = 12.sp)
     )
 }
