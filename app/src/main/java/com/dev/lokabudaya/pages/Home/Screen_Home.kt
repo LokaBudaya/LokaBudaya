@@ -1,11 +1,19 @@
 package com.dev.lokabudaya.pages.Home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +61,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +74,7 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import kotlin.math.abs
 
 @Composable
 fun HomePage(modifier: Modifier) {
@@ -81,37 +91,62 @@ fun TopAdsCarousel(
         R.drawable.img_event,
         R.drawable.img_reogponorogo
     )
-    val virtualPageCount = 3000
-    val startIndex = virtualPageCount / 2
-    val pagerState = rememberPagerState(pageCount = { virtualPageCount })
-    
-    LaunchedEffect(Unit) {
-        pagerState.animateScrollToPage(startIndex)
-    }
-    LaunchedEffect(pagerState) {
-        delay(1000)
-        while (true) {
+
+    var currentPage by remember { mutableStateOf(0) }
+
+    var autoSlideEnabled by remember { mutableStateOf(true) }
+
+    LaunchedEffect(autoSlideEnabled, currentPage) {
+        if (autoSlideEnabled) {
             delay(5000)
-            if (!pagerState.isScrollInProgress) {
-                pagerState.animateScrollToPage(
-                    pagerState.currentPage + 1,
-                    animationSpec = tween(durationMillis = 350)
-                )
-            }
+            currentPage = (currentPage + 1) % imageList.size
         }
     }
+
+    val dragState = rememberDraggableState { }
+    var dragOffset by remember { mutableStateOf(0f) }
+    val dragThreshold = 80f
 
     Box(
         modifier = modifier
             .height(300.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragStart = {
+                        autoSlideEnabled = false
+                        dragOffset = 0f
+                    },
+                    onDragEnd = {
+                        if (abs(dragOffset) > dragThreshold) {
+                            if (dragOffset > 0) {
+                                currentPage = (currentPage - 1 + imageList.size) % imageList.size
+                            } else {
+                                currentPage = (currentPage + 1) % imageList.size
+                            }
+                        }
+                        autoSlideEnabled = true
+                        dragOffset = 0f
+                    },
+                    onDragCancel = {
+                        autoSlideEnabled = true
+                        dragOffset = 0f
+                    },
+                    onHorizontalDrag = { _, dragAmount ->
+                        dragOffset += dragAmount
+                    }
+                )
+            }
     ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
+        AnimatedContent(
+            targetState = currentPage,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 500)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 500))
+            }
         ) { page ->
-            val actualPage = page % imageList.size
+            val actualPage = page
             val bannerText = when (actualPage) {
                 0 -> "Reog\nPonorogo"
                 1 -> "Festival Tari Ratoh Jaroe"
@@ -124,7 +159,6 @@ fun TopAdsCarousel(
                 "Festival Budaya Nusantara" -> "Jakarta, 12 Februari 2025\t\t\t\t\t09:00 WIB"
                 else -> ""
             }
-            
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -137,13 +171,13 @@ fun TopAdsCarousel(
                         contentDescription = "Top ads banner",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
-                        )
+                    )
                     Image(
                         painter = painterResource(R.drawable.img_gradient),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
-                        )
+                    )
                 }
                 Column(
                     modifier = Modifier
@@ -168,7 +202,6 @@ fun TopAdsCarousel(
                 }
             }
         }
-        
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -176,15 +209,19 @@ fun TopAdsCarousel(
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(imageList.size) { index ->
-                val isSelected = (pagerState.currentPage % imageList.size == index)
+                val isSelected = currentPage == index
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)
-                        .size(if (isSelected) 8.dp else 8.dp)
+                        .size(8.dp)
                         .clip(RoundedCornerShape(50))
                         .background(
                             if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
                         )
+                        .clickable {
+                            currentPage = index
+                            autoSlideEnabled = true
+                        }
                 )
             }
         }
