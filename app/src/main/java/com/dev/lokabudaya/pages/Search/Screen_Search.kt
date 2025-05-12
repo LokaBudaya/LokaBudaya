@@ -2,6 +2,7 @@ package com.dev.lokabudaya.pages.Search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -37,19 +39,24 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 @Composable
 fun SearchPage() {
     var searchQuery by remember { mutableStateOf("") }
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        HeaderSection()
-        Spacer(modifier = Modifier.height(16.dp))
-        SearchBarSection(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it }
-        )
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
+            HeaderSection()
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            SearchBarSection(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it }
+            )
+        }
     }
 }
 
@@ -99,7 +106,7 @@ fun SearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .height(52.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(2.dp, Color.Black, RoundedCornerShape(12.dp)),
         colors = TextFieldDefaults.colors(
@@ -126,6 +133,6 @@ fun SearchBar(
             )
         },
         singleLine = true,
-        textStyle = LocalTextStyle.current.copy(fontSize = 12.sp)
+        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
     )
 }
