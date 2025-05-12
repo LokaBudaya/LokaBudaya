@@ -4,12 +4,25 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Home.EventItem
 import com.dev.lokabudaya.pages.Book.WishlistItem
 import com.dev.lokabudaya.pages.Home.BlogCardClass
+import com.dev.lokabudaya.pages.Home.Place
 
 object DataProvider {
-    val recommendedItems = listOf(
-        "Mangkunegaran",
-        "Candi Borobudur",
-        "Pasar Gede"
+    val recommendedPlaces = listOf(
+        Place(
+            title = "Mangkunegaran",
+            location = "Surakarta",
+            imageRes = R.drawable.img_mangkunegaran
+        ),
+        Place(
+            title = "Candi Borobudur",
+            location = "Magelang",
+            imageRes = R.drawable.img_borobudur
+        ),
+        Place(
+            title = "Pasar Gede",
+            location = "Surakarta",
+            imageRes = R.drawable.img_pasargede
+        )
     )
     val eventList = listOf(
         EventItem(

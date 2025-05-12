@@ -1,12 +1,10 @@
 package com.dev.lokabudaya.pages.Home
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,8 +30,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -58,11 +54,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -285,27 +279,16 @@ fun Recommended() {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        items(DataProvider.recommendedItems) { item ->
-            RecommendedCard(title = item)
+        items(DataProvider.recommendedPlaces) { place ->
+            RecommendedCard(place = place)
         }
     }
 }
 
 @Composable
-fun RecommendedCard(title: String) {
+fun RecommendedCard(place: Place) {
     val checkLove = remember { mutableStateOf(true) }
-    val imageRes = when (title) {
-        "Mangkunegaran" -> R.drawable.img_mangkunegaran
-        "Candi Borobudur" -> R.drawable.img_borobudur
-        "Pasar Gede" -> R.drawable.img_pasargede
-        else -> R.drawable.img_banner
-    }
-    val locationRes = when (title) {
-        "Mangkunegaran" -> "Surakarta"
-        "Candi Borobudur" -> "Magelang"
-        "Pasar Gede" -> "Surakarta"
-        else -> ""
-    }
+
     Card(
         modifier = Modifier
             .width(168.dp)
@@ -322,7 +305,7 @@ fun RecommendedCard(title: String) {
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = imageRes),
+                painter = painterResource(id = place.imageRes),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -342,7 +325,7 @@ fun RecommendedCard(title: String) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = title,
+                    text = place.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = White,
@@ -360,7 +343,7 @@ fun RecommendedCard(title: String) {
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = locationRes,
+                        text = place.location,
                         color = White,
                         fontSize = 10.sp,
                         modifier = Modifier.weight(1f)
@@ -721,7 +704,6 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
     }
 }
 
-
 @Composable
 @Preview
 fun PreviewListEvent() {
@@ -760,6 +742,12 @@ fun HomePageContent() {
         }
     }
 }
+
+data class Place(
+    val title: String,
+    val location: String,
+    val imageRes: Int
+)
 
 data class EventItem(
     val title: String,
