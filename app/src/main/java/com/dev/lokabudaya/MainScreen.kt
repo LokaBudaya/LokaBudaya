@@ -69,7 +69,7 @@ fun MainScreen() {
                     SearchPage()
                 }
                 composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage()
+                    TicketPage(navController = navController)
                 }
                 composable(route = ScreenRoute.Book.route) {
                     BookPage()
