@@ -23,6 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Auth.LoginPage
+import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
@@ -33,7 +36,7 @@ import com.dev.lokabudaya.ui.theme.fabColor
 import com.dev.lokabudaya.ui.theme.navColor
 
 @Composable
-fun MainScreen() {
+fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -57,25 +60,35 @@ fun MainScreen() {
                 }
             }
         },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            if (currentRoute != ScreenRoute.Login.route && currentRoute != ScreenRoute.Signup.route) {
+                BottomNavigationBar(navController)
+            }
+        }
     ) { innerPadding ->
 
         val graph =
-            navController.createGraph(startDestination = ScreenRoute.Home.route) {
+            navController.createGraph(startDestination = ScreenRoute.Login.route) {
+                composable(route = ScreenRoute.Login.route) {
+                    LoginPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Signup.route) {
+                    SignupPage(modifier, navController, authViewModel)
+                }
                 composable(route = ScreenRoute.Home.route) {
-                    HomePage(modifier = Modifier)
+                    HomePage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Search.route) {
-                    SearchPage()
+                    SearchPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage(navController = navController)
+                    TicketPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Book.route) {
-                    BookPage()
+                    BookPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Profile.route) {
-                    ProfilePage("blablala")
+                    ProfilePage(modifier, navController, authViewModel)
                 }
             }
         NavHost(

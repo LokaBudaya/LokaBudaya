@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,13 +28,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
-fun ProfilePage(userID:String) {    // ambil argumen userID
+fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {    // ambil argumen userID
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
     val interactionSource = remember {MutableInteractionSource()}
     Column(
         modifier = Modifier
@@ -321,13 +334,5 @@ fun ProfileMyBlogMyTrip(blogCount: Int, tripCount: Int, interactionSource: Mutab
                 )
             }
         }
-    }
-}
-
-@Composable
-@Preview
-fun Previewer(){
-    LokaBudayaTheme {
-        ProfilePage("blabla")
     }
 }

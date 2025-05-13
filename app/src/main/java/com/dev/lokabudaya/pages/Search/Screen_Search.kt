@@ -36,7 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,15 +50,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 // Main Screen
 @Composable
-fun SearchPage() {
+fun SearchPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
     var searchQuery by remember { mutableStateOf("") }
     Column(
         modifier = Modifier

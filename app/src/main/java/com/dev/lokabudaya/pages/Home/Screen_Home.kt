@@ -47,6 +47,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,7 +62,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
@@ -71,7 +75,15 @@ import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import kotlin.math.abs
 
 @Composable
-fun HomePage(modifier: Modifier) {
+fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
     HomePageContent()
 }
 
