@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
@@ -76,15 +77,15 @@ import kotlin.math.abs
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-//    val authState = authViewModel.authState.observeAsState()
-//
-//    LaunchedEffect(authState.value) {
-//        when(authState.value){
-//            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
-//            else -> Unit
-//        }
-//    }
-    HomePageContent()
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
+    HomePageContent(navController)
 }
 
 // Top ads section
@@ -234,6 +235,51 @@ fun TopAdsCarousel(
     }
 }
 
+// Category section
+@Composable
+fun CategoryRow() {
+    val categories = listOf(
+        Triple("Kuliner", R.drawable.ic_culinary, Color(0xFFFFA76D)),
+        Triple("Wisata", R.drawable.ic_wisata, Color(0xFF7AD7F0)),
+        Triple("Event", R.drawable.ic_event, Color(0xFFF48DD6))
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        categories.forEach { (label, icon, bgColor) ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {}
+                )
+            {
+                Box(
+                    modifier = Modifier
+                        .size(92.dp)
+                        .clip(CircleShape)
+                        .background(bgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = label,
+                        tint = Color.White,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
+    }
+}
+
 // HomeTab category section
 @Composable
 fun HomeTab() {
@@ -267,7 +313,7 @@ fun HomeTab() {
 
 // Current location section
 @Composable
-fun CurrentLocation() {
+fun CurrentLocation(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -301,6 +347,9 @@ fun CurrentLocation() {
                 color = mediumTextColor,
                 modifier = Modifier
                     .padding(bottom = 8.dp)
+                    .clickable {
+                        navController.navigate(ScreenRoute.Search.route)
+                    }
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -734,7 +783,7 @@ fun PreviewListEvent() {
 
 // All HomePage content
 @Composable
-fun HomePageContent() {
+fun HomePageContent(navController: NavController) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -749,9 +798,9 @@ fun HomePageContent() {
         }
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                HomeTab()
+                CategoryRow()
                 Spacer(modifier = Modifier.height(16.dp))
-                CurrentLocation()
+                CurrentLocation(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
                 Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
