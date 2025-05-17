@@ -25,14 +25,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
-import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
@@ -67,12 +65,12 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
         ProfileMyBlogMyTrip(24, 2, interactionSource)
 
         Spacer(modifier = Modifier.height(12.dp))
-        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource)
-        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource)
-        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource)
-        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource)
-        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource)
-        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource)
+        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource, authViewModel)
+        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource, authViewModel)
+        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource, authViewModel)
+        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource, authViewModel)
+        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource, authViewModel)
+        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource, authViewModel)
     }
 }
 
@@ -153,7 +151,7 @@ fun ProfileTag(interactionSource: MutableInteractionSource) {
 }
 
 @Composable
-fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource) {
+fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource, authViewModel: AuthViewModel) {
     val imageRes = when (title) {
         "Activity" -> R.drawable.ic_activity
         "Payment" -> R.drawable.ic_payment
@@ -168,7 +166,11 @@ fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableI
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = {}
+                onClick = {
+                    if (title == "Log out") {
+                        authViewModel.signout()
+                    }
+                }
             )
     ) {
         Row(
