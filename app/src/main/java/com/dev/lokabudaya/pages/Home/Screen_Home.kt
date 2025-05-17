@@ -76,14 +76,14 @@ import kotlin.math.abs
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
-            else -> Unit
-        }
-    }
+//    val authState = authViewModel.authState.observeAsState()
+//
+//    LaunchedEffect(authState.value) {
+//        when(authState.value){
+//            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+//            else -> Unit
+//        }
+//    }
     HomePageContent()
 }
 
@@ -265,34 +265,52 @@ fun HomeTab() {
     }
 }
 
-// Recommended section
+// Current location section
 @Composable
-fun Recommended() {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ){
-        Text(
-            text = "Recommended",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = bigTextColor,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "Selengkapnya >",
-            fontSize = 16.sp,
-            color = mediumTextColor,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-        )
-    }
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
+fun CurrentLocation() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
     ) {
-        items(DataProvider.recommendedPlaces) { place ->
-            RecommendedCard(place = place)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = "Location Icon",
+                    tint = bigTextColor,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "What's in Solo?",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = bigTextColor
+                )
+            }
+            Text(
+                text = "Selengkapnya >",
+                fontSize = 16.sp,
+                color = mediumTextColor,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(DataProvider.recommendedPlaces) { place ->
+                RecommendedCard(place = place)
+            }
         }
     }
 }
@@ -380,31 +398,21 @@ fun RecommendedCard(place: Place) {
     }
 }
 
-// Current location section
+// Recommended section
 @Composable
-fun CurrentLocation() {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_location),
-                contentDescription = "Location Icon",
-                tint = bigTextColor,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "What's in Solo?",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = bigTextColor
-            )
-        }
+fun Recommended() {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier
+            .fillMaxWidth()
+    ){
+        Text(
+            text = "Rekomendasi",
+            fontWeight = FontWeight.Bold,
+            color = bigTextColor,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
     }
 }
 
@@ -743,9 +751,9 @@ fun HomePageContent() {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 HomeTab()
                 Spacer(modifier = Modifier.height(16.dp))
-                Recommended()
-                Spacer(modifier = Modifier.height(16.dp))
                 CurrentLocation()
+                Spacer(modifier = Modifier.height(16.dp))
+                Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
                 ListEvent()
                 Spacer(modifier = Modifier.height(16.dp))

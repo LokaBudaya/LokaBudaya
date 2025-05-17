@@ -68,7 +68,7 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
     ) { innerPadding ->
 
         val graph =
-            navController.createGraph(startDestination = ScreenRoute.Login.route) {
+            navController.createGraph(startDestination = ScreenRoute.Home.route) {
                 composable(route = ScreenRoute.Login.route) {
                     LoginPage(modifier, navController, authViewModel)
                 }
