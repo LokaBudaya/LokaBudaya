@@ -29,6 +29,7 @@ import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
+import com.dev.lokabudaya.pages.Search.CulinaryPage
 import com.dev.lokabudaya.pages.Search.SearchPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
@@ -61,7 +62,12 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
             }
         },
         bottomBar = {
-            if (currentRoute != ScreenRoute.Login.route && currentRoute != ScreenRoute.Signup.route) {
+            if (currentRoute == ScreenRoute.Home.route ||
+                currentRoute == ScreenRoute.Ticket.route ||
+                currentRoute == ScreenRoute.Book.route ||
+                currentRoute == ScreenRoute.Profile.route ||
+                currentRoute == ScreenRoute.Search.route
+                ) {
                 BottomNavigationBar(navController)
             }
         }
@@ -89,6 +95,9 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Profile.route) {
                     ProfilePage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Culinary.route) {
+                    CulinaryPage(modifier, navController, authViewModel)
                 }
             }
         NavHost(

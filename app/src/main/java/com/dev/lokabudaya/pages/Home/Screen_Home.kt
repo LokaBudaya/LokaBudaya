@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -12,6 +13,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +60,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -237,7 +240,8 @@ fun TopAdsCarousel(
 
 // Category section
 @Composable
-fun CategoryRow() {
+fun CategoryRow(navController: NavController) {
+    val context = LocalContext.current
     val categories = listOf(
         Triple("Kuliner", R.drawable.ic_culinary, Color(0xFFFFA76D)),
         Triple("Wisata", R.drawable.ic_wisata, Color(0xFF7AD7F0)),
@@ -252,7 +256,13 @@ fun CategoryRow() {
         categories.forEach { (label, icon, bgColor) ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable {}
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null
+                    ) {
+                        navController.navigate(ScreenRoute.Culinary.route)
+                    }
                 )
             {
                 Box(
@@ -798,7 +808,7 @@ fun HomePageContent(navController: NavController) {
         }
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                CategoryRow()
+                CategoryRow(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
                 CurrentLocation(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
