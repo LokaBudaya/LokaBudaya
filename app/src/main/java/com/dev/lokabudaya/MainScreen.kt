@@ -27,12 +27,19 @@ import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Auth.LoginPage
 import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
+import com.dev.lokabudaya.pages.Home.Blog.BlogPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
-import com.dev.lokabudaya.pages.Search.CulinaryPage
-import com.dev.lokabudaya.pages.Search.EventPage
+import com.dev.lokabudaya.pages.Home.Category.CulinaryPage
+import com.dev.lokabudaya.pages.Home.Category.EventPage
 import com.dev.lokabudaya.pages.Search.SearchPage
-import com.dev.lokabudaya.pages.Search.TourPage
+import com.dev.lokabudaya.pages.Home.Category.TourPage
+import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
+import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
+import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
+import com.dev.lokabudaya.pages.Profile.Menu.NotificationPage
+import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
+import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
@@ -106,6 +113,27 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Tour.route) {
                     TourPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Blog.route) {
+                    BlogPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Privacy.route) {
+                    PrivacyPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Activity.route) {
+                    ActivityPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Notification.route) {
+                    NotificationPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.EditProfile.route) {
+                    EditProfilePage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Accessibility.route) {
+                    AccessibilityPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Payment.route) {
+                    PaymentPage(modifier, navController, authViewModel)
                 }
             }
         NavHost(

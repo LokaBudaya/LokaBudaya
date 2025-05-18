@@ -1,8 +1,6 @@
 package com.dev.lokabudaya.pages.Search
 
-import android.media.Image
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +25,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +51,6 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
-import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
@@ -177,26 +172,61 @@ fun FilterList() {
 }
 
 // Explore content list
+sealed class CombinedItem {
+    data class CulinaryItem(val culinary: com.dev.lokabudaya.data.CulinaryItem) : CombinedItem()
+    data class EventItem(val event: com.dev.lokabudaya.data.EventItem) : CombinedItem()
+    data class TourItem(val tour: com.dev.lokabudaya.data.TourItem) : CombinedItem()
+}
 @Composable
 fun ExploreGridList() {
+    val combinedList = remember {
+        val combined = mutableListOf<CombinedItem>()
+        DataProvider.culinaryList.forEach { combined.add(CombinedItem.CulinaryItem(it)) }
+        DataProvider.eventList.forEach { combined.add(CombinedItem.EventItem(it)) }
+        DataProvider.tourList.forEach { combined.add(CombinedItem.TourItem(it)) }
+        combined.shuffled()
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp)
     ) {
-        items(DataProvider.eventList.size) { index ->
-            val eventItem = DataProvider.eventList[index]
-            CulinaryCardItem(
-                image = eventItem.imageRes,
-                title = eventItem.title,
-                price = eventItem.price,
-                rating = eventItem.rating
-            )
+        items(combinedList.size) { index ->
+            when (val item = combinedList[index]) {
+                is CombinedItem.EventItem -> {
+                    val event = item.event
+                    SearchCardItem(
+                        image = event.imageRes,
+                        title = event.title,
+                        price = event.price,
+                        rating = event.rating
+                    )
+                }
+                is CombinedItem.TourItem -> {
+                    val tour = item.tour
+                    SearchCardItem(
+                        image = tour.imageRes,
+                        title = tour.title,
+                        price = tour.price,
+                        rating = tour.rating
+                    )
+                }
+
+                is CombinedItem.CulinaryItem -> {
+                    val culinary = item.culinary
+                    SearchCardItem(
+                        image = culinary.imageRes,
+                        title = culinary.title,
+                        price = culinary.price,
+                        rating = culinary.rating
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun CulinaryCardItem(
+fun SearchCardItem(
     image: Int,
     title: String,
     price: String,

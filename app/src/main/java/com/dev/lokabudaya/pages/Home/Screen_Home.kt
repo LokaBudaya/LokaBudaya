@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -68,6 +69,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
@@ -373,15 +376,15 @@ fun CurrentLocation(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(DataProvider.recommendedPlaces) { place ->
-                RecommendedCard(place = place)
+            items(DataProvider.tourList) { place ->
+                WhatIsCard(place = place)
             }
         }
     }
 }
 
 @Composable
-fun RecommendedCard(place: Place) {
+fun WhatIsCard(place: TourItem) {
     val checkLove = remember { mutableStateOf(true) }
 
     Card(
@@ -664,8 +667,9 @@ fun ListEventCard(event: EventItem) {
 }
 
 // Blog section
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun Blog() {
+fun Blog(navController: NavController) {
     Column { Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -681,7 +685,13 @@ fun Blog() {
         Text(
             text = "Selengkapnya >",
             fontSize = 16.sp,
-            color = mediumTextColor
+            color = mediumTextColor,
+            modifier = Modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) {
+                navController.navigate(ScreenRoute.Blog.route)
+            }
         )
     }
         LazyRow(
@@ -789,14 +799,6 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
     }
 }
 
-@Composable
-@Preview
-fun PreviewListEvent() {
-    LokaBudayaTheme {
-        Blog()
-    }
-}
-
 // All HomePage content
 @Composable
 fun HomePageContent(navController: NavController) {
@@ -822,33 +824,8 @@ fun HomePageContent(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 ListEvent()
                 Spacer(modifier = Modifier.height(16.dp))
-                Blog()
+                Blog(navController = navController)
             }
         }
     }
 }
-
-data class Place(
-    val title: String,
-    val location: String,
-    val imageRes: Int
-)
-
-data class EventItem(
-    val title: String,
-    val imageRes: Int,
-    val rating: Double,
-    val category: String,
-    val location: String,
-    val time: String,
-    val price: String
-)
-
-data class BlogCardClass(
-    // val userId : UserId //object UserId -> ada profile pict, sama username
-    val title: String,
-    val desc: String,
-    val imageId: Int
-)
-
-// coba habis login

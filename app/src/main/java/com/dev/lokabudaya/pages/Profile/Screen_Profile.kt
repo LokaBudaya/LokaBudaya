@@ -58,19 +58,19 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ProfileTag(interactionSource)
+        ProfileTag(interactionSource, navController)
 
         Spacer(modifier = Modifier.height(20.dp))
 
         ProfileMyBlogMyTrip(24, 2, interactionSource)
 
         Spacer(modifier = Modifier.height(12.dp))
-        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource, authViewModel)
-        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource, authViewModel)
-        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource, authViewModel)
-        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource, authViewModel)
-        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource, authViewModel)
-        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource, authViewModel)
+        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource, authViewModel, navController)
     }
 }
 
@@ -88,22 +88,22 @@ fun ProfileTopBar(interactionSource: MutableInteractionSource) {
             ),
             modifier = Modifier.weight(1f)
         )
-        Icon(
-            painter = painterResource(id = R.drawable.ic_setting),
-            contentDescription = "Settings",
-            tint = bigTextColor,
-            modifier = Modifier
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = {}
-                )
-        )
+//        Icon(
+//            painter = painterResource(id = R.drawable.ic_setting),
+//            contentDescription = "Settings",
+//            tint = bigTextColor,
+//            modifier = Modifier
+//                .clickable(
+//                    interactionSource = interactionSource,
+//                    indication = null,
+//                    onClick = {}
+//                )
+//        )
     }
 }
 
 @Composable
-fun ProfileTag(interactionSource: MutableInteractionSource) {
+fun ProfileTag(interactionSource: MutableInteractionSource, navController: NavController) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -144,14 +144,16 @@ fun ProfileTag(interactionSource: MutableInteractionSource) {
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
-                    onClick = {}
+                    onClick = {
+                        navController.navigate("EditProfilePage")
+                    }
                 )
         )
     }
 }
 
 @Composable
-fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource, authViewModel: AuthViewModel) {
+fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource, authViewModel: AuthViewModel, navController: NavController) {
     val imageRes = when (title) {
         "Activity" -> R.drawable.ic_activity
         "Payment" -> R.drawable.ic_payment
@@ -169,6 +171,21 @@ fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableI
                 onClick = {
                     if (title == "Log out") {
                         authViewModel.signout()
+                    }
+                    if (title == "Privacy") {
+                        navController.navigate("PrivacyPage")
+                    }
+                    if (title == "Activity") {
+                        navController.navigate("ActivityPage")
+                    }
+                    if (title == "Notifications") {
+                        navController.navigate("NotificationPage")
+                    }
+                    if (title == "Payment") {
+                        navController.navigate("PaymentPage")
+                    }
+                    if (title == "Accessibility") {
+                        navController.navigate("AccessibilityPage")
                     }
                 }
             )

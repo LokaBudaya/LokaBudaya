@@ -1,27 +1,99 @@
 package com.dev.lokabudaya.data
 
 import com.dev.lokabudaya.R
-import com.dev.lokabudaya.pages.Home.EventItem
-import com.dev.lokabudaya.pages.Book.WishlistItem
-import com.dev.lokabudaya.pages.Home.BlogCardClass
-import com.dev.lokabudaya.pages.Home.Place
+
+data class WishlistItem(
+    val title: String,
+    val subtitle: String,
+    val location: String,
+    val price: String
+)
+
+data class CulinaryItem(
+    val title: String,
+    val subtitle: String,
+    val rating: Double,
+    val location: String,
+    val imageRes: Int,
+    val price: String
+)
+
+data class TourItem(
+    val title: String,
+    val subtitle: String,
+    val rating: Double,
+    val location: String,
+    val imageRes: Int,
+    val price: String
+)
+
+data class EventItem(
+    val title: String,
+    val imageRes: Int,
+    val rating: Double,
+    val category: String,
+    val location: String,
+    val time: String,
+    val price: String
+)
+
+data class BlogCardClass(
+    val title: String,
+    val desc: String,
+    val imageId: Int
+)
 
 object DataProvider {
-    val recommendedPlaces = listOf(
-        Place(
+    val culinaryList = listOf(
+        CulinaryItem(
+            title = "Bestik Pak Darmo",
+            subtitle = "Daging bestik empuk lezat",
+            rating = 4.9,
+            location = "Surakarta",
+            imageRes = R.drawable.img_bestik,
+            price = "15.000 - 50.000"
+        ),
+        CulinaryItem(
+            title = "Teh Tarik 88",
+            subtitle = "Ngeteh dulu cuy",
+            rating = 4.7,
+            location = "Surakarta",
+            imageRes = R.drawable.img_tehtarik,
+            price = "5.000 - 30.000"
+        ),
+        CulinaryItem(
+            title = "Es Krim Tentrem",
+            subtitle = "Es krim jadoel khas Surakarta",
+            rating = 4.8,
+            location = "Surakarta",
+            imageRes = R.drawable.img_estentrem,
+            price = "20.000 - 70.000"
+        )
+    )
+    val tourList = listOf(
+        TourItem(
             title = "Mangkunegaran",
+            subtitle = "istana resmi Kadipaten Mangkunegaran",
+            rating = 4.8,
             location = "Surakarta",
-            imageRes = R.drawable.img_mangkunegaran
+            imageRes = R.drawable.img_mangkunegaran,
+            price = "35.000"
         ),
-        Place(
+        TourItem(
             title = "Candi Borobudur",
+            subtitle = "candi Buddha terbesar di dunia",
+            rating = 4.8,
             location = "Magelang",
-            imageRes = R.drawable.img_borobudur
+            imageRes = R.drawable.img_borobudur,
+            price = "35.000"
         ),
-        Place(
+        TourItem(
             title = "Pasar Gede",
+            subtitle = "Pasar Gede Hardjonagoro terbesar di Solo",
+            rating = 4.8,
             location = "Surakarta",
-            imageRes = R.drawable.img_pasargede
+            imageRes = R.drawable.img_pasargede,
+            price = "35.000"
         )
     )
     val eventList = listOf(
@@ -58,7 +130,7 @@ object DataProvider {
             title = "Mangkunegaran",
             subtitle = "istana resmi Kadipaten Mangkunegaran",
             location = "Surakarta",
-            price = "Rp 30.000 - Rp 50.000"
+            price = "30.000"
         )
     }
 
@@ -93,6 +165,5 @@ object DataProvider {
             desc = "ini blog keenamku ges, salam kenal semuanya!!",
             imageId = R.drawable.img_event
         )
-
     )
 }

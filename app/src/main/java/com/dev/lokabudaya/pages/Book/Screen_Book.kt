@@ -28,6 +28,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.smallTextColor
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.WishlistItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 
@@ -172,7 +173,7 @@ fun WishlistContent(item: WishlistItem) {
         )
         LocationRow(item.location)
         Text(
-            text = item.price,
+            text = "Rp ${item.price}",
             color = smallTextColor,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
@@ -207,11 +208,3 @@ fun WishlistLoveButton() {
         modifier = Modifier.size(20.dp)
     )
 }
-
-// Data Models
-data class WishlistItem(
-    val title: String,
-    val subtitle: String,
-    val location: String,
-    val price: String
-)

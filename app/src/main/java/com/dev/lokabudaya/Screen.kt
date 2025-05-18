@@ -11,4 +11,11 @@ sealed class ScreenRoute(val route: String) {
     object Culinary: ScreenRoute("CulinaryPage")
     object Event: ScreenRoute("EventPage")
     object Tour: ScreenRoute("TourPage")
+    object Blog: ScreenRoute("BlogPage")
+    object Activity: ScreenRoute("ActivityPage")
+    object Notification: ScreenRoute("NotificationPage")
+    object Privacy: ScreenRoute("PrivacyPage")
+    object EditProfile: ScreenRoute("EditProfilePage")
+    object Accessibility: ScreenRoute("AccessibilityPage")
+    object Payment: ScreenRoute("PaymentPage")
 }
