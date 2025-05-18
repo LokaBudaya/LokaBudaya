@@ -254,6 +254,12 @@ fun CategoryRow(navController: NavController) {
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         categories.forEach { (label, icon, bgColor) ->
+            val categoryRoute = when(label) {
+                "Kuliner" -> ScreenRoute.Culinary.route
+                "Wisata" -> ScreenRoute.Tour.route
+                "Event" -> ScreenRoute.Event.route
+                else -> ""
+            }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -261,7 +267,7 @@ fun CategoryRow(navController: NavController) {
                         interactionSource = MutableInteractionSource(),
                         indication = null
                     ) {
-                        navController.navigate(ScreenRoute.Culinary.route)
+                        navController.navigate(categoryRoute)
                     }
                 )
             {

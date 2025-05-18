@@ -9,4 +9,6 @@ sealed class ScreenRoute(val route: String) {
     object Login: ScreenRoute("LoginPage")
     object Signup: ScreenRoute("SignupPage")
     object Culinary: ScreenRoute("CulinaryPage")
+    object Event: ScreenRoute("EventPage")
+    object Tour: ScreenRoute("TourPage")
 }

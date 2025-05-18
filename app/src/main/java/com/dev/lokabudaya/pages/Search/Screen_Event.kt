@@ -28,18 +28,18 @@ import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
 
-//Culinary Page
+//Event Page
 @Composable
-fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+fun EventPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     Box(modifier = modifier.padding(16.dp)) {
-        HeaderCulinarySection(navController)
+        HeaderEventSection(navController)
     }
 }
 
-// Header Culinary Section
+// Header Event Section
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun HeaderCulinarySection(navController: NavController) {
+fun HeaderEventSection(navController: NavController) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -63,7 +63,7 @@ fun HeaderCulinarySection(navController: NavController) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
-                text = "Kuliner",
+                text = "Event",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = bigTextColor

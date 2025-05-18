@@ -30,7 +30,9 @@ import com.dev.lokabudaya.pages.Book.BookPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
 import com.dev.lokabudaya.pages.Search.CulinaryPage
+import com.dev.lokabudaya.pages.Search.EventPage
 import com.dev.lokabudaya.pages.Search.SearchPage
+import com.dev.lokabudaya.pages.Search.TourPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
@@ -98,6 +100,12 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Culinary.route) {
                     CulinaryPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Event.route) {
+                    EventPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Tour.route) {
+                    TourPage(modifier, navController, authViewModel)
                 }
             }
         NavHost(
