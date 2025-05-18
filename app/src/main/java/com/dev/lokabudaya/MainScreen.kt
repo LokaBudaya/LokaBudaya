@@ -23,17 +23,30 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Auth.LoginPage
+import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
+import com.dev.lokabudaya.pages.Home.Blog.BlogPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
+import com.dev.lokabudaya.pages.Home.Category.CulinaryPage
+import com.dev.lokabudaya.pages.Home.Category.EventPage
 import com.dev.lokabudaya.pages.Search.SearchPage
+import com.dev.lokabudaya.pages.Home.Category.TourPage
+import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
+import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
+import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
+import com.dev.lokabudaya.pages.Profile.Menu.NotificationPage
+import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
+import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
 import com.dev.lokabudaya.ui.theme.navColor
 
 @Composable
-fun MainScreen() {
+fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -57,25 +70,70 @@ fun MainScreen() {
                 }
             }
         },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            if (currentRoute == ScreenRoute.Home.route ||
+                currentRoute == ScreenRoute.Ticket.route ||
+                currentRoute == ScreenRoute.Book.route ||
+                currentRoute == ScreenRoute.Profile.route ||
+                currentRoute == ScreenRoute.Search.route
+                ) {
+                BottomNavigationBar(navController)
+            }
+        }
     ) { innerPadding ->
 
         val graph =
             navController.createGraph(startDestination = ScreenRoute.Home.route) {
+                composable(route = ScreenRoute.Login.route) {
+                    LoginPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Signup.route) {
+                    SignupPage(modifier, navController, authViewModel)
+                }
                 composable(route = ScreenRoute.Home.route) {
-                    HomePage(modifier = Modifier)
+                    HomePage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Search.route) {
-                    SearchPage()
+                    SearchPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage()
+                    TicketPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Book.route) {
-                    BookPage()
+                    BookPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Profile.route) {
-                    ProfilePage("blablala")
+                    ProfilePage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Culinary.route) {
+                    CulinaryPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Event.route) {
+                    EventPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Tour.route) {
+                    TourPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Blog.route) {
+                    BlogPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Privacy.route) {
+                    PrivacyPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Activity.route) {
+                    ActivityPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Notification.route) {
+                    NotificationPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.EditProfile.route) {
+                    EditProfilePage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Accessibility.route) {
+                    AccessibilityPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Payment.route) {
+                    PaymentPage(modifier, navController, authViewModel)
                 }
             }
         NavHost(

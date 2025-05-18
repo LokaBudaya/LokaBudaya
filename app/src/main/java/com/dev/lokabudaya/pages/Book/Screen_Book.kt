@@ -15,20 +15,34 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.smallTextColor
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.WishlistItem
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 
 // Main Screen
 @Composable
-fun BookPage() {
+fun BookPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -159,7 +173,7 @@ fun WishlistContent(item: WishlistItem) {
         )
         LocationRow(item.location)
         Text(
-            text = item.price,
+            text = "Rp ${item.price}",
             color = smallTextColor,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
@@ -194,11 +208,3 @@ fun WishlistLoveButton() {
         modifier = Modifier.size(20.dp)
     )
 }
-
-// Data Models
-data class WishlistItem(
-    val title: String,
-    val subtitle: String,
-    val location: String,
-    val price: String
-)

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "186612872682",
+    "project_id": "lokabudaya-36404",
+    "storage_bucket": "lokabudaya-36404.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186612872682:android:49ba10f80d5a06c0fd6e93",
+        "android_client_info": {
+          "package_name": "com.dev.lokabudaya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC98JHBYKlLZKE9_0RD6KaauTS0d9XR_N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

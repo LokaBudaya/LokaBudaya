@@ -1,12 +1,12 @@
 package com.dev.lokabudaya.pages.Home
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +14,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,8 +33,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -51,6 +50,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,16 +58,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.TourItem
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
@@ -77,8 +82,16 @@ import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import kotlin.math.abs
 
 @Composable
-fun HomePage(modifier: Modifier) {
-    HomePageContent()
+fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
+    HomePageContent(navController)
 }
 
 // Top ads section
@@ -228,6 +241,64 @@ fun TopAdsCarousel(
     }
 }
 
+// Category section
+@Composable
+fun CategoryRow(navController: NavController) {
+    val context = LocalContext.current
+    val categories = listOf(
+        Triple("Kuliner", R.drawable.ic_culinary, Color(0xFFFFA76D)),
+        Triple("Wisata", R.drawable.ic_wisata, Color(0xFF7AD7F0)),
+        Triple("Event", R.drawable.ic_event, Color(0xFFF48DD6))
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        categories.forEach { (label, icon, bgColor) ->
+            val categoryRoute = when(label) {
+                "Kuliner" -> ScreenRoute.Culinary.route
+                "Wisata" -> ScreenRoute.Tour.route
+                "Event" -> ScreenRoute.Event.route
+                else -> ""
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null
+                    ) {
+                        navController.navigate(categoryRoute)
+                    }
+                )
+            {
+                Box(
+                    modifier = Modifier
+                        .size(92.dp)
+                        .clip(CircleShape)
+                        .background(bgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = label,
+                        tint = Color.White,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
+    }
+}
+
 // HomeTab category section
 @Composable
 fun HomeTab() {
@@ -259,53 +330,63 @@ fun HomeTab() {
     }
 }
 
-// Recommended section
+// Current location section
 @Composable
-fun Recommended() {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ){
-        Text(
-            text = "Recommended",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = bigTextColor,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "Selengkapnya >",
-            fontSize = 16.sp,
-            color = mediumTextColor,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-        )
-    }
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
+fun CurrentLocation(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
     ) {
-        items(DataProvider.recommendedItems) { item ->
-            RecommendedCard(title = item)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = "Location Icon",
+                    tint = bigTextColor,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "What's in Solo?",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = bigTextColor
+                )
+            }
+            Text(
+                text = "Selengkapnya >",
+                fontSize = 16.sp,
+                color = mediumTextColor,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .clickable {
+                        navController.navigate(ScreenRoute.Search.route)
+                    }
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(DataProvider.tourList) { place ->
+                WhatIsCard(place = place)
+            }
         }
     }
 }
 
 @Composable
-fun RecommendedCard(title: String) {
+fun WhatIsCard(place: TourItem) {
     val checkLove = remember { mutableStateOf(true) }
-    val imageRes = when (title) {
-        "Mangkunegaran" -> R.drawable.img_mangkunegaran
-        "Candi Borobudur" -> R.drawable.img_borobudur
-        "Pasar Gede" -> R.drawable.img_pasargede
-        else -> R.drawable.img_banner
-    }
-    val locationRes = when (title) {
-        "Mangkunegaran" -> "Surakarta"
-        "Candi Borobudur" -> "Magelang"
-        "Pasar Gede" -> "Surakarta"
-        else -> ""
-    }
+
     Card(
         modifier = Modifier
             .width(168.dp)
@@ -322,7 +403,7 @@ fun RecommendedCard(title: String) {
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = imageRes),
+                painter = painterResource(id = place.imageRes),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -342,7 +423,7 @@ fun RecommendedCard(title: String) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = title,
+                    text = place.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = White,
@@ -360,7 +441,7 @@ fun RecommendedCard(title: String) {
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = locationRes,
+                        text = place.location,
                         color = White,
                         fontSize = 10.sp,
                         modifier = Modifier.weight(1f)
@@ -385,31 +466,21 @@ fun RecommendedCard(title: String) {
     }
 }
 
-// Current location section
+// Recommended section
 @Composable
-fun CurrentLocation() {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_location),
-                contentDescription = "Location Icon",
-                tint = bigTextColor,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "What's in Solo?",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = bigTextColor
-            )
-        }
+fun Recommended() {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier
+            .fillMaxWidth()
+    ){
+        Text(
+            text = "Rekomendasi",
+            fontWeight = FontWeight.Bold,
+            color = bigTextColor,
+            fontSize = 24.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
     }
 }
 
@@ -596,8 +667,9 @@ fun ListEventCard(event: EventItem) {
 }
 
 // Blog section
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun Blog() {
+fun Blog(navController: NavController) {
     Column { Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -613,7 +685,13 @@ fun Blog() {
         Text(
             text = "Selengkapnya >",
             fontSize = 16.sp,
-            color = mediumTextColor
+            color = mediumTextColor,
+            modifier = Modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) {
+                navController.navigate(ScreenRoute.Blog.route)
+            }
         )
     }
         LazyRow(
@@ -721,18 +799,9 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
     }
 }
 
-
-@Composable
-@Preview
-fun PreviewListEvent() {
-    LokaBudayaTheme {
-        Blog()
-    }
-}
-
 // All HomePage content
 @Composable
-fun HomePageContent() {
+fun HomePageContent(navController: NavController) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -747,33 +816,16 @@ fun HomePageContent() {
         }
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                HomeTab()
+                CategoryRow(navController = navController)
+                Spacer(modifier = Modifier.height(16.dp))
+                CurrentLocation(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
                 Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
-                CurrentLocation()
-                Spacer(modifier = Modifier.height(16.dp))
                 ListEvent()
                 Spacer(modifier = Modifier.height(16.dp))
-                Blog()
+                Blog(navController = navController)
             }
         }
     }
 }
-
-data class EventItem(
-    val title: String,
-    val imageRes: Int,
-    val rating: Double,
-    val category: String,
-    val location: String,
-    val time: String,
-    val price: String
-)
-
-data class BlogCardClass(
-    // val userId : UserId //object UserId -> ada profile pict, sama username
-    val title: String,
-    val desc: String,
-    val imageId: Int
-)

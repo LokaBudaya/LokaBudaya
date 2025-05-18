@@ -17,22 +17,33 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.lokabudaya.R
-import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
+import com.dev.lokabudaya.pages.Auth.AuthState
+import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
-fun ProfilePage(userID:String) {    // ambil argumen userID
+fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {    // ambil argumen userID
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            else -> Unit
+        }
+    }
     val interactionSource = remember {MutableInteractionSource()}
     Column(
         modifier = Modifier
@@ -47,19 +58,19 @@ fun ProfilePage(userID:String) {    // ambil argumen userID
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ProfileTag(interactionSource)
+        ProfileTag(interactionSource, navController)
 
         Spacer(modifier = Modifier.height(20.dp))
 
         ProfileMyBlogMyTrip(24, 2, interactionSource)
 
         Spacer(modifier = Modifier.height(12.dp))
-        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource)
-        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource)
-        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource)
-        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource)
-        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource)
-        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource)
+        ProfileMenuItem("Activity", "Pantau aktivitas harian", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Payment", "Cek pembayaran tiket", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Accessibility", "Kemudahan penggunaan aplikasi", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Privacy", "Privasi aplikasi dan data", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Notifications", "Atur notifikasi aplikasi", interactionSource, authViewModel, navController)
+        ProfileMenuItem("Log out", "Keluar dari sesi saat ini", interactionSource, authViewModel, navController)
     }
 }
 
@@ -77,22 +88,22 @@ fun ProfileTopBar(interactionSource: MutableInteractionSource) {
             ),
             modifier = Modifier.weight(1f)
         )
-        Icon(
-            painter = painterResource(id = R.drawable.ic_setting),
-            contentDescription = "Settings",
-            tint = bigTextColor,
-            modifier = Modifier
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = {}
-                )
-        )
+//        Icon(
+//            painter = painterResource(id = R.drawable.ic_setting),
+//            contentDescription = "Settings",
+//            tint = bigTextColor,
+//            modifier = Modifier
+//                .clickable(
+//                    interactionSource = interactionSource,
+//                    indication = null,
+//                    onClick = {}
+//                )
+//        )
     }
 }
 
 @Composable
-fun ProfileTag(interactionSource: MutableInteractionSource) {
+fun ProfileTag(interactionSource: MutableInteractionSource, navController: NavController) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -133,14 +144,16 @@ fun ProfileTag(interactionSource: MutableInteractionSource) {
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
-                    onClick = {}
+                    onClick = {
+                        navController.navigate("EditProfilePage")
+                    }
                 )
         )
     }
 }
 
 @Composable
-fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource) {
+fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource, authViewModel: AuthViewModel, navController: NavController) {
     val imageRes = when (title) {
         "Activity" -> R.drawable.ic_activity
         "Payment" -> R.drawable.ic_payment
@@ -155,7 +168,26 @@ fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableI
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = {}
+                onClick = {
+                    if (title == "Log out") {
+                        authViewModel.signout()
+                    }
+                    if (title == "Privacy") {
+                        navController.navigate("PrivacyPage")
+                    }
+                    if (title == "Activity") {
+                        navController.navigate("ActivityPage")
+                    }
+                    if (title == "Notifications") {
+                        navController.navigate("NotificationPage")
+                    }
+                    if (title == "Payment") {
+                        navController.navigate("PaymentPage")
+                    }
+                    if (title == "Accessibility") {
+                        navController.navigate("AccessibilityPage")
+                    }
+                }
             )
     ) {
         Row(
@@ -321,13 +353,5 @@ fun ProfileMyBlogMyTrip(blogCount: Int, tripCount: Int, interactionSource: Mutab
                 )
             }
         }
-    }
-}
-
-@Composable
-@Preview
-fun Previewer(){
-    LokaBudayaTheme {
-        ProfilePage("blabla")
     }
 }
