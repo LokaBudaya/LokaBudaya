@@ -1,7 +1,6 @@
 package com.dev.lokabudaya.pages.Home
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -64,7 +63,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.ScreenRoute
@@ -73,12 +71,12 @@ import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
-import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import java.text.DecimalFormat
 import kotlin.math.abs
 
 @Composable
@@ -376,7 +374,7 @@ fun CurrentLocation(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(DataProvider.tourList) { place ->
+            items(DataProvider.tourItemLists) { place ->
                 WhatIsCard(place = place)
             }
         }
@@ -403,7 +401,7 @@ fun WhatIsCard(place: TourItem) {
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = place.imageRes),
+                painter = painterResource(id = place.imgRes),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -490,7 +488,7 @@ fun ListEvent() {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        DataProvider.eventList.forEach { event ->
+        DataProvider.eventItemLists.forEach { event ->
             ListEventCard(event = event)
         }
     }
@@ -498,6 +496,12 @@ fun ListEvent() {
 
 @Composable
 fun ListEventCard(event: EventItem) {
+    val formatter = DecimalFormat("#.###")
+    val priceFormatted = if (event.price % 1.0 == 0.0) {
+        formatter.format(event.price)
+    } else {
+        event.price.toString()
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -513,7 +517,7 @@ fun ListEventCard(event: EventItem) {
             contentAlignment = Alignment.BottomCenter
         ) {
             Image(
-                painter = painterResource(id = event.imageRes),
+                painter = painterResource(id = event.imgRes),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -561,7 +565,7 @@ fun ListEventCard(event: EventItem) {
                             contentAlignment = Alignment.TopEnd
                         ) {
                             Text(
-                                text = "Rp. ${event.price}",
+                                text = "Rp${priceFormatted}",
                                 color = Color(0xFF2C4CA5),
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 20.sp,

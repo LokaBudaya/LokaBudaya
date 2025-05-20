@@ -30,7 +30,7 @@ import com.dev.lokabudaya.pages.Book.BookPage
 import com.dev.lokabudaya.pages.Home.Blog.BlogPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
-import com.dev.lokabudaya.pages.Home.Category.CulinaryPage
+import com.dev.lokabudaya.pages.Search.Kuliner.CulinaryPage
 import com.dev.lokabudaya.pages.Home.Category.EventPage
 import com.dev.lokabudaya.pages.Search.SearchPage
 import com.dev.lokabudaya.pages.Home.Category.TourPage

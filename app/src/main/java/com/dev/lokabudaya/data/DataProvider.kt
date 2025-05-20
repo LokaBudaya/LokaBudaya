@@ -1,136 +1,71 @@
 package com.dev.lokabudaya.data
 
+import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
 
 data class WishlistItem(
     val title: String,
     val subtitle: String,
     val location: String,
-    val price: String
-)
-
-data class CulinaryItem(
-    val title: String,
-    val subtitle: String,
-    val rating: Double,
-    val location: String,
-    val imageRes: Int,
-    val price: String
-)
-
-data class TourItem(
-    val title: String,
-    val subtitle: String,
-    val rating: Double,
-    val location: String,
-    val imageRes: Int,
-    val price: String
-)
-
-data class EventItem(
-    val title: String,
-    val imageRes: Int,
-    val rating: Double,
-    val category: String,
-    val location: String,
-    val time: String,
-    val price: String
+    val price: Int
 )
 
 data class BlogCardClass(
+    // kurang user
     val title: String,
     val desc: String,
     val imageId: Int
 )
 
+data class KulinerItem(
+    val imgRes:Int,
+    val title:String,
+    val price:Int,
+    val rating:Double,
+    val location:String,
+    var isFavorite:Boolean,
+    val label: String = "Kuliner",
+    val backgroundLabelColor: Color = Color(0xFFFFEAC3),
+    val textLabelColor: Color = Color(0xFFEA8D00)
+)
+data class EventItem(
+    val imgRes:Int,
+    val title:String,
+    val price:Int,
+    val rating:Double,
+    val location:String,
+    val time: String, //harusnya pake time
+    var isFavorite:Boolean,
+    val label: String = "Event",
+    val category: String,
+    val backgroundLabelColor: Color = Color(0xFFFFC3E8),
+    val textLabelColor: Color = Color(0xFFEA00DB)
+)
+data class TourItem(
+    val imgRes:Int,
+    val title:String,
+    val price:Int,
+    val rating:Double,
+    val location:String,
+    var isFavorite:Boolean,
+    val label:String = "Tour",
+    val backgroundLabelColor: Color = Color(0xFFC3F2FF),
+    val textLabelColor: Color = Color(0xFF00B6EA)
+)
+data class Ticket(
+    val title:String,
+    val date:String,
+    val location:String,
+    val qrCode:Int
+)
+
 object DataProvider {
-    val culinaryList = listOf(
-        CulinaryItem(
-            title = "Bestik Pak Darmo",
-            subtitle = "Daging bestik empuk lezat",
-            rating = 4.9,
-            location = "Surakarta",
-            imageRes = R.drawable.img_bestik,
-            price = "15.000 - 50.000"
-        ),
-        CulinaryItem(
-            title = "Teh Tarik 88",
-            subtitle = "Ngeteh dulu cuy",
-            rating = 4.7,
-            location = "Surakarta",
-            imageRes = R.drawable.img_tehtarik,
-            price = "5.000 - 30.000"
-        ),
-        CulinaryItem(
-            title = "Es Krim Tentrem",
-            subtitle = "Es krim jadoel khas Surakarta",
-            rating = 4.8,
-            location = "Surakarta",
-            imageRes = R.drawable.img_estentrem,
-            price = "20.000 - 70.000"
-        )
-    )
-    val tourList = listOf(
-        TourItem(
-            title = "Mangkunegaran",
-            subtitle = "istana resmi Kadipaten Mangkunegaran",
-            rating = 4.8,
-            location = "Surakarta",
-            imageRes = R.drawable.img_mangkunegaran,
-            price = "35.000"
-        ),
-        TourItem(
-            title = "Candi Borobudur",
-            subtitle = "candi Buddha terbesar di dunia",
-            rating = 4.8,
-            location = "Magelang",
-            imageRes = R.drawable.img_borobudur,
-            price = "35.000"
-        ),
-        TourItem(
-            title = "Pasar Gede",
-            subtitle = "Pasar Gede Hardjonagoro terbesar di Solo",
-            rating = 4.8,
-            location = "Surakarta",
-            imageRes = R.drawable.img_pasargede,
-            price = "35.000"
-        )
-    )
-    val eventList = listOf(
-        EventItem(
-            title = "Wayang Kulit",
-            imageRes = R.drawable.img_reogponorogo,
-            rating = 4.5,
-            category = "Pertunjukan Seni",
-            location = "Surakarta",
-            time = "16:00 WIB",
-            price = "90.000"
-        ),
-        EventItem(
-            title = "Tari Saman",
-            imageRes = R.drawable.img_event,
-            rating = 4.8,
-            category = "Pertunjukan Seni",
-            location = "Yogyakarta",
-            time = "13:00 WIB",
-            price = "20.000"
-        ),
-        EventItem(
-            title = "Tari Tor-tor",
-            imageRes = R.drawable.img_event,
-            rating = 4.4,
-            category = "Pertunjukan Seni",
-            location = "Purwokerto",
-            time = "09:00 WIB",
-            price = "35.000"
-        )
-    )
     val wishlistItems = List(7) {
         WishlistItem(
             title = "Mangkunegaran",
             subtitle = "istana resmi Kadipaten Mangkunegaran",
             location = "Surakarta",
-            price = "30.000"
+            price = 30000
         )
     }
 
@@ -164,6 +99,180 @@ object DataProvider {
             title = "My Blog #6",
             desc = "ini blog keenamku ges, salam kenal semuanya!!",
             imageId = R.drawable.img_event
+        )
+    )
+    val kulinerItemLists = listOf(
+        KulinerItem(
+            imgRes = R.drawable.img_bestik,
+            title = "Bestik Pak Darmo",
+            price = 15000,
+            rating = 4.9,
+            location = "Surakarta",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Bestik Pak Darmo",
+            price = 15000,
+            rating = 4.9,
+            location = "Surakarta",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Gacoan Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakata",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Gacoan Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakata",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Gacoan Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakata",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Gacoan Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakata",
+            isFavorite = false
+        ),
+        KulinerItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Gacoan Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakata",
+            isFavorite = false
+        ),
+
+    )
+    val eventItemLists = listOf(
+        // kurang user
+        EventItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Event Yummy",
+            price = 999999,
+            rating = 4.5,
+            time = "14.00",
+            location = "Surakarta",
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Event Yummy",
+            price = 999999,
+            rating = 4.5,
+            time = "14.00",
+            location = "Surakarta",
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Event Yummy",
+            price = 999999,
+            rating = 4.5,
+            time = "14.00",
+            location = "Surakarta",
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Event Yummy",
+            price = 999999,
+            rating = 4.5,
+            time = "14.00",
+            location = "Surakarta",
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            imgRes = R.drawable.img_reogponorogo,
+            title = "Wayang Kulit",
+            price = 90000,
+            rating = 4.5,
+            time = "14.00",
+            location = "Surakarta",
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            title = "Tari Saman",
+            imgRes = R.drawable.img_event,
+            rating = 4.8,
+            location = "Yogyakarta",
+            time = "13:00 WIB",
+            price = 20000,
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        ),
+        EventItem(
+            title = "Tari Tor-tor",
+            imgRes = R.drawable.img_event,
+            rating = 4.4,
+            location = "Purwokerto",
+            time = "09:00 WIB",
+            price = 35000,
+            isFavorite = false,
+            category = "Pertunjukan Seni"
+        )
+    )
+    val tourItemLists = listOf(
+        TourItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Tour Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakarta",
+            isFavorite = false
+        ),
+        TourItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Tour Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Yogyakarta",
+            isFavorite = false
+        ),
+        TourItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Tour Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Yogyakarta",
+            isFavorite = false
+        ),
+        TourItem(
+            imgRes = R.drawable.img_tehtarik,
+            title = "Tour Yummy",
+            price = 999999,
+            rating = 4.5,
+            location = "Surakarta",
+            isFavorite = false
+        )
+    )
+    val myTickets = listOf(
+        Ticket(
+            title = "Artjog 2025",
+            date = "25 Agustus 2525",
+            location = "Universitas Sebelas Maret, Yogyakarta",
+            qrCode = R.drawable.img_qrcode_dummy
         )
     )
 }
