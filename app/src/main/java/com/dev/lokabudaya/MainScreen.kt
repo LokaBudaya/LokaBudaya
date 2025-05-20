@@ -1,7 +1,11 @@
 package com.dev.lokabudaya
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
@@ -141,10 +145,10 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
             graph = graph,
             modifier = Modifier.padding(innerPadding),
             enterTransition = {
-                EnterTransition.None
+                fadeIn(tween(150))
             },
             exitTransition = {
-                ExitTransition.None
+                fadeOut(tween(150))
             }
         )
 

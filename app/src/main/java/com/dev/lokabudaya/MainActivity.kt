@@ -19,9 +19,7 @@ class MainActivity : ComponentActivity() {
         val authViewModel : AuthViewModel by viewModels()
         setContent {
             LokaBudayaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier =  Modifier.padding(innerPadding),authViewModel = authViewModel)
-                }
+                MainScreen(modifier =  Modifier.padding(),authViewModel = authViewModel)
             }
         }
     }
