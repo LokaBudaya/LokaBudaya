@@ -1,8 +1,5 @@
 package com.dev.lokabudaya
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -41,7 +38,7 @@ import com.dev.lokabudaya.pages.Home.Category.TourPage
 import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
 import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
 import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
-import com.dev.lokabudaya.pages.Profile.Menu.NotificationPage
+import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
