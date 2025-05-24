@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -154,6 +155,7 @@ fun ProfileTag(interactionSource: MutableInteractionSource, navController: NavCo
 
 @Composable
 fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableInteractionSource, authViewModel: AuthViewModel, navController: NavController) {
+    val context = LocalContext.current
     val imageRes = when (title) {
         "Activity" -> R.drawable.ic_activity
         "Payment" -> R.drawable.ic_payment
@@ -170,7 +172,7 @@ fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableI
                 indication = null,
                 onClick = {
                     if (title == "Log out") {
-                        authViewModel.signout()
+                        authViewModel.signout(context)
                     }
                     if (title == "Privacy") {
                         navController.navigate("PrivacyPage")

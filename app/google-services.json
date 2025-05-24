@@ -12,7 +12,12 @@
           "package_name": "com.dev.lokabudaya"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "186612872682-6gs2vlidrhhj471qnmh87f74e89ncfgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC98JHBYKlLZKE9_0RD6KaauTS0d9XR_N0"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186612872682-6gs2vlidrhhj471qnmh87f74e89ncfgs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
