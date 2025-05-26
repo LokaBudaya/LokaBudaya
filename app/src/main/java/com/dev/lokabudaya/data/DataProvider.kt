@@ -2,13 +2,7 @@ package com.dev.lokabudaya.data
 
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
-
-data class WishlistItem(
-    val title: String,
-    val subtitle: String,
-    val location: String,
-    val price: Int
-)
+import java.util.UUID
 
 data class BlogCardClass(
     // kurang user
@@ -18,6 +12,7 @@ data class BlogCardClass(
 )
 
 data class KulinerItem(
+    val id: String = UUID.randomUUID().toString(),
     val imgRes:Int,
     val title:String,
     val price:Int,
@@ -29,6 +24,7 @@ data class KulinerItem(
     val textLabelColor: Color = Color(0xFFEA8D00)
 )
 data class EventItem(
+    val id: String = UUID.randomUUID().toString(),
     val imgRes:Int,
     val title:String,
     val price:Int,
@@ -42,6 +38,7 @@ data class EventItem(
     val textLabelColor: Color = Color(0xFFEA00DB)
 )
 data class TourItem(
+    val id: String = UUID.randomUUID().toString(),
     val imgRes:Int,
     val title:String,
     val price:Int,
@@ -60,15 +57,6 @@ data class Ticket(
 )
 
 object DataProvider {
-    val wishlistItems = List(7) {
-        WishlistItem(
-            title = "Mangkunegaran",
-            subtitle = "istana resmi Kadipaten Mangkunegaran",
-            location = "Surakarta",
-            price = 30000
-        )
-    }
-
     val blogCards = listOf(
         BlogCardClass(
             title = "My Blog #1",

@@ -1,12 +1,5 @@
 package com.dev.lokabudaya.pages.Book
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -51,7 +43,6 @@ import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.data.KulinerItem
 import com.dev.lokabudaya.data.TourItem
-import com.dev.lokabudaya.data.WishlistItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import java.text.DecimalFormat
@@ -258,9 +249,9 @@ fun WishlistSection(
                 items = filteredItems,
                 key = { item ->
                     when (item) {
-                        is KulinerItem -> "kuliner_${item.title}_${item.price}"
-                        is TourItem -> "tour_${item.title}_${item.price}"
-                        is EventItem -> "event_${item.title}_${item.price}"
+                        is KulinerItem -> item.id
+                        is TourItem -> item.id
+                        is EventItem -> item.id
                         else -> "unknown_${item.hashCode()}"
                     }
                 }
@@ -283,15 +274,11 @@ fun WishlistListItem(
     item: Any,
     onFavoriteChanged: () -> Unit = {}
 ) {
-    var isFavorite by remember {
-        mutableStateOf(
-            when (item) {
-                is KulinerItem -> item.isFavorite
-                is TourItem -> item.isFavorite
-                is EventItem -> item.isFavorite
-                else -> false
-            }
-        )
+    val isFavorite = when (item) {
+        is KulinerItem -> item.isFavorite
+        is TourItem -> item.isFavorite
+        is EventItem -> item.isFavorite
+        else -> false
     }
 
     Row(
@@ -310,11 +297,10 @@ fun WishlistListItem(
         WishlistLoveButton(
             isFavorite = isFavorite,
             onFavoriteClick = {
-                isFavorite = !isFavorite
                 when (item) {
-                    is KulinerItem -> item.isFavorite = isFavorite
-                    is TourItem -> item.isFavorite = isFavorite
-                    is EventItem -> item.isFavorite = isFavorite
+                    is KulinerItem -> item.isFavorite = !item.isFavorite
+                    is TourItem -> item.isFavorite = !item.isFavorite
+                    is EventItem -> item.isFavorite = !item.isFavorite
                 }
                 onFavoriteChanged()
             }
