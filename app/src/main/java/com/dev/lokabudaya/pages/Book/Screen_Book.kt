@@ -1,5 +1,12 @@
 package com.dev.lokabudaya.pages.Book
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -8,19 +15,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -28,14 +48,20 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.smallTextColor
 import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.KulinerItem
+import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.data.WishlistItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import java.text.DecimalFormat
 
 // Main Screen
 @Composable
 fun BookPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     val authState = authViewModel.authState.observeAsState()
+    var selectedFilter by remember { mutableStateOf(FilterOption.ALL) }
+    var refreshTrigger by remember { mutableStateOf(0) }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -43,6 +69,7 @@ fun BookPage(modifier: Modifier = Modifier, navController: NavController, authVi
             else -> Unit
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,8 +79,28 @@ fun BookPage(modifier: Modifier = Modifier, navController: NavController, authVi
         Spacer(modifier = Modifier.height(32.dp))
         HeaderSection()
         Spacer(modifier = Modifier.height(16.dp))
-        FilterSection()
-        WishlistSection()
+
+        // Filter section dengan fixed height untuk mencegah layout shift
+        Box(
+            modifier = Modifier.height(40.dp) // Fixed height
+        ) {
+            FilterSection(
+                selectedFilter = selectedFilter,
+                onFilterChanged = { newFilter ->
+                    selectedFilter = newFilter
+                }
+            )
+        }
+
+        // Wishlist section tidak akan terpengaruh layout dropdown
+        key(selectedFilter, refreshTrigger) {
+            WishlistSection(
+                selectedFilter = selectedFilter,
+                onFavoriteChanged = {
+                    refreshTrigger++
+                }
+            )
+        }
     }
 }
 
@@ -85,71 +132,211 @@ fun HeaderSection() {
 }
 
 // Filter Section
+enum class FilterOption(val displayName: String) {
+    ALL("All"),
+    KULINER("Kuliner"),
+    WISATA("Wisata"),
+    EVENT("Event")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterSection() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 8.dp)
+fun FilterSection(
+    selectedFilter: FilterOption = FilterOption.ALL,
+    onFilterChanged: (FilterOption) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = "All",
-            fontSize = 20.sp,
-            color = bigTextColor,
-            fontWeight = FontWeight.Medium
-        )
-        Icon(
-            painter = painterResource(id = R.drawable.ic_dropdown),
-            contentDescription = "Dropdown",
-            tint = bigTextColor,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(12.dp)
-                .padding(start = 4.dp)
-        )
+                .padding(bottom = 8.dp)
+                .menuAnchor()
+        ) {
+            Text(
+                text = selectedFilter.displayName,
+                fontSize = 20.sp,
+                color = bigTextColor,
+                fontWeight = FontWeight.Medium
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_dropdown),
+                contentDescription = "Dropdown",
+                tint = bigTextColor,
+                modifier = Modifier
+                    .size(12.dp)
+                    .padding(start = 4.dp)
+                    .rotate(if (expanded) 180f else 0f)
+            )
+        }
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .width(120.dp)
+        ) {
+            FilterOption.values().forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option.displayName,
+                            fontSize = 16.sp,
+                            color = if (option == selectedFilter) Color(0xFF2C4CA5) else bigTextColor,
+                            fontWeight = if (option == selectedFilter) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
+                    onClick = {
+                        onFilterChanged(option)
+                        expanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
     }
 }
 
 // Wishlist Section
+fun getAllFavoriteItems(): List<Any> {
+    val favoriteItems = mutableListOf<Any>()
+
+    favoriteItems.addAll(DataProvider.kulinerItemLists.filter { it.isFavorite })
+
+    favoriteItems.addAll(DataProvider.tourItemLists.filter { it.isFavorite })
+
+    favoriteItems.addAll(DataProvider.eventItemLists.filter { it.isFavorite })
+
+    return favoriteItems
+}
+
 @Composable
-fun WishlistSection() {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(0.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(DataProvider.wishlistItems) { item ->
-            WishlistListItem(item)
-            HorizontalDivider(thickness = 2.dp, color = Color(0xFFE0E0E0))
+fun WishlistSection(
+    selectedFilter: FilterOption = FilterOption.ALL,
+    onFavoriteChanged: () -> Unit = {}
+) {
+    val allFavoriteItems = getAllFavoriteItems()
+    val filteredItems = when (selectedFilter) {
+        FilterOption.ALL -> allFavoriteItems
+        FilterOption.KULINER -> allFavoriteItems.filterIsInstance<KulinerItem>()
+        FilterOption.WISATA -> allFavoriteItems.filterIsInstance<TourItem>()
+        FilterOption.EVENT -> allFavoriteItems.filterIsInstance<EventItem>()
+    }
+
+    if (filteredItems.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = if (selectedFilter == FilterOption.ALL) {
+                        "Tidak ada wishlist saat ini."
+                    } else {
+                        "Tidak ada ${selectedFilter.displayName.lowercase()} di wishlist."
+                    },
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    } else {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(
+                items = filteredItems,
+                key = { item ->
+                    when (item) {
+                        is KulinerItem -> "kuliner_${item.title}_${item.price}"
+                        is TourItem -> "tour_${item.title}_${item.price}"
+                        is EventItem -> "event_${item.title}_${item.price}"
+                        else -> "unknown_${item.hashCode()}"
+                    }
+                }
+            ) { item ->
+                WishlistListItem(
+                    item = item,
+                    onFavoriteChanged = onFavoriteChanged
+                )
+                if (filteredItems.indexOf(item) < filteredItems.size - 1) {
+                    HorizontalDivider(thickness = 2.dp, color = Color(0xFFE0E0E0))
+                }
+            }
         }
     }
 }
 
 // Wishlist Item
 @Composable
-fun WishlistListItem(item: WishlistItem) {
+fun WishlistListItem(
+    item: Any,
+    onFavoriteChanged: () -> Unit = {}
+) {
+    var isFavorite by remember {
+        mutableStateOf(
+            when (item) {
+                is KulinerItem -> item.isFavorite
+                is TourItem -> item.isFavorite
+                is EventItem -> item.isFavorite
+                else -> false
+            }
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        WishlistImage()
+        WishlistImage(item)
         Spacer(modifier = Modifier.width(12.dp))
         Box(
             modifier = Modifier.weight(1f)
         ) {
             WishlistContent(item)
         }
-        WishlistLoveButton()
+        WishlistLoveButton(
+            isFavorite = isFavorite,
+            onFavoriteClick = {
+                isFavorite = !isFavorite
+                when (item) {
+                    is KulinerItem -> item.isFavorite = isFavorite
+                    is TourItem -> item.isFavorite = isFavorite
+                    is EventItem -> item.isFavorite = isFavorite
+                }
+                onFavoriteChanged()
+            }
+        )
     }
 }
 
 @Composable
-fun WishlistImage() {
+fun WishlistImage(item: Any) {
+    val imageRes = when (item) {
+        is KulinerItem -> item.imgRes
+        is TourItem -> item.imgRes
+        is EventItem -> item.imgRes
+        else -> R.drawable.img_mangkunegaran
+    }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.size(80.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.img_mangkunegaran),
+            painter = painterResource(id = imageRes),
             contentDescription = "Wishlist Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -158,27 +345,47 @@ fun WishlistImage() {
 }
 
 @Composable
-fun WishlistContent(item: WishlistItem) {
+fun WishlistContent(item: Any) {
+    val (title, subtitle, location, price) = when (item) {
+        is KulinerItem -> {
+            Tuple4(item.title, item.label, item.location, item.price)
+        }
+        is TourItem -> {
+            Tuple4(item.title, item.label, item.location, item.price)
+        }
+        is EventItem -> {
+            Tuple4(item.title, item.category, item.location, item.price)
+        }
+        else -> Tuple4("", "", "", 0)
+    }
+
     Column {
         Text(
-            text = item.title,
+            text = title,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             color = bigTextColor
         )
         Text(
-            text = item.subtitle,
+            text = subtitle,
             color = Color.Gray,
             fontSize = 12.sp
         )
-        LocationRow(item.location)
+        LocationRow(location)
         Text(
-            text = "Rp ${item.price}",
+            text = "Rp ${formatPrice(price)}",
             color = smallTextColor,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
     }
+}
+
+data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
+fun formatPrice(price: Int): String {
+    val formatter = DecimalFormat("#,###")
+    return formatter.format(price)
 }
 
 @Composable
@@ -200,11 +407,18 @@ fun LocationRow(location: String) {
 }
 
 @Composable
-fun WishlistLoveButton() {
+fun WishlistLoveButton(
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit
+) {
     Icon(
-        painter = painterResource(id = R.drawable.ic_love_filled),
+        painter = painterResource(
+            id = if (isFavorite) R.drawable.ic_love_filled else R.drawable.ic_love_outlined
+        ),
         contentDescription = "Love",
-        tint = Color.Red,
-        modifier = Modifier.size(20.dp)
+        tint = if (isFavorite) Color.Red else Color.Gray,
+        modifier = Modifier
+            .size(20.dp)
+            .clickable { onFavoriteClick() }
     )
 }
