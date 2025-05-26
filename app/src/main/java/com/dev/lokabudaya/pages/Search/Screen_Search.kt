@@ -313,6 +313,7 @@ fun FilterDialog(
     var tempFilters by remember { mutableStateOf(currentFilters) }
 
     AlertDialog(
+        containerColor = Color.White,
         onDismissRequest = onDismiss,
         title = {
             Text(
