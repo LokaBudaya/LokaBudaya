@@ -387,7 +387,9 @@ fun CurrentLocation(navController: NavController) {
 
 @Composable
 fun WhatIsCard(place: TourItem) {
-    val checkLove = remember { mutableStateOf(true) }
+    var isFav by remember {
+        mutableStateOf(place.isFavorite)
+    }
 
     Card(
         modifier = Modifier
@@ -448,18 +450,21 @@ fun WhatIsCard(place: TourItem) {
                         fontSize = 10.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    IconToggleButton(checked = checkLove.value, onCheckedChange = {
-                        checkLove.value = !checkLove.value
+                    IconToggleButton(checked = isFav, onCheckedChange = {
+                        isFav = !isFav
                     }) {
                         Icon(
-                            painter = if (checkLove.value) {
-                                painterResource(id = R.drawable.ic_love)
-                            } else {
-                                painterResource(id = R.drawable.ic_love_filled)
-                            },
-                            contentDescription = "Love Icon",
-                            tint = if (checkLove.value) Color.White else Color.Red,
-                            modifier = Modifier.size(20.dp)
+                            painter = if (isFav)
+                                painterResource(R.drawable.ic_love_filled)
+                            else
+                                painterResource(R.drawable.ic_love_outlined),
+                            contentDescription = "Favorite",
+                            tint = if (isFav) Color.Red else Color.White,
+                            modifier = Modifier
+                                .clickable {
+                                    isFav = !isFav
+                                    place.isFavorite = isFav
+                                }
                         )
                     }
                 }
