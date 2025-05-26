@@ -206,75 +206,66 @@ fun CombinerList() : List<CombinedItem> {
     return combinedList
 }
 
-@Preview
-@Composable
-fun Preview() {
-    LokaBudayaTheme {
-        ExploreGridList()
-    }
-}
-
 @Composable
 fun ExploreGridList() {
     val combinedList = CombinerList()
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
         items(combinedList.size) { index ->
             Box(
-                modifier = Modifier
-                    .padding(8.dp),
+                modifier = Modifier.padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 when (val item = combinedList[index]) {
                     is CombinedItem.EventItem -> {
-                        val event = item.eventItem
-                        val eventCard = SearchCardItem(
-                            imgRes = event.imgRes,
-                            title = event.title,
-                            price = event.price,
-                            rating = event.rating,
-                            isFavourite = event.isFavorite,
-                            label = event.label,
-                            location = event.location,
-                            time = event.time,
-                            backgroundLabelColor = event.backgroundLabelColor,
-                            textLabelColor = event.textLabelColor
+                        CreateSearchCard(
+                            item = item.eventItem,
+                            getImgRes = { it.imgRes },
+                            getTitle = { it.title },
+                            getPrice = { it.price },
+                            getRating = { it.rating },
+                            getIsFavorite = { it.isFavorite },
+                            getLabel = { it.label },
+                            getBackgroundLabelColor = { it.backgroundLabelColor },
+                            getTextLabelColor = { it.textLabelColor },
+                            onFavoriteClick = { eventItem, isFav ->
+                                eventItem.isFavorite = isFav
+                            }
                         )
-                        CreateSearchCard(eventCard)
                     }
                     is CombinedItem.TourItem -> {
-                        val tour = item.tourItem
-                        val tourCard = SearchCardItem(
-                            imgRes = tour.imgRes,
-                            title = tour.title,
-                            price = tour.price,
-                            rating = tour.rating,
-                            isFavourite = tour.isFavorite,
-                            label = tour.label,
-                            location = tour.location,
-                            time = null,
-                            backgroundLabelColor = tour.backgroundLabelColor,
-                            textLabelColor = tour.textLabelColor
+                        CreateSearchCard(
+                            item = item.tourItem,
+                            getImgRes = { it.imgRes },
+                            getTitle = { it.title },
+                            getPrice = { it.price },
+                            getRating = { it.rating },
+                            getIsFavorite = { it.isFavorite },
+                            getLabel = { it.label },
+                            getBackgroundLabelColor = { it.backgroundLabelColor },
+                            getTextLabelColor = { it.textLabelColor },
+                            onFavoriteClick = { tourItem, isFav ->
+                                tourItem.isFavorite = isFav
+                            }
                         )
-                        CreateSearchCard(tourCard)
                     }
-
                     is CombinedItem.KulinerItem -> {
-                        val kuliner = item.kulinerItem
-                        val kulinerCard = SearchCardItem(
-                            imgRes = kuliner.imgRes,
-                            title = kuliner.title,
-                            price = kuliner.price,
-                            rating = kuliner.rating,
-                            isFavourite = kuliner.isFavorite,
-                            label = kuliner.label,
-                            location = kuliner.location,
-                            time = null,
-                            backgroundLabelColor = kuliner.backgroundLabelColor,
-                            textLabelColor = kuliner.textLabelColor
+                        CreateSearchCard(
+                            item = item.kulinerItem,
+                            getImgRes = { it.imgRes },
+                            getTitle = { it.title },
+                            getPrice = { it.price },
+                            getRating = { it.rating },
+                            getIsFavorite = { it.isFavorite },
+                            getLabel = { it.label },
+                            getBackgroundLabelColor = { it.backgroundLabelColor },
+                            getTextLabelColor = { it.textLabelColor },
+                            onFavoriteClick = { kulinerItem, isFav ->
+                                kulinerItem.isFavorite = isFav
+                            }
                         )
-                        CreateSearchCard(kulinerCard)
                     }
                 }
             }
@@ -282,31 +273,29 @@ fun ExploreGridList() {
     }
 }
 
-data class SearchCardItem(
-    val imgRes: Int,
-    val title: String,
-    val price: Int,
-    val rating: Double,
-    var isFavourite: Boolean,
-    val label: String,
-    val location: String,
-    val time : String?,
-    val backgroundLabelColor : Color,
-    val textLabelColor: Color
-)
-
 @Composable
-fun CreateSearchCard (
-    searchCardItem : SearchCardItem
+fun <T> CreateSearchCard(
+    item: T,
+    getImgRes: (T) -> Int,
+    getTitle: (T) -> String,
+    getPrice: (T) -> Int,
+    getRating: (T) -> Double,
+    getIsFavorite: (T) -> Boolean,
+    getLabel: (T) -> String,
+    getBackgroundLabelColor: (T) -> Color,
+    getTextLabelColor: (T) -> Color,
+    onFavoriteClick: (T, Boolean) -> Unit
 ) {
-    var isFav by remember { mutableStateOf(searchCardItem.isFavourite) }
+    var isFav by remember { mutableStateOf(getIsFavorite(item)) }
     val formatter = DecimalFormat("#.###")
-    val priceFormatted = if (searchCardItem.price % 1.0 == 0.0) {
-        formatter.format(searchCardItem.price)
+    val price = getPrice(item)
+    val priceFormatted = if (price % 1.0 == 0.0) {
+        formatter.format(price)
     } else {
-        searchCardItem.price.toString()
+        price.toString()
     }
-    Card (
+
+    Card(
         modifier = Modifier
             .width(164.dp)
             .height(224.dp)
@@ -317,13 +306,13 @@ fun CreateSearchCard (
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            Column (
+            Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
             ) {
-                Box{
+                Box {
                     Image(
-                        painter = painterResource(searchCardItem.imgRes),
+                        painter = painterResource(getImgRes(item)),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -338,25 +327,25 @@ fun CreateSearchCard (
                         contentAlignment = Alignment.BottomStart
                     ) {
                         Text(
-                            text = searchCardItem.label,
-                            color = searchCardItem.textLabelColor,
+                            text = getLabel(item),
+                            color = getTextLabelColor(item),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .background(searchCardItem.backgroundLabelColor, RoundedCornerShape(4.dp))
+                                .background(getBackgroundLabelColor(item), RoundedCornerShape(4.dp))
                                 .wrapContentSize()
                                 .padding(horizontal = 8.dp)
                         )
                     }
                 }
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 8.dp)
                         .padding(top = 4.dp),
                 ) {
                     Text(
-                        text = searchCardItem.title,
+                        text = getTitle(item),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black
@@ -366,12 +355,12 @@ fun CreateSearchCard (
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xff2C4CA5)
                     )
-                    Row (
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row (
+                        Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(
@@ -379,7 +368,7 @@ fun CreateSearchCard (
                                 contentDescription = null,
                             )
                             Text(
-                                text = searchCardItem.rating.toString(),
+                                text = getRating(item).toString(),
                                 fontSize = 14.sp,
                                 color = Color.Black,
                                 modifier = Modifier
@@ -396,32 +385,11 @@ fun CreateSearchCard (
                             modifier = Modifier
                                 .clickable {
                                     isFav = !isFav
-                                    searchCardItem.isFavourite = isFav
+                                    onFavoriteClick(item, isFav)
                                 }
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun Screen_Tour() {
-    _Screen_Search(tourItemLists = tourItemLists)
-}
-
-@Composable
-fun _Screen_Search(tourItemLists: List<TourItem>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-    ) {
-        items(count = tourItemLists.size) {
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                //CreateSearchItem(tourItemLists[it])
             }
         }
     }
