@@ -19,18 +19,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -49,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,6 +81,57 @@ import java.text.DecimalFormat
 @Composable
 fun SearchPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     val authState = authViewModel.authState.observeAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    var filterOptions by remember { mutableStateOf(FilterOptions()) }
+
+    val combinedList = CombinerList()
+    val filteredResults = remember(searchQuery, filterOptions) {
+        combinedList.filter { item ->
+            val matchesSearch = if (searchQuery.isBlank()) {
+                true
+            } else {
+                when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.eventItem.location.contains(searchQuery, ignoreCase = true) ||
+                            item.eventItem.category.contains(searchQuery, ignoreCase = true)
+                    is CombinedItem.TourItem -> item.tourItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.tourItem.location.contains(searchQuery, ignoreCase = true)
+                    is CombinedItem.KulinerItem -> item.kulinerItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.kulinerItem.location.contains(searchQuery, ignoreCase = true)
+                }
+            }
+
+            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
+                true
+            } else {
+                val rating = when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.rating
+                    is CombinedItem.TourItem -> item.tourItem.rating
+                    is CombinedItem.KulinerItem -> item.kulinerItem.rating
+                }
+                filterOptions.selectedRatings.any { selectedRating ->
+                    val ratingFilter = RatingFilter.values().find { it.label == selectedRating }
+                    ratingFilter?.range?.contains(rating) == true
+                }
+            }
+
+            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
+                true
+            } else {
+                val price = when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.price
+                    is CombinedItem.TourItem -> item.tourItem.price
+                    is CombinedItem.KulinerItem -> item.kulinerItem.price
+                }
+                filterOptions.selectedPriceRanges.any { selectedPrice ->
+                    val priceFilter = PriceFilter.values().find { it.label == selectedPrice }
+                    priceFilter?.range?.contains(price) == true
+                }
+            }
+
+            matchesSearch && matchesRating && matchesPrice
+        }
+    }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -75,10 +139,11 @@ fun SearchPage(modifier: Modifier = Modifier, navController: NavController, auth
             else -> Unit
         }
     }
-    var searchQuery by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFFF8F8F8))
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -88,8 +153,28 @@ fun SearchPage(modifier: Modifier = Modifier, navController: NavController, auth
             query = searchQuery,
             onQueryChange = { searchQuery = it }
         )
-        FilterList()
-        ExploreGridList()
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterList(
+                onFiltersChanged = { newFilters ->
+                    filterOptions = newFilters
+                }
+            )
+            SearchResultsHeader(
+                totalResults = filteredResults.size,
+                searchQuery = searchQuery,
+                filterOptions = filterOptions
+            )
+        }
+
+        ExploreGridList(
+            searchQuery = searchQuery,
+            filterOptions = filterOptions
+        )
     }
 }
 
@@ -171,14 +256,190 @@ fun SearchBar(
 }
 
 // Filter section
+data class FilterOptions(
+    val selectedRatings: Set<String> = emptySet(),
+    val selectedPriceRanges: Set<String> = emptySet()
+)
+
+enum class RatingFilter(val label: String, val range: ClosedFloatingPointRange<Double>) {
+    EXCELLENT("4.5 - 5.0", 4.5..5.0),
+    GOOD("4.0 - 4.4", 4.0..4.4),
+    AVERAGE("3.5 - 3.9", 3.5..3.9),
+    BELOW_AVERAGE("< 3.5", 0.0..3.4)
+}
+
+enum class PriceFilter(val label: String, val range: IntRange) {
+    VERY_LOW("< 10rb", 0..9999),
+    LOW("10rb - 50rb", 10000..50000),
+    MEDIUM("50rb - 100rb", 50001..100000),
+    HIGH("100rb - 500rb", 100001..500000),
+    VERY_HIGH("> 500rb", 500001..Int.MAX_VALUE)
+}
+
 @Composable
-fun FilterList() {
+fun FilterList(
+    onFiltersChanged: (FilterOptions) -> Unit = {}
+) {
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var filterOptions by remember { mutableStateOf(FilterOptions()) }
+
     Icon(
         painter = painterResource(id = R.drawable.ic_filter),
         contentDescription = "Filter",
         tint = bigTextColor,
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier
+            .size(20.dp)
+            .clickable { showFilterDialog = true }
     )
+
+    if (showFilterDialog) {
+        FilterDialog(
+            currentFilters = filterOptions,
+            onFiltersChanged = { newFilters ->
+                filterOptions = newFilters
+                onFiltersChanged(newFilters)
+            },
+            onDismiss = { showFilterDialog = false }
+        )
+    }
+}
+
+@Composable
+fun FilterDialog(
+    currentFilters: FilterOptions,
+    onFiltersChanged: (FilterOptions) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var tempFilters by remember { mutableStateOf(currentFilters) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Filter",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = bigTextColor
+            )
+        },
+        text = {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                item {
+                    FilterSection(
+                        title = "Rating",
+                        options = RatingFilter.entries.map { it.label },
+                        selectedOptions = tempFilters.selectedRatings,
+                        onSelectionChanged = { selected ->
+                            tempFilters = tempFilters.copy(selectedRatings = selected)
+                        }
+                    )
+                }
+
+                item {
+                    FilterSection(
+                        title = "Harga",
+                        options = PriceFilter.entries.map { it.label },
+                        selectedOptions = tempFilters.selectedPriceRanges,
+                        onSelectionChanged = { selected ->
+                            tempFilters = tempFilters.copy(selectedPriceRanges = selected)
+                        }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onFiltersChanged(tempFilters)
+                    onDismiss()
+                }
+            ) {
+                Text(
+                    text = "Terapkan",
+                    color = Color(0xFF2C4CA5),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Batal",
+                    color = Color.Gray
+                )
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+fun FilterSection(
+    title: String,
+    options: List<String>,
+    selectedOptions: Set<String>,
+    onSelectionChanged: (Set<String>) -> Unit
+) {
+    Column {
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = bigTextColor,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(options) { option ->
+                val isSelected = selectedOptions.contains(option)
+
+                FilterChip(
+                    selected = isSelected,
+                    onClick = {
+                        val newSelection = if (isSelected) {
+                            selectedOptions - option
+                        } else {
+                            selectedOptions + option
+                        }
+                        onSelectionChanged(newSelection)
+                    },
+                    label = {
+                        Text(
+                            text = option,
+                            fontSize = 12.sp,
+                            color = if (isSelected) Color.White else Color(0xFF2C4CA5)
+                        )
+                    },
+                    leadingIcon = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Filled.Done,
+                                contentDescription = "Selected",
+                                modifier = Modifier.size(FilterChipDefaults.IconSize),
+                                tint = Color.White
+                            )
+                        }
+                    } else null,
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF2C4CA5),
+                        selectedLabelColor = Color.White,
+                        containerColor = Color.White,
+                        labelColor = Color(0xFF2C4CA5)
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = isSelected,
+                        borderColor = Color(0xFF2C4CA5)
+                    )
+                )
+            }
+        }
+    }
 }
 
 // Explore content list
@@ -207,69 +468,193 @@ fun CombinerList() : List<CombinedItem> {
 }
 
 @Composable
-fun ExploreGridList() {
+fun ExploreGridList(
+    searchQuery: String = "",
+    filterOptions: FilterOptions = FilterOptions()
+) {
     val combinedList = CombinerList()
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2)
-    ) {
-        items(combinedList.size) { index ->
-            Box(
-                modifier = Modifier.padding(8.dp),
-                contentAlignment = Alignment.Center
+    val filteredList = remember(searchQuery, filterOptions) {
+        combinedList.filter { item ->
+            val matchesSearch = if (searchQuery.isBlank()) {
+                true
+            } else {
+                when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.eventItem.location.contains(searchQuery, ignoreCase = true) ||
+                            item.eventItem.category.contains(searchQuery, ignoreCase = true)
+                    is CombinedItem.TourItem -> item.tourItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.tourItem.location.contains(searchQuery, ignoreCase = true)
+                    is CombinedItem.KulinerItem -> item.kulinerItem.title.contains(searchQuery, ignoreCase = true) ||
+                            item.kulinerItem.location.contains(searchQuery, ignoreCase = true)
+                }
+            }
+
+            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
+                true
+            } else {
+                val rating = when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.rating
+                    is CombinedItem.TourItem -> item.tourItem.rating
+                    is CombinedItem.KulinerItem -> item.kulinerItem.rating
+                }
+                filterOptions.selectedRatings.any { selectedRating ->
+                    val ratingFilter = RatingFilter.values().find { it.label == selectedRating }
+                    ratingFilter?.range?.contains(rating) == true
+                }
+            }
+
+            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
+                true
+            } else {
+                val price = when (item) {
+                    is CombinedItem.EventItem -> item.eventItem.price
+                    is CombinedItem.TourItem -> item.tourItem.price
+                    is CombinedItem.KulinerItem -> item.kulinerItem.price
+                }
+                filterOptions.selectedPriceRanges.any { selectedPrice ->
+                    val priceFilter = PriceFilter.values().find { it.label == selectedPrice }
+                    priceFilter?.range?.contains(price) == true
+                }
+            }
+
+            matchesSearch && matchesRating && matchesPrice
+        }
+    }
+
+    if (filteredList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when (val item = combinedList[index]) {
-                    is CombinedItem.EventItem -> {
-                        CreateSearchCard(
-                            item = item.eventItem,
-                            getImgRes = { it.imgRes },
-                            getTitle = { it.title },
-                            getPrice = { it.price },
-                            getRating = { it.rating },
-                            getIsFavorite = { it.isFavorite },
-                            getLabel = { it.label },
-                            getBackgroundLabelColor = { it.backgroundLabelColor },
-                            getTextLabelColor = { it.textLabelColor },
-                            onFavoriteClick = { eventItem, isFav ->
-                                eventItem.isFavorite = isFav
-                            }
-                        )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_search),
+                    contentDescription = "No Results",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = if (searchQuery.isNotBlank()) {
+                        "Tidak ada hasil untuk \"$searchQuery\""
+                    } else {
+                        "Tidak ada hasil yang sesuai dengan filter"
+                    },
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                if (filterOptions.selectedRatings.isNotEmpty() || filterOptions.selectedPriceRanges.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Coba ubah filter pencarian",
+                        fontSize = 14.sp,
+                        color = Color.LightGray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(
+                count = filteredList.size,
+                key = { index ->
+                    when (val item = filteredList[index]) {
+                        is CombinedItem.EventItem -> "event_${index}_${item.eventItem.hashCode()}"
+                        is CombinedItem.TourItem -> "tour_${index}_${item.tourItem.hashCode()}"
+                        is CombinedItem.KulinerItem -> "kuliner_${index}_${item.kulinerItem.hashCode()}"
                     }
-                    is CombinedItem.TourItem -> {
-                        CreateSearchCard(
-                            item = item.tourItem,
-                            getImgRes = { it.imgRes },
-                            getTitle = { it.title },
-                            getPrice = { it.price },
-                            getRating = { it.rating },
-                            getIsFavorite = { it.isFavorite },
-                            getLabel = { it.label },
-                            getBackgroundLabelColor = { it.backgroundLabelColor },
-                            getTextLabelColor = { it.textLabelColor },
-                            onFavoriteClick = { tourItem, isFav ->
-                                tourItem.isFavorite = isFav
-                            }
-                        )
-                    }
-                    is CombinedItem.KulinerItem -> {
-                        CreateSearchCard(
-                            item = item.kulinerItem,
-                            getImgRes = { it.imgRes },
-                            getTitle = { it.title },
-                            getPrice = { it.price },
-                            getRating = { it.rating },
-                            getIsFavorite = { it.isFavorite },
-                            getLabel = { it.label },
-                            getBackgroundLabelColor = { it.backgroundLabelColor },
-                            getTextLabelColor = { it.textLabelColor },
-                            onFavoriteClick = { kulinerItem, isFav ->
-                                kulinerItem.isFavorite = isFav
-                            }
-                        )
+                }
+            ) { index ->
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when (val item = filteredList[index]) {
+                        is CombinedItem.EventItem -> {
+                            CreateSearchCard(
+                                item = item.eventItem,
+                                getImgRes = { it.imgRes },
+                                getTitle = { it.title },
+                                getPrice = { it.price },
+                                getRating = { it.rating },
+                                getIsFavorite = { it.isFavorite },
+                                getLabel = { it.label },
+                                getBackgroundLabelColor = { it.backgroundLabelColor },
+                                getTextLabelColor = { it.textLabelColor },
+                                onFavoriteClick = { eventItem, isFav ->
+                                    eventItem.isFavorite = isFav
+                                }
+                            )
+                        }
+                        is CombinedItem.TourItem -> {
+                            CreateSearchCard(
+                                item = item.tourItem,
+                                getImgRes = { it.imgRes },
+                                getTitle = { it.title },
+                                getPrice = { it.price },
+                                getRating = { it.rating },
+                                getIsFavorite = { it.isFavorite },
+                                getLabel = { it.label },
+                                getBackgroundLabelColor = { it.backgroundLabelColor },
+                                getTextLabelColor = { it.textLabelColor },
+                                onFavoriteClick = { tourItem, isFav ->
+                                    tourItem.isFavorite = isFav
+                                }
+                            )
+                        }
+                        is CombinedItem.KulinerItem -> {
+                            CreateSearchCard(
+                                item = item.kulinerItem,
+                                getImgRes = { it.imgRes },
+                                getTitle = { it.title },
+                                getPrice = { it.price },
+                                getRating = { it.rating },
+                                getIsFavorite = { it.isFavorite },
+                                getLabel = { it.label },
+                                getBackgroundLabelColor = { it.backgroundLabelColor },
+                                getTextLabelColor = { it.textLabelColor },
+                                onFavoriteClick = { kulinerItem, isFav ->
+                                    kulinerItem.isFavorite = isFav
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SearchResultsHeader(
+    totalResults: Int,
+    searchQuery: String,
+    filterOptions: FilterOptions
+) {
+    val hasActiveFilters = filterOptions.selectedRatings.isNotEmpty() ||
+            filterOptions.selectedPriceRanges.isNotEmpty()
+
+    if ((searchQuery.isNotBlank() || hasActiveFilters) && totalResults > 0) {
+        val resultText = "Ditemukan $totalResults hasil"
+        val queryText = if (searchQuery.isNotBlank()) " untuk \"$searchQuery\"" else ""
+        val filterText = if (hasActiveFilters) " dengan filter" else ""
+
+        Text(
+            text = resultText + queryText + filterText,
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
     }
 }
 

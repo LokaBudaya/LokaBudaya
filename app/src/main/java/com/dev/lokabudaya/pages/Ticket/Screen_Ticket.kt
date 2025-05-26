@@ -1,6 +1,7 @@
 package com.dev.lokabudaya.pages.Ticket
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,20 +36,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
-import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.myTickets
 import com.dev.lokabudaya.data.Ticket
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.WishlistListItem
 import com.dev.lokabudaya.pages.Book.getAllFavoriteItems
-import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 
@@ -66,6 +64,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFFF8F8F8))
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
         horizontalAlignment = Alignment.CenterHorizontally

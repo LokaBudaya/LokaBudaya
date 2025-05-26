@@ -844,7 +844,9 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
 @Composable
 fun HomePageContent(navController: NavController) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .background(Color(0xFFF8F8F8))
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
