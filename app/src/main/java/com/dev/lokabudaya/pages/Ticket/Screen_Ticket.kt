@@ -105,7 +105,7 @@ fun HeaderSection() {
                 )
             )
         }
-        SearchIcon()
+        //SearchIcon()
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,15 +38,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
+import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.tourItemLists
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Search.FilterList
+import com.dev.lokabudaya.pages.Search.FilterOptions
+import com.dev.lokabudaya.pages.Search.PriceFilter
+import com.dev.lokabudaya.pages.Search.RatingFilter
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import java.text.DecimalFormat
@@ -52,12 +59,75 @@ import java.text.DecimalFormat
 //Tour Page
 @Composable
 fun TourPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-    Column(modifier = modifier.padding(16.dp)) {
+    var filterOptions by remember { mutableStateOf(FilterOptions()) }
+
+    val allTourItems = DataProvider.tourItemLists
+    val filteredResults = remember(filterOptions) {
+        allTourItems.filter { item ->
+            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
+                true
+            } else {
+                filterOptions.selectedRatings.any { selectedRating ->
+                    val ratingFilter = RatingFilter.entries.find { it.label == selectedRating }
+                    ratingFilter?.range?.contains(item.rating) == true
+                }
+            }
+
+            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
+                true
+            } else {
+                filterOptions.selectedPriceRanges.any { selectedPrice ->
+                    val priceFilter = PriceFilter.entries.find { it.label == selectedPrice }
+                    priceFilter?.range?.contains(item.price) == true
+                }
+            }
+
+            matchesRating && matchesPrice
+        }
+    }
+
+    Column(modifier = modifier
+        .padding(16.dp)
+        .background(Color(0xFFF8F8F8))
+    ) {
         HeaderTourSection(navController)
         Spacer(modifier = Modifier.height(16.dp))
-        FilterList()
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterList(
+                onFiltersChanged = { newFilters ->
+                    filterOptions = newFilters
+                }
+            )
+            TourResultsHeader(
+                totalResults = filteredResults.size,
+                filterOptions = filterOptions
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Tour()
+        Screen_Tour(filterOptions = filterOptions)
+    }
+}
+
+@Composable
+fun TourResultsHeader(
+    totalResults: Int,
+    filterOptions: FilterOptions
+) {
+    val hasActiveFilters = filterOptions.selectedRatings.isNotEmpty() ||
+            filterOptions.selectedPriceRanges.isNotEmpty()
+
+    if (hasActiveFilters && totalResults > 0) {
+        Text(
+            text = "Ditemukan $totalResults wisata",
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
     }
 }
 
@@ -99,21 +169,70 @@ fun HeaderTourSection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Tour() {
-    _Screen_Tour(tourItemLists = tourItemLists)
-}
+fun Screen_Tour(filterOptions: FilterOptions = FilterOptions()) {
+    val allTourItems = DataProvider.tourItemLists
+    val filteredItems = remember(filterOptions) {
+        allTourItems.filter { item ->
+            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
+                true
+            } else {
+                filterOptions.selectedRatings.any { selectedRating ->
+                    val ratingFilter = RatingFilter.entries.find { it.label == selectedRating }
+                    ratingFilter?.range?.contains(item.rating) == true
+                }
+            }
 
-@Composable
-fun _Screen_Tour(tourItemLists: List<TourItem>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-    ) {
-        items(count = tourItemLists.size) {
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
+            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
+                true
+            } else {
+                filterOptions.selectedPriceRanges.any { selectedPrice ->
+                    val priceFilter = PriceFilter.entries.find { it.label == selectedPrice }
+                    priceFilter?.range?.contains(item.price) == true
+                }
+            }
+
+            matchesRating && matchesPrice
+        }
+    }
+
+    if (filteredItems.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CreateTour(tourItemLists[it])
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_wisata),
+                    contentDescription = "No Results",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Tidak ada wisata yang sesuai dengan filter",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(
+                count = filteredItems.size,
+                key = { index ->
+                    "tour_${index}_${filteredItems[index].hashCode()}"
+                }
+            ) { index ->
+                val tourItem = filteredItems[index]
+                CreateTour(tourItem)
             }
         }
     }
@@ -124,13 +243,10 @@ fun CreateTour(tourItem: TourItem) {
     var isFav by remember {
         mutableStateOf(tourItem.isFavorite)
     }
-    val formatter = DecimalFormat("#.###")
-    val priceFormatted = if (tourItem.price % 1.0 == 0.0) {
-        formatter.format(tourItem.price)
-    } else {
-        tourItem.price.toString()
-    }
-    Card (
+    val formatter = DecimalFormat("#,###") // Ubah format untuk ribuan
+    val priceFormatted = formatter.format(tourItem.price)
+
+    Card(
         modifier = Modifier
             .width(164.dp)
             .height(224.dp)
@@ -141,19 +257,40 @@ fun CreateTour(tourItem: TourItem) {
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            Column (
+            Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center
             ) {
-                Image(
-                    painter = painterResource(tourItem.imgRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxHeight(.65f)
-                        .fillMaxWidth()
-                )
-                Column (
+                Box {
+                    Image(
+                        painter = painterResource(tourItem.imgRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxHeight(.65f)
+                            .fillMaxWidth()
+                    )
+                    // Tambahkan label seperti di CreateSearchCard
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight(.65f)
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        Text(
+                            text = tourItem.label,
+                            color = tourItem.textLabelColor,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .background(tourItem.backgroundLabelColor, RoundedCornerShape(4.dp))
+                                .wrapContentSize()
+                                .padding(horizontal = 8.dp)
+                        )
+                    }
+                }
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 8.dp)
@@ -166,16 +303,16 @@ fun CreateTour(tourItem: TourItem) {
                         color = Color.Black
                     )
                     Text(
-                        text = "Rp$priceFormatted",
+                        text = "Rp $priceFormatted", // Tambah spasi setelah Rp
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xff2C4CA5)
                     )
-                    Row (
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row (
+                        Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Image(

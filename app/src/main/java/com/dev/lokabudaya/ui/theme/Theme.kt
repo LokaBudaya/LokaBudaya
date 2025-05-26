@@ -15,16 +15,18 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
+    primary = bgColor,
+    secondary = bgColor,
+    tertiary = bgColor,
     background = Color.White,
     surface = Color.Transparent
 )
 
 private val LightColorScheme = darkColorScheme(
 
-
+    secondary = bgColor,
+    primary = bgColor,
+    tertiary = bgColor,
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,

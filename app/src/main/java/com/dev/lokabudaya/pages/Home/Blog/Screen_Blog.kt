@@ -2,6 +2,7 @@ package com.dev.lokabudaya.pages.Home.Blog
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,7 +38,10 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 
 @Composable
 fun BlogPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(modifier = modifier
+        .padding(16.dp)
+        .background(Color(0xFFF8F8F8))
+    ) {
         HeaderBlogSection(navController)
         BlogList(blogCards)
     }
