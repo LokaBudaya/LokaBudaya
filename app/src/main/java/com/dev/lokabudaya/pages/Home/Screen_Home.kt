@@ -47,6 +47,7 @@ import com.dev.lokabudaya.R
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +81,7 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import com.google.firebase.auth.FirebaseAuth
 import java.text.DecimalFormat
 import kotlin.math.abs
 
@@ -90,9 +92,16 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            is AuthState.EmailNotVerified -> {
+                val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+                navController.navigate("EmailVerificationPage/$email") {
+                    popUpTo("HomePage") { inclusive = true }
+                }
+            }
             else -> Unit
         }
     }
+
     HomePageContent(navController)
 }
 

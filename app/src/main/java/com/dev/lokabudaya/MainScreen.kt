@@ -3,9 +3,11 @@ package com.dev.lokabudaya
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -14,17 +16,24 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.navArgument
+import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Auth.EmailVerificationPage
 import com.dev.lokabudaya.pages.Auth.LoginPage
 import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
@@ -45,6 +54,8 @@ import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
 import com.dev.lokabudaya.ui.theme.navColor
+import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
@@ -52,6 +63,36 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val authState = authViewModel.authState.observeAsState()
+
+    val startDestination = remember(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated -> {
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user?.isEmailVerified == true) {
+                    ScreenRoute.Home.route
+                } else {
+                    "EmailVerificationPage/${user?.email ?: ""}"
+                }
+            }
+            is AuthState.EmailNotVerified -> {
+                val user = FirebaseAuth.getInstance().currentUser
+                "EmailVerificationPage/${user?.email ?: ""}"
+            }
+            is AuthState.Unauthenticated -> ScreenRoute.Login.route
+            else -> ScreenRoute.Login.route
+        }
+    }
+
+    if (authState.value == null || authState.value is AuthState.Loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = selectedCategoryColor)
+        }
+        return
+    }
 
     Scaffold(
         modifier = Modifier
@@ -84,12 +125,24 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
     ) { innerPadding ->
 
         val graph =
-            navController.createGraph(startDestination = ScreenRoute.Home.route) {
+            navController.createGraph(startDestination = startDestination) {
                 composable(route = ScreenRoute.Login.route) {
                     LoginPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Signup.route) {
                     SignupPage(modifier, navController, authViewModel)
+                }
+                composable(
+                    route = "EmailVerificationPage/{email}",
+                    arguments = listOf(navArgument("email") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val email = backStackEntry.arguments?.getString("email") ?: ""
+                    EmailVerificationPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        userEmail = email
+                    )
                 }
                 composable(route = ScreenRoute.Home.route) {
                     HomePage(modifier, navController, authViewModel)

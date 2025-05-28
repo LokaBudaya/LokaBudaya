@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +52,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +86,12 @@ fun SignupPage(
 
     LaunchedEffect(authState.value) {
         when (authState.value) {
-            is AuthState.Authenticated -> navController.navigate("HomePage")
+            is AuthState.EmailVerificationSent -> {
+                val firebaseEmail = FirebaseAuth.getInstance().currentUser?.email ?: email
+                navController.navigate("EmailVerificationPage/$firebaseEmail") {
+                    popUpTo("SignupPage") { inclusive = true }
+                }
+            }
             is AuthState.Error -> Toast.makeText(
                 context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT
@@ -223,12 +230,14 @@ fun SignupPage(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username") },
-                    placeholder = { Text("@username") },
+                    placeholder = { Text("username") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = selectedCategoryColor,
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedLabelColor = selectedCategoryColor,
+                        unfocusedLabelColor = Color.Gray
                     )
                 )
             }
@@ -238,12 +247,14 @@ fun SignupPage(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
-                    placeholder = { Text("username@gmail.com") },
+                    placeholder = { Text("email@gmail.com") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = selectedCategoryColor,
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedLabelColor = selectedCategoryColor,
+                        unfocusedLabelColor = Color.Gray
                     )
                 )
             }
@@ -259,7 +270,9 @@ fun SignupPage(
                     visualTransformation = PasswordVisualTransformation(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = selectedCategoryColor,
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedLabelColor = selectedCategoryColor,
+                        unfocusedLabelColor = Color.Gray
                     )
                 )
             }
@@ -289,7 +302,7 @@ fun SignupPage(
                 Button(
                     onClick = {
                         if (isChecked) {
-                            authViewModel.signup(email, password)
+                            authViewModel.signup(email, password, username)
                         } else {
                             Toast.makeText(context, "Please agree to the terms first", Toast.LENGTH_SHORT).show()
                         }
@@ -301,13 +314,20 @@ fun SignupPage(
                         containerColor = selectedCategoryColor
                     ),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = isChecked
+                    enabled = isChecked && authState.value != AuthState.Loading
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
+                    if (authState.value == AuthState.Loading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Sign Up",
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 

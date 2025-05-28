@@ -52,6 +52,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,14 +61,13 @@ fun LoginPage(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
 
-    // Google Sign-In setup
     val googleSignInClient = remember { getGoogleSignInClient(context) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -86,6 +86,11 @@ fun LoginPage(
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Authenticated -> navController.navigate("HomePage")
+            is AuthState.EmailNotVerified -> {
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                val email = currentUser?.email ?: ""
+                navController.navigate("EmailVerificationPage/$email")
+            }
             is AuthState.Error -> Toast.makeText(context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
             else -> Unit
@@ -104,13 +109,13 @@ fun LoginPage(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {
-            IconButton(onClick = { /*navController.popBackStack()*/ }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = "Back",
-                    tint = Color.Black
-                )
-            }
+//            IconButton(onClick = { /*navController.popBackStack()*/ }) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_back),
+//                    contentDescription = "Back",
+//                    tint = Color.Black
+//                )
+//            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -159,7 +164,7 @@ fun LoginPage(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_google), // Tambahkan icon Google
+                    painter = painterResource(id = R.drawable.ic_google),
                     contentDescription = "Google",
                     modifier = Modifier.size(20.dp)
                 )
@@ -192,7 +197,7 @@ fun LoginPage(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_facebook), // Tambahkan icon Facebook
+                    painter = painterResource(id = R.drawable.ic_facebook),
                     contentDescription = "Facebook",
                     modifier = Modifier.size(20.dp)
                 )
@@ -216,15 +221,17 @@ fun LoginPage(
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = username,
+            onValueChange = { username = it },
             label = { Text("Username") },
-            placeholder = { Text("@username") },
+            placeholder = { Text("Enter your username") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF4285F4),
-                unfocusedBorderColor = Color.LightGray
+                focusedBorderColor = selectedCategoryColor,
+                unfocusedBorderColor = Color.LightGray,
+                focusedLabelColor = selectedCategoryColor,
+                unfocusedLabelColor = Color.Gray
             )
         )
 
@@ -234,13 +241,15 @@ fun LoginPage(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            placeholder = { Text("Aurel Hermansyah") },
+            placeholder = { Text("Enter your password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF4285F4),
-                unfocusedBorderColor = Color.LightGray
+                focusedBorderColor = selectedCategoryColor,
+                unfocusedBorderColor = Color.LightGray,
+                focusedLabelColor = selectedCategoryColor,
+                unfocusedLabelColor = Color.Gray
             )
         )
 
@@ -275,7 +284,7 @@ fun LoginPage(
                 fontWeight = FontWeight.Medium,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable {
-                    // Handle forgot password
+                    // TODO
                 }
             )
         }
@@ -284,7 +293,7 @@ fun LoginPage(
 
         Button(
             onClick = {
-                authViewModel.login(email, password)
+                authViewModel.loginWithUsername(username, password)
             },
             enabled = authState.value != AuthState.Loading,
             modifier = Modifier
