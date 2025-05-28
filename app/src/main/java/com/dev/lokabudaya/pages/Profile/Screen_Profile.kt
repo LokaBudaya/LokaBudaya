@@ -32,12 +32,18 @@ import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Auth.UserData
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {    // ambil argumen userID
     val authState = authViewModel.authState.observeAsState()
+    val userData = authViewModel.userData.observeAsState()
+
+    LaunchedEffect(Unit) {
+        authViewModel.fetchUserData()
+    }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -59,7 +65,7 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ProfileTag(interactionSource, navController)
+        ProfileTag(interactionSource, navController, userData.value)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -104,16 +110,17 @@ fun ProfileTopBar(interactionSource: MutableInteractionSource) {
 }
 
 @Composable
-fun ProfileTag(interactionSource: MutableInteractionSource, navController: NavController) {
+fun ProfileTag(
+    interactionSource: MutableInteractionSource,
+    navController: NavController,
+    userData: UserData? = null
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_banner),
-            //if (userID.profilePict != null){
-            // painterResource(userID.profilePict)
-            // else painterResource(id = R.drawble.ic_img_banner
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -122,16 +129,16 @@ fun ProfileTag(interactionSource: MutableInteractionSource, navController: NavCo
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
+            // UBAH: Tampilkan displayName dari userData
             Text(
-//                  text = userID.name
-                text = "Admin",
+                text = userData?.displayName ?: "Loading...",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = Color(0xFF1A2758)
             )
+            // UBAH: Tampilkan username dengan @ prefix
             Text(
-//                  text = userID.email
-                text = "@admin",
+                text = "@${userData?.username ?: "loading"}",
                 color = Color.Gray,
                 fontSize = 14.sp
             )

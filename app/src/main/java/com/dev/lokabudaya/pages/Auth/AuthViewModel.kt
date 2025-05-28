@@ -24,6 +24,9 @@ open class AuthViewModel : ViewModel() {
     val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
+    private val _userData = MutableLiveData<UserData?>()
+    val userData: LiveData<UserData?> = _userData
+
     init {
         checkAuthStatus()
     }
@@ -32,23 +35,47 @@ open class AuthViewModel : ViewModel() {
         val user = auth.currentUser
         if (user == null) {
             _authState.value = AuthState.Unauthenticated
+            _userData.value = null
         } else {
             user.reload().addOnCompleteListener { reloadTask ->
                 if (reloadTask.isSuccessful) {
                     if (user.isEmailVerified) {
                         _authState.value = AuthState.Authenticated
+                        fetchUserData()
                     } else {
                         _authState.value = AuthState.EmailNotVerified
                     }
                 } else {
-                    // Fallback jika reload gagal
                     if (user.isEmailVerified) {
                         _authState.value = AuthState.Authenticated
+                        fetchUserData()
                     } else {
                         _authState.value = AuthState.EmailNotVerified
                     }
                 }
             }
+        }
+    }
+
+    fun fetchUserData() {
+        val user = auth.currentUser
+        user?.let { firebaseUser ->
+            firestore.collection("users")
+                .document(firebaseUser.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val userData = UserData(
+                            uid = document.getString("uid") ?: "",
+                            email = document.getString("email") ?: "",
+                            username = document.getString("username") ?: "",
+                            displayName = firebaseUser.displayName ?: document.getString("username") ?: "",
+                            isEmailVerified = document.getBoolean("isEmailVerified") ?: false,
+                            profile = document.get("profile") as? Map<String, Any> ?: emptyMap()
+                        )
+                        _userData.value = userData
+                    }
+                }
         }
     }
 
@@ -289,12 +316,21 @@ open class AuthViewModel : ViewModel() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
+                        // Ambil displayName dari profile atau document langsung
+                        val profile = document.get("profile") as? Map<String, Any> ?: emptyMap()
+                        val displayName = profile["displayname"] as? String
+                            ?: document.getString("displayName")
+                            ?: firebaseUser.displayName
+                            ?: document.getString("username")
+                            ?: ""
+
                         val userData = UserData(
                             uid = document.getString("uid") ?: "",
                             email = document.getString("email") ?: "",
                             username = document.getString("username") ?: "",
+                            displayName = displayName,
                             isEmailVerified = document.getBoolean("isEmailVerified") ?: false,
-                            profile = document.get("profile") as? Map<String, Any> ?: emptyMap()
+                            profile = profile
                         )
                         callback(userData)
                     } else {
@@ -312,6 +348,7 @@ data class UserData(
     val uid: String,
     val email: String,
     val username: String,
+    val displayName: String,
     val isEmailVerified: Boolean,
     val profile: Map<String, Any>
 )

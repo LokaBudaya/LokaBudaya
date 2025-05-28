@@ -2,7 +2,9 @@ package com.dev.lokabudaya.pages.Auth
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -68,6 +70,7 @@ fun EmailVerificationPage(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -166,10 +169,10 @@ fun EmailVerificationPage(
             shape = RoundedCornerShape(12.dp)
         ) {
             if (isResending) {
-                CircularProgressIndicator(
-                    color = Color(0xFF4285F4),
-                    modifier = Modifier.size(20.dp)
-                )
+                    CircularProgressIndicator(
+                        color = selectedCategoryColor,
+                        modifier = Modifier.size(20.dp)
+                    )
             } else {
                 Text(
                     text = "Resend Verification Email",
