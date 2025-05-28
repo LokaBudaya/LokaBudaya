@@ -52,12 +52,30 @@ fun EmailVerificationPage(
     val context = LocalContext.current
     var isResending by remember { mutableStateOf(false) }
 
+    val isEmailUpdate = remember {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUserEmail = currentUser?.email
+
+        currentUser != null && currentUserEmail != userEmail && userEmail.isNotEmpty()
+    }
+
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Authenticated -> {
-                navController.navigate("HomePage") {
-                    popUpTo("EmailVerificationPage") { inclusive = true }
+                if (isEmailUpdate) {
+                    Toast.makeText(context, "Email updated successfully!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("ProfilePage") { // PERBAIKI: Gunakan route yang benar
+                        popUpTo("EmailVerificationPage") { inclusive = true }
+                    }
+                } else {
+                    navController.navigate("HomePage") {
+                        popUpTo("EmailVerificationPage") { inclusive = true }
+                    }
                 }
+            }
+            is AuthState.EmailVerificationSent -> {
+                Toast.makeText(context, "Verification email sent!", Toast.LENGTH_SHORT).show()
+                isResending = false
             }
             is AuthState.Error -> {
                 Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
@@ -85,7 +103,7 @@ fun EmailVerificationPage(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Verify Your Email",
+            text = if (isEmailUpdate) "Verify Your New Email" else "Verify Your Email",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -95,7 +113,10 @@ fun EmailVerificationPage(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "We've sent a verification email to:",
+            text = if (isEmailUpdate)
+                "We've sent a verification email to your NEW email address:"
+            else
+                "We've sent a verification email to:",
             fontSize = 16.sp,
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -104,7 +125,7 @@ fun EmailVerificationPage(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = userEmail,
+            text = userEmail.ifEmpty { "Email not provided" },
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = selectedCategoryColor,
@@ -114,7 +135,10 @@ fun EmailVerificationPage(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Please check your email and click the verification link to continue.",
+            text = if (isEmailUpdate)
+                "Please check your NEW email and click the verification link to complete the email change."
+            else
+                "Please check your email and click the verification link to continue.",
             fontSize = 14.sp,
             color = Color.Gray,
             textAlign = TextAlign.Center,
@@ -169,10 +193,10 @@ fun EmailVerificationPage(
             shape = RoundedCornerShape(12.dp)
         ) {
             if (isResending) {
-                    CircularProgressIndicator(
-                        color = selectedCategoryColor,
-                        modifier = Modifier.size(20.dp)
-                    )
+                CircularProgressIndicator(
+                    color = selectedCategoryColor,
+                    modifier = Modifier.size(20.dp)
+                )
             } else {
                 Text(
                     text = "Resend Verification Email",
@@ -187,14 +211,20 @@ fun EmailVerificationPage(
 
         TextButton(
             onClick = {
-                FirebaseAuth.getInstance().signOut()
-                navController.navigate("LoginPage") {
-                    popUpTo("EmailVerificationPage") { inclusive = true }
+                if (isEmailUpdate) {
+                    navController.navigate("ProfilePage") {
+                        popUpTo("EmailVerificationPage") { inclusive = true }
+                    }
+                } else {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate("LoginPage") {
+                        popUpTo("EmailVerificationPage") { inclusive = true }
+                    }
                 }
             }
         ) {
             Text(
-                text = "Back to Login",
+                text = if (isEmailUpdate) "Back to Profile" else "Back to Login",
                 color = Color.Gray,
                 fontSize = 14.sp
             )

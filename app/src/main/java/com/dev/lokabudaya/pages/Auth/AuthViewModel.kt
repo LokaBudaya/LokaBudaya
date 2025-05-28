@@ -1,11 +1,14 @@
 package com.dev.lokabudaya.pages.Auth
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -213,17 +216,24 @@ open class AuthViewModel : ViewModel() {
         user?.let { firebaseUser ->
             _authState.value = AuthState.Loading
 
-            firebaseUser.getIdToken(true)
-                .addOnCompleteListener { tokenTask ->
-                    if (tokenTask.isSuccessful) {
-                        firebaseUser.reload().addOnCompleteListener { reloadTask ->
-                            if (reloadTask.isSuccessful) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                firebaseUser.reload().addOnCompleteListener { reloadTask ->
+                    if (reloadTask.isSuccessful) {
+                        firebaseUser.getIdToken(true).addOnCompleteListener { tokenTask ->
+                            if (tokenTask.isSuccessful) {
+
                                 if (firebaseUser.isEmailVerified) {
                                     firestore.collection("users")
                                         .document(firebaseUser.uid)
-                                        .update("isEmailVerified", true)
+                                        .update(
+                                            mapOf(
+                                                "isEmailVerified" to true,
+                                                "email" to firebaseUser.email
+                                            )
+                                        )
                                         .addOnSuccessListener {
                                             _authState.value = AuthState.Authenticated
+                                            fetchUserData()
                                         }
                                         .addOnFailureListener {
                                             _authState.value = AuthState.Authenticated
@@ -232,13 +242,14 @@ open class AuthViewModel : ViewModel() {
                                     _authState.value = AuthState.EmailNotVerified
                                 }
                             } else {
-                                _authState.value = AuthState.Error("Failed to check verification status")
+                                _authState.value = AuthState.Error("Failed to refresh token")
                             }
                         }
                     } else {
-                        _authState.value = AuthState.Error("Failed to refresh token")
+                        _authState.value = AuthState.Error("Failed to reload user")
                     }
                 }
+            }, 1000)
         }
     }
 
@@ -306,6 +317,152 @@ open class AuthViewModel : ViewModel() {
         }
 
         _authState.value = AuthState.Unauthenticated
+        _userData.value = null
+    }
+
+    fun updateProfile(
+        displayName: String,
+        username: String,
+        email: String,
+        phoneNumber: String,
+        currentEmail: String,
+        currentPassword: String
+    ) {
+        val user = auth.currentUser
+        user?.let { firebaseUser ->
+            _authState.value = AuthState.Loading
+
+            val emailChanged = email != currentEmail
+
+            if (emailChanged && currentPassword.isNotEmpty()) {
+                // Re-authenticate user sebelum update email
+                val credential = EmailAuthProvider.getCredential(currentEmail, currentPassword)
+                firebaseUser.reauthenticate(credential)
+                    .addOnCompleteListener { reauthTask ->
+                        if (reauthTask.isSuccessful) {
+                            // Update profile terlebih dahulu
+                            val profileUpdates = UserProfileChangeRequest.Builder()
+                                .setDisplayName(displayName)
+                                .build()
+
+                            firebaseUser.updateProfile(profileUpdates)
+                                .addOnCompleteListener { profileTask ->
+                                    if (profileTask.isSuccessful) {
+                                        // Gunakan verifyBeforeUpdateEmail
+                                        firebaseUser.verifyBeforeUpdateEmail(email)
+                                            .addOnCompleteListener { emailTask ->
+                                                if (emailTask.isSuccessful) {
+                                                    // Update Firestore dengan email baru (pending verification)
+                                                    updateFirestoreProfile(displayName, username, email, phoneNumber, true)
+                                                } else {
+                                                    _authState.value = AuthState.Error("Failed to send email verification: ${emailTask.exception?.message}")
+                                                }
+                                            }
+                                    } else {
+                                        _authState.value = AuthState.Error("Failed to update profile")
+                                    }
+                                }
+                        } else {
+                            _authState.value = AuthState.Error("Re-authentication failed: ${reauthTask.exception?.message}")
+                        }
+                    }
+            } else {
+                // Jika email tidak berubah, langsung update profile
+                updateProfileOnly(displayName, username, email, phoneNumber)
+            }
+        }
+    }
+
+    fun updateEmailAndProfile(
+        displayName: String,
+        username: String,
+        email: String,
+        phoneNumber: String
+    ) {
+        val user = auth.currentUser
+        user?.let { firebaseUser ->
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .build()
+
+            firebaseUser.updateProfile(profileUpdates)
+                .addOnCompleteListener { profileTask ->
+                    if (profileTask.isSuccessful) {
+                        firebaseUser.verifyBeforeUpdateEmail(email)
+                            .addOnCompleteListener { emailTask ->
+                                if (emailTask.isSuccessful) {
+                                    updateFirestoreProfile(displayName, username, email, phoneNumber, true)
+                                } else {
+                                    _authState.value = AuthState.Error("Failed to send email verification: ${emailTask.exception?.message}")
+                                }
+                            }
+                    } else {
+                        _authState.value = AuthState.Error("Failed to update profile: ${profileTask.exception?.message}")
+                    }
+                }
+        }
+    }
+
+    private fun updateProfileOnly(
+        displayName: String,
+        username: String,
+        email: String,
+        phoneNumber: String
+    ) {
+        val user = auth.currentUser
+        user?.let { firebaseUser ->
+            // Update Firebase Auth profile
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .build()
+
+            firebaseUser.updateProfile(profileUpdates)
+                .addOnCompleteListener { profileTask ->
+                    if (profileTask.isSuccessful) {
+                        // Update Firestore tanpa mengubah email
+                        updateFirestoreProfile(displayName, username, email, phoneNumber, false)
+                    } else {
+                        _authState.value = AuthState.Error("Failed to update profile: ${profileTask.exception?.message}")
+                    }
+                }
+        }
+    }
+
+    private fun updateFirestoreProfile(
+        displayName: String,
+        username: String,
+        email: String,
+        phoneNumber: String,
+        emailChanged: Boolean
+    ) {
+        val user = auth.currentUser
+        user?.let { firebaseUser ->
+            val updatedData = hashMapOf<String, Any>(
+                "username" to username,
+                "email" to email,
+                "isEmailVerified" to if (emailChanged) false else true, // Set false jika email berubah
+                "profile" to hashMapOf<String, Any>(
+                    "displayname" to displayName,
+                    "username" to username,
+                    "phonenumber" to phoneNumber
+                )
+            )
+
+            firestore.collection("users")
+                .document(firebaseUser.uid)
+                .update(updatedData)
+                .addOnSuccessListener {
+                    if (emailChanged) {
+                        sendEmailVerification()
+                    } else {
+                        _authState.value = AuthState.Authenticated
+                        fetchUserData()
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    _authState.value = AuthState.Error("Failed to update profile: ${exception.message}")
+                }
+        }
     }
 
     fun getUserData(callback: (UserData?) -> Unit) {

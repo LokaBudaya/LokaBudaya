@@ -68,6 +68,10 @@ fun LoginPage(
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        authViewModel.signout(context)
+    }
+
     val googleSignInClient = remember { getGoogleSignInClient(context) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
