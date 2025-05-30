@@ -237,9 +237,9 @@ fun ChangePasswordDialog(
                     singleLine = true,
                     enabled = !isProcessing,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
+                        focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = Color.Black,
+                        focusedLabelColor = selectedCategoryColor,
                         unfocusedLabelColor = Color.Gray
                     )
                 )
@@ -267,9 +267,9 @@ fun ChangePasswordDialog(
                     singleLine = true,
                     enabled = !isProcessing,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
+                        focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = Color.Black,
+                        focusedLabelColor = selectedCategoryColor,
                         unfocusedLabelColor = Color.Gray
                     )
                 )
@@ -297,9 +297,9 @@ fun ChangePasswordDialog(
                     singleLine = true,
                     enabled = !isProcessing,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
+                        focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = Color.Black,
+                        focusedLabelColor = selectedCategoryColor,
                         unfocusedLabelColor = Color.Gray
                     )
                 )
@@ -332,7 +332,7 @@ fun ChangePasswordDialog(
                         color = selectedCategoryColor
                     )
                 } else {
-                    Text(color = Color.Gray, text = "Confirm")
+                    Text(color = selectedCategoryColor, text = "Confirm")
                 }
             }
         },

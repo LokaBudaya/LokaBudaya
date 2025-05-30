@@ -262,6 +262,7 @@ fun PasswordConfirmationDialog(
     authViewModel: AuthViewModel
 ) {
     var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
     var isProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -286,14 +287,26 @@ fun PasswordConfirmationDialog(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Current Password") },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (isPasswordVisible)
+                        VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    if (isPasswordVisible) R.drawable.ic_eyeclosed
+                                    else R.drawable.ic_eye
+                                ),
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = !isProcessing,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
+                        focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = Color.Black,
+                        focusedLabelColor = selectedCategoryColor,
                         unfocusedLabelColor = Color.Gray
                     )
                 )
@@ -313,7 +326,7 @@ fun PasswordConfirmationDialog(
                         color = selectedCategoryColor
                     )
                 } else {
-                    Text(color = Color.Gray, text = "Confirm")
+                    Text(color = selectedCategoryColor, text = "Confirm")
                 }
             }
         },

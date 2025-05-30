@@ -297,7 +297,17 @@ fun LoginPage(
 
         Button(
             onClick = {
-                authViewModel.loginWithUsername(username, password)
+                when {
+                    username.isEmpty() -> {
+                        Toast.makeText(context, "Please enter username", Toast.LENGTH_SHORT).show()
+                    }
+                    password.isEmpty() -> {
+                        Toast.makeText(context, "Please enter password", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        authViewModel.loginWithUsername(username, password)
+                    }
+                }
             },
             enabled = authState.value != AuthState.Loading,
             modifier = Modifier
