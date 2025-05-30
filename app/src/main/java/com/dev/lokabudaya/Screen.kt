@@ -18,4 +18,5 @@ sealed class ScreenRoute(val route: String) {
     object EditProfile: ScreenRoute("EditProfilePage")
     object Accessibility: ScreenRoute("AccessibilityPage")
     object Payment: ScreenRoute("PaymentPage")
+    object Map: ScreenRoute("MapPage")
 }

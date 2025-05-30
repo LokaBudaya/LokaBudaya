@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -233,7 +234,7 @@ fun SignupPage(
                     placeholder = { Text("username") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.LightGray,
                         focusedLabelColor = selectedCategoryColor,
@@ -250,7 +251,7 @@ fun SignupPage(
                     placeholder = { Text("email@gmail.com") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.LightGray,
                         focusedLabelColor = selectedCategoryColor,
@@ -268,7 +269,7 @@ fun SignupPage(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = selectedCategoryColor,
                         unfocusedBorderColor = Color.LightGray,
                         focusedLabelColor = selectedCategoryColor,

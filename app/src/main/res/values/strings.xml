@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LokaBudaya</string>
+    <string name="google_map_api_key">AIzaSyCdP9EkfAFM7UNCMWGAUuw0BqY3Mc1Sioc</string>
     <string name="default_web_client_id">186612872682-6gs2vlidrhhj471qnmh87f74e89ncfgs.apps.googleusercontent.com</string>
 </resources>

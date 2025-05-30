@@ -1,5 +1,6 @@
 package com.dev.lokabudaya
 
+import android.widget.Toast
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -44,6 +46,7 @@ import com.dev.lokabudaya.pages.Search.Kuliner.CulinaryPage
 import com.dev.lokabudaya.pages.Home.Category.EventPage
 import com.dev.lokabudaya.pages.Search.SearchPage
 import com.dev.lokabudaya.pages.Home.Category.TourPage
+import com.dev.lokabudaya.pages.Map.MapPage
 import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
 import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
 import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
@@ -64,6 +67,7 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val authState = authViewModel.authState.observeAsState()
+    val context = LocalContext.current
 
     val startDestination = remember(authState.value) {
         when (authState.value) {
@@ -104,7 +108,13 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                     shape = CircleShape,
                     modifier = Modifier
                         .padding(bottom = 24.dp),
-                    onClick = { }) {
+                    onClick = {
+                        try {
+                            navController.navigate("MapPage")
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Failed to open map", Toast.LENGTH_SHORT).show()
+                        }
+                    }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_crosshair),
                         contentDescription = null, tint = White
@@ -188,6 +198,9 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Payment.route) {
                     PaymentPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Map.route) {
+                    MapPage(modifier, navController, authViewModel)
                 }
             }
         NavHost(

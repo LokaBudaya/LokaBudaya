@@ -46,14 +46,16 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     implementation("androidx.compose.foundation:foundation:1.5.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.facebook.android:facebook-login:16.2.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-
     implementation(enforcedPlatform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
