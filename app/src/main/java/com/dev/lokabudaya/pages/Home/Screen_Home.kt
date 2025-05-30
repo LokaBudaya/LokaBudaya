@@ -257,9 +257,9 @@ fun TopAdsCarousel(
 fun CategoryRow(navController: NavController) {
     val context = LocalContext.current
     val categories = listOf(
-        Triple("Kuliner", R.drawable.ic_culinary, Color(0xFFFFA76D)),
-        Triple("Wisata", R.drawable.ic_wisata, Color(0xFF7AD7F0)),
-        Triple("Event", R.drawable.ic_event, Color(0xFFF48DD6))
+        Triple("Kuliner", R.drawable.ic_culinaryhome, Color(0xFFFFA76D)),
+        Triple("Wisata", R.drawable.ic_tourhome, Color(0xFF7AD7F0)),
+        Triple("Event", R.drawable.ic_eventhome, Color(0xFFF48DD6))
     )
     Row(
         modifier = Modifier
@@ -283,22 +283,13 @@ fun CategoryRow(navController: NavController) {
                     ) {
                         navController.navigate(categoryRoute)
                     }
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = label,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(72.dp)
                 )
-            {
-                Box(
-                    modifier = Modifier
-                        .size(92.dp)
-                        .clip(CircleShape)
-                        .background(bgColor),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = label,
-                        tint = Color.White,
-                        modifier = Modifier.size(56.dp)
-                    )
-                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = label,
