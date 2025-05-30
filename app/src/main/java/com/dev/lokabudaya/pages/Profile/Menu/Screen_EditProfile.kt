@@ -91,23 +91,30 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
         when(authState.value) {
             is AuthState.Authenticated -> {
                 if (isLoading) {
-                    Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                    isLoading = false
-                    navController.navigate(ScreenRoute.Profile.route) {
-                        popUpTo("EditProfilePage") { inclusive = true }
+                    val emailChanged = email != (userData.value?.email ?: "")
+                    if (!emailChanged) {
+                        isLoading = false
                     }
                 }
             }
-            is AuthState.EmailVerificationSent -> {
-                Toast.makeText(context, "Verification email sent to new email address. Please verify to complete the change.", Toast.LENGTH_LONG).show()
+            is AuthState.EmailVerificationSentWithSignOut -> {
+                Toast.makeText(context, "Email verification sent! Please verify your new email and login again.", Toast.LENGTH_LONG).show()
                 isLoading = false
-                navController.navigate("EmailVerificationPage/$email") {
+                showPasswordDialog = false
+
+                authViewModel.signout(context)
+
+                navController.navigate("LoginPage") {
                     popUpTo("EditProfilePage") { inclusive = true }
                 }
+            }
+            is AuthState.EmailVerificationSent -> {
+                isLoading = false
             }
             is AuthState.Error -> {
                 Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
                 isLoading = false
+                showPasswordDialog = false
             }
             else -> Unit
         }
@@ -124,6 +131,8 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
                 showPasswordDialog = false
                 isLoading = false
             },
+            navController = navController,
+            authViewModel = authViewModel
         )
     }
 
@@ -181,6 +190,11 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
         Button(
             onClick = {
                 val emailChanged = email != (userData.value?.email ?: "")
+                val displayNameChanged = displayName != (userData.value?.displayName ?: "")
+                val usernameChanged = username != (userData.value?.username ?: "")
+                val phoneChanged = phoneNumber != ((userData.value?.profile?.get("phonenumber") as? String) ?: "")
+
+                val otherFieldsChanged = displayNameChanged || usernameChanged || phoneChanged
 
                 if (emailChanged) {
                     pendingUpdate = {
@@ -195,7 +209,7 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
                     }
                     showPasswordDialog = true
                     isLoading = true
-                } else {
+                } else if (otherFieldsChanged) {
                     isLoading = true
                     authViewModel.updateProfile(
                         displayName = displayName,
@@ -205,14 +219,16 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
                         currentEmail = userData.value?.email ?: "",
                         currentPassword = ""
                     )
-                }
-                isLoading = false
-                Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                navController.navigate(ScreenRoute.Profile.route) {
-                    popUpTo("EditProfilePage") { inclusive = true }
+
+                    Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    navController.navigate(ScreenRoute.Profile.route) {
+                        popUpTo("EditProfilePage") { inclusive = true }
+                    }
+                } else {
+                    Toast.makeText(context, "No changes detected", Toast.LENGTH_SHORT).show()
                 }
             },
-        enabled = !isLoading,
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -241,23 +257,26 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
 @Composable
 fun PasswordConfirmationDialog(
     onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    navController: NavController,
+    authViewModel: AuthViewModel
 ) {
     var password by remember { mutableStateOf("") }
+    var isProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Confirm Password & Sign Out",
+                text = "Confirm Password",
                 fontWeight = FontWeight.Bold
             )
         },
         text = {
             Column {
                 Text(
-                    text = "To change your email, please enter your current password. You will be signed out after the change.",
+                    text = "To change your email, please enter your current password.",
                     fontSize = 14.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -269,23 +288,41 @@ fun PasswordConfirmationDialog(
                     label = { Text("Current Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isProcessing,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedLabelColor = Color.Black,
+                        unfocusedLabelColor = Color.Gray
+                    )
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
+                    isProcessing = true
                     onConfirm(password)
                 },
-                enabled = password.isNotEmpty()
+                enabled = password.isNotEmpty() && !isProcessing
             ) {
-                Text("Confirm & Sign Out")
+                if (isProcessing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = selectedCategoryColor
+                    )
+                } else {
+                    Text(color = Color.Gray, text = "Confirm")
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isProcessing
+            ) {
+                Text(color = Color.Gray, text = "Cancel")
             }
         }
     )
@@ -299,7 +336,7 @@ fun ProfilePictureSection() {
     ) {
         Box {
             Image(
-                painter = painterResource(id = R.drawable.img_banner), // Ganti dengan foto profil user
+                painter = painterResource(id = R.drawable.img_banner),
                 contentDescription = "Profile Picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

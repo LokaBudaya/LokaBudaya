@@ -335,12 +335,10 @@ open class AuthViewModel : ViewModel() {
             val emailChanged = email != currentEmail
 
             if (emailChanged && currentPassword.isNotEmpty()) {
-                // Re-authenticate user sebelum update email
                 val credential = EmailAuthProvider.getCredential(currentEmail, currentPassword)
                 firebaseUser.reauthenticate(credential)
                     .addOnCompleteListener { reauthTask ->
                         if (reauthTask.isSuccessful) {
-                            // Update profile terlebih dahulu
                             val profileUpdates = UserProfileChangeRequest.Builder()
                                 .setDisplayName(displayName)
                                 .build()
@@ -348,11 +346,9 @@ open class AuthViewModel : ViewModel() {
                             firebaseUser.updateProfile(profileUpdates)
                                 .addOnCompleteListener { profileTask ->
                                     if (profileTask.isSuccessful) {
-                                        // Gunakan verifyBeforeUpdateEmail
                                         firebaseUser.verifyBeforeUpdateEmail(email)
                                             .addOnCompleteListener { emailTask ->
                                                 if (emailTask.isSuccessful) {
-                                                    // Update Firestore dengan email baru (pending verification)
                                                     updateFirestoreProfile(displayName, username, email, phoneNumber, true)
                                                 } else {
                                                     _authState.value = AuthState.Error("Failed to send email verification: ${emailTask.exception?.message}")
@@ -367,7 +363,6 @@ open class AuthViewModel : ViewModel() {
                         }
                     }
             } else {
-                // Jika email tidak berubah, langsung update profile
                 updateProfileOnly(displayName, username, email, phoneNumber)
             }
         }
@@ -411,7 +406,6 @@ open class AuthViewModel : ViewModel() {
     ) {
         val user = auth.currentUser
         user?.let { firebaseUser ->
-            // Update Firebase Auth profile
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(displayName)
                 .build()
@@ -419,7 +413,6 @@ open class AuthViewModel : ViewModel() {
             firebaseUser.updateProfile(profileUpdates)
                 .addOnCompleteListener { profileTask ->
                     if (profileTask.isSuccessful) {
-                        // Update Firestore tanpa mengubah email
                         updateFirestoreProfile(displayName, username, email, phoneNumber, false)
                     } else {
                         _authState.value = AuthState.Error("Failed to update profile: ${profileTask.exception?.message}")
@@ -440,7 +433,7 @@ open class AuthViewModel : ViewModel() {
             val updatedData = hashMapOf<String, Any>(
                 "username" to username,
                 "email" to email,
-                "isEmailVerified" to if (emailChanged) false else true, // Set false jika email berubah
+                "isEmailVerified" to if (emailChanged) false else true,
                 "profile" to hashMapOf<String, Any>(
                     "displayname" to displayName,
                     "username" to username,
@@ -453,7 +446,7 @@ open class AuthViewModel : ViewModel() {
                 .update(updatedData)
                 .addOnSuccessListener {
                     if (emailChanged) {
-                        sendEmailVerification()
+                        _authState.value = AuthState.EmailVerificationSentWithSignOut
                     } else {
                         _authState.value = AuthState.Authenticated
                         fetchUserData()
@@ -473,7 +466,6 @@ open class AuthViewModel : ViewModel() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        // Ambil displayName dari profile atau document langsung
                         val profile = document.get("profile") as? Map<String, Any> ?: emptyMap()
                         val displayName = profile["displayname"] as? String
                             ?: document.getString("displayName")
@@ -499,6 +491,49 @@ open class AuthViewModel : ViewModel() {
                 }
         }
     }
+
+    fun changePassword(
+        currentPassword: String,
+        newPassword: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        val user = auth.currentUser
+        val currentEmail = user?.email
+
+        if (user == null || currentEmail == null) {
+            onError("User not authenticated")
+            return
+        }
+
+        _authState.value = AuthState.Loading
+
+        val credential = EmailAuthProvider.getCredential(currentEmail, currentPassword)
+        user.reauthenticate(credential)
+            .addOnCompleteListener { reauthTask ->
+                if (reauthTask.isSuccessful) {
+                    user.updatePassword(newPassword)
+                        .addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                sendPasswordChangeConfirmationEmail(currentEmail)
+                                _authState.value = AuthState.PasswordChangedWithSignOut
+                                onSuccess()
+                            } else {
+                                _authState.value = AuthState.Error("Failed to update password: ${updateTask.exception?.message}")
+                                onError("Failed to update password: ${updateTask.exception?.message}")
+                            }
+                        }
+                } else {
+                    _authState.value = AuthState.Error("Current password is incorrect")
+                    onError("Current password is incorrect")
+                }
+            }
+    }
+}
+
+private fun sendPasswordChangeConfirmationEmail(email: String) {
+    // Firebase akan otomatis mengirim email konfirmasi perubahan password
+    // Tidak perlu implementasi manual karena Firebase handle ini secara otomatis
 }
 
 data class UserData(
@@ -515,10 +550,11 @@ sealed class AuthState{
     object Unauthenticated : AuthState()
     object Loading : AuthState()
     object EmailVerificationSent : AuthState()
+    object EmailVerificationSentWithSignOut : AuthState()
+    object PasswordChangedWithSignOut : AuthState()
     object EmailNotVerified : AuthState()
     data class Error(val message : String) : AuthState()
 }
-
 
 //    fun signInWithFacebook(token: String) {
 //        _authState.value = AuthState.Loading
