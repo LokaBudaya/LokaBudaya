@@ -7,8 +7,10 @@ import java.util.UUID
 data class BlogCardClass(
     // kurang user
     val title: String,
-    val desc: String,
-    val imageId: Int
+    val content: String,
+    val imageId: Int,
+    val date: String,
+    val viewers: String
 )
 
 data class KulinerItem(
@@ -59,34 +61,46 @@ data class Ticket(
 object DataProvider {
     val blogCards = listOf(
         BlogCardClass(
-            title = "My Blog #1",
-            desc = "ini blog pertamaku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            title = "Ya Allah Mudahkanlah Segala Urusanku",
+            content = "wow tempat ini sangat seru kalian harus datang kesini sama siapapun yang kalian mau cocok untuk semua orang",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         ),
         BlogCardClass(
             title = "My Blog #2",
-            desc = "ini blog keduaku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            content = "ini blog keduaku ges, salam kenal semuanya!! woowowoo bla bla bla ble bleb le",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         ),
         BlogCardClass(
             title = "My Blog #3",
-            desc = "ini blog ketigaku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            content = "ini blog ketigaku ges, salam kenal semuanya!! oke gas oke gas oke gas",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         ),
         BlogCardClass(
             title = "My Blog #4",
-            desc = "ini blog keempatku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            content = "ini blog keempatku ges, salam kenal semuanya!! cape mau tidur cape mau tidur",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         ),
         BlogCardClass(
             title = "My Blog #5",
-            desc = "ini blog kelimaku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            content = "ini blog kelimaku ges, salam kenal semuanya!! malas pingin hiling malas pingin hiling malas pingin hiling malas pingin hiling",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         ),
         BlogCardClass(
             title = "My Blog #6",
-            desc = "ini blog keenamku ges, salam kenal semuanya!!",
-            imageId = R.drawable.img_event
+            content = "ini blog keenamku ges, salam kenal semuanya!! mau belajar uas mau belajar mau belajar mau belajar mau belajar uas mau bleajar uas pls",
+            imageId = R.drawable.img_event,
+            date = "25 September 2025",
+            viewers = "1.4K"
         )
     )
     val kulinerItemLists = listOf(

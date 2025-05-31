@@ -47,7 +47,6 @@ import com.dev.lokabudaya.R
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
@@ -737,7 +736,7 @@ fun Blog(navController: NavController) {
                 val blogCard = DataProvider.blogCards[page]
                 BlogCard(
                     title = blogCard.title,
-                    desc = blogCard.desc,
+                    desc = blogCard.content,
                     imageId = blogCard.imageId
                 )
             }
