@@ -26,6 +26,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +43,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Search.FilterList
 import com.dev.lokabudaya.pages.Search.FilterOptions
 import com.dev.lokabudaya.pages.Search.PriceFilter
@@ -109,7 +114,11 @@ fun EventPage(modifier: Modifier = Modifier, navController: NavController, authV
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Event(filterOptions = filterOptions, navController = navController)
+        Screen_Event(
+            filterOptions = filterOptions,
+            navController = navController,
+            authViewModel = authViewModel
+        )
     }
 }
 
@@ -168,7 +177,13 @@ fun HeaderEventSection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Event(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
+fun Screen_Event(filterOptions: FilterOptions = FilterOptions(),
+                 navController: NavController,
+                 authViewModel: AuthViewModel
+) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val allEventItems = DataProvider.eventItemLists
     val filteredItems = remember(filterOptions) {
         allEventItems.filter { item ->
@@ -233,6 +248,7 @@ fun Screen_Event(filterOptions: FilterOptions = FilterOptions(), navController: 
                 val eventItem = filteredItems[index]
                 CreateEvent(
                     eventItem = eventItem,
+                    favoriteViewModel = favoriteViewModel,
                     onClick = {
                         val originalIndex = DataProvider.eventItemLists.indexOf(eventItem)
                         navController.navigate("DetailEventPage/$originalIndex")
@@ -244,9 +260,14 @@ fun Screen_Event(filterOptions: FilterOptions = FilterOptions(), navController: 
 }
 
 @Composable
-fun CreateEvent(eventItem: EventItem, onClick: () -> Unit = {}) {
-    var isFav by remember {
-        mutableStateOf(eventItem.isFavorite)
+fun CreateEvent(eventItem: EventItem,
+                onClick: () -> Unit = {},
+                favoriteViewModel: FavoriteViewModel = viewModel()
+) {
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(eventItem)) }
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    LaunchedEffect(favoriteItems) {
+        isFav = favoriteViewModel.getFavoriteState(eventItem)
     }
     val formatter = DecimalFormat("#,###")
     val priceFormatted = formatter.format(eventItem.price)
@@ -341,8 +362,8 @@ fun CreateEvent(eventItem: EventItem, onClick: () -> Unit = {}) {
                             contentDescription = "Favorite",
                             modifier = Modifier
                                 .clickable {
-                                    isFav = !isFav
-                                    eventItem.isFavorite = isFav
+                                    favoriteViewModel.toggleFavorite(eventItem)
+                                    isFav = favoriteViewModel.getFavoriteState(eventItem)
                                 }
                         )
                     }

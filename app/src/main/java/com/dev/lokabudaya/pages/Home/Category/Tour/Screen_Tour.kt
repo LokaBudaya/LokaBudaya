@@ -26,6 +26,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +43,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Search.FilterList
 import com.dev.lokabudaya.pages.Search.FilterOptions
 import com.dev.lokabudaya.pages.Search.PriceFilter
@@ -111,7 +116,8 @@ fun TourPage(modifier: Modifier = Modifier, navController: NavController, authVi
         Spacer(modifier = Modifier.height(16.dp))
         Screen_Tour(
             filterOptions = filterOptions,
-            navController = navController
+            navController = navController,
+            authViewModel = authViewModel
         )
     }
 }
@@ -171,7 +177,13 @@ fun HeaderTourSection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Tour(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
+fun Screen_Tour(filterOptions: FilterOptions = FilterOptions(),
+                navController: NavController,
+                authViewModel: AuthViewModel
+) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val allTourItems = DataProvider.tourItemLists
     val filteredItems = remember(filterOptions) {
         allTourItems.filter { item ->
@@ -236,6 +248,7 @@ fun Screen_Tour(filterOptions: FilterOptions = FilterOptions(), navController: N
                 val tourItem = filteredItems[index]
                 CreateTour(
                     tourItem = tourItem,
+                    favoriteViewModel = favoriteViewModel,
                     onClick = {
                         val originalIndex = DataProvider.tourItemLists.indexOf(tourItem)
                         navController.navigate("DetailTourPage/$originalIndex")
@@ -247,9 +260,14 @@ fun Screen_Tour(filterOptions: FilterOptions = FilterOptions(), navController: N
 }
 
 @Composable
-fun CreateTour(tourItem: TourItem, onClick: () -> Unit = {}) {
-    var isFav by remember {
-        mutableStateOf(tourItem.isFavorite)
+fun CreateTour(tourItem: TourItem,
+               onClick: () -> Unit = {},
+               favoriteViewModel: FavoriteViewModel = viewModel()
+) {
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(tourItem)) }
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    LaunchedEffect(favoriteItems) {
+        isFav = favoriteViewModel.getFavoriteState(tourItem)
     }
     val formatter = DecimalFormat("#,###") // Ubah format untuk ribuan
     val priceFormatted = formatter.format(tourItem.price)
@@ -345,8 +363,8 @@ fun CreateTour(tourItem: TourItem, onClick: () -> Unit = {}) {
                             contentDescription = "Favorite",
                             modifier = Modifier
                                 .clickable {
-                                    isFav = !isFav
-                                    tourItem.isFavorite = isFav
+                                    favoriteViewModel.toggleFavorite(tourItem)
+                                    isFav = favoriteViewModel.getFavoriteState(tourItem)
                                 }
                         )
                     }

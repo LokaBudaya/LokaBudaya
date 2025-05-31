@@ -21,6 +21,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ui.theme.bigTextColor
@@ -50,9 +53,11 @@ import java.text.DecimalFormat
 // Main Screen
 @Composable
 fun BookPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val authState = authViewModel.authState.observeAsState()
     var selectedFilter by remember { mutableStateOf(FilterOption.ALL) }
-    var refreshTrigger by remember { mutableStateOf(0) }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -83,15 +88,12 @@ fun BookPage(modifier: Modifier = Modifier, navController: NavController, authVi
             )
         }
 
-        // Wishlist section tidak akan terpengaruh layout dropdown
-        key(selectedFilter, refreshTrigger) {
-            WishlistSection(
-                selectedFilter = selectedFilter,
-                onFavoriteChanged = {
-                    refreshTrigger++
-                }
-            )
-        }
+        WishlistSection(
+            selectedFilter = selectedFilter,
+            favoriteViewModel = favoriteViewModel,
+            onFavoriteChanged = {
+            }
+        )
     }
 }
 
@@ -194,25 +196,16 @@ fun FilterSection(
     }
 }
 
-// Wishlist Section
-fun getAllFavoriteItems(): List<Any> {
-    val favoriteItems = mutableListOf<Any>()
-
-    favoriteItems.addAll(DataProvider.kulinerItemLists.filter { it.isFavorite })
-
-    favoriteItems.addAll(DataProvider.tourItemLists.filter { it.isFavorite })
-
-    favoriteItems.addAll(DataProvider.eventItemLists.filter { it.isFavorite })
-
-    return favoriteItems
-}
-
 @Composable
 fun WishlistSection(
     selectedFilter: FilterOption = FilterOption.ALL,
+    favoriteViewModel: FavoriteViewModel,
     onFavoriteChanged: () -> Unit = {}
 ) {
-    val allFavoriteItems = getAllFavoriteItems()
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    val allFavoriteItems by remember(favoriteItems) {
+        derivedStateOf { favoriteViewModel.getAllFavoriteItems() }
+    }
     val filteredItems = when (selectedFilter) {
         FilterOption.ALL -> allFavoriteItems
         FilterOption.KULINER -> allFavoriteItems.filterIsInstance<KulinerItem>()
@@ -247,17 +240,11 @@ fun WishlistSection(
         ) {
             items(
                 items = filteredItems,
-                key = { item ->
-                    when (item) {
-                        is KulinerItem -> item.id
-                        is TourItem -> item.id
-                        is EventItem -> item.id
-                        else -> "unknown_${item.hashCode()}"
-                    }
-                }
+                key = { item -> favoriteViewModel.getItemId(item) }
             ) { item ->
                 WishlistListItem(
                     item = item,
+                    favoriteViewModel = favoriteViewModel,
                     onFavoriteChanged = onFavoriteChanged
                 )
                 if (filteredItems.indexOf(item) < filteredItems.size - 1) {
@@ -272,13 +259,15 @@ fun WishlistSection(
 @Composable
 fun WishlistListItem(
     item: Any,
+    favoriteViewModel: FavoriteViewModel,
     onFavoriteChanged: () -> Unit = {}
 ) {
-    val isFavorite = when (item) {
-        is KulinerItem -> item.isFavorite
-        is TourItem -> item.isFavorite
-        is EventItem -> item.isFavorite
-        else -> false
+    var isFavorite by remember { mutableStateOf(favoriteViewModel.getFavoriteState(item)) }
+
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+
+    LaunchedEffect(favoriteItems) {
+        isFavorite = favoriteViewModel.getFavoriteState(item)
     }
 
     Row(
@@ -297,11 +286,8 @@ fun WishlistListItem(
         WishlistLoveButton(
             isFavorite = isFavorite,
             onFavoriteClick = {
-                when (item) {
-                    is KulinerItem -> item.isFavorite = !item.isFavorite
-                    is TourItem -> item.isFavorite = !item.isFavorite
-                    is EventItem -> item.isFavorite = !item.isFavorite
-                }
+                favoriteViewModel.toggleFavorite(item)
+                isFavorite = favoriteViewModel.getFavoriteState(item)
                 onFavoriteChanged()
             }
         )

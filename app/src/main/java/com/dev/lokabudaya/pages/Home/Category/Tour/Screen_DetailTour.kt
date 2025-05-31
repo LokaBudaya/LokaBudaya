@@ -38,6 +38,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -53,13 +54,19 @@ fun DetailTourPage(
     modifier: Modifier = Modifier,
     navController: NavController,
     authViewModel: AuthViewModel,
-    tourItem: TourItem,
-    favoriteViewModel: FavoriteViewModel = viewModel()
+    tourItem: TourItem
 ) {
     val context = LocalContext.current
     val apiKey = stringResource(id = R.string.google_map_api_key)
     val coroutineScope = rememberCoroutineScope()
-    var isFavorite by remember { mutableStateOf(favoriteViewModel.getFavoriteState(tourItem)) }
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    var isFavorite by remember { mutableStateOf(tourItem.isFavorite) }
+    LaunchedEffect(favoriteItems) {
+        isFavorite = favoriteViewModel.getFavoriteState(tourItem)
+    }
 
     val previewImages = listOf(
         tourItem.imgRes,

@@ -47,6 +47,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.DataProvider
@@ -72,6 +74,8 @@ import com.dev.lokabudaya.data.DataProvider.tourItemLists
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
@@ -79,7 +83,13 @@ import java.text.DecimalFormat
 
 // Main Screen
 @Composable
-fun SearchPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+fun SearchPage(modifier: Modifier = Modifier,
+               navController: NavController,
+               authViewModel: AuthViewModel
+) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val authState = authViewModel.authState.observeAsState()
     var searchQuery by remember { mutableStateOf("") }
     var filterOptions by remember { mutableStateOf(FilterOptions()) }
@@ -173,7 +183,8 @@ fun SearchPage(modifier: Modifier = Modifier, navController: NavController, auth
 
         ExploreGridList(
             searchQuery = searchQuery,
-            filterOptions = filterOptions
+            filterOptions = filterOptions,
+            favoriteViewModel = favoriteViewModel
         )
     }
 }
@@ -471,9 +482,12 @@ fun CombinerList() : List<CombinedItem> {
 @Composable
 fun ExploreGridList(
     searchQuery: String = "",
-    filterOptions: FilterOptions = FilterOptions()
+    filterOptions: FilterOptions = FilterOptions(),
+    favoriteViewModel: FavoriteViewModel
 ) {
     val combinedList = CombinerList()
+
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
 
     val filteredList = remember(searchQuery, filterOptions) {
         combinedList.filter { item ->
@@ -588,13 +602,14 @@ fun ExploreGridList(
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
-                                getIsFavorite = { it.isFavorite },
+                                getIsFavorite = { favoriteViewModel.getFavoriteState(it) },
                                 getLabel = { it.label },
                                 getBackgroundLabelColor = { it.backgroundLabelColor },
                                 getTextLabelColor = { it.textLabelColor },
                                 onFavoriteClick = { eventItem, isFav ->
-                                    eventItem.isFavorite = isFav
-                                }
+                                    favoriteViewModel.toggleFavorite(eventItem)
+                                },
+                                favoriteViewModel = favoriteViewModel
                             )
                         }
                         is CombinedItem.TourItem -> {
@@ -604,13 +619,14 @@ fun ExploreGridList(
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
-                                getIsFavorite = { it.isFavorite },
+                                getIsFavorite = { favoriteViewModel.getFavoriteState(it) },
                                 getLabel = { it.label },
                                 getBackgroundLabelColor = { it.backgroundLabelColor },
                                 getTextLabelColor = { it.textLabelColor },
                                 onFavoriteClick = { tourItem, isFav ->
-                                    tourItem.isFavorite = isFav
-                                }
+                                    favoriteViewModel.toggleFavorite(tourItem)
+                                },
+                                favoriteViewModel = favoriteViewModel
                             )
                         }
                         is CombinedItem.KulinerItem -> {
@@ -620,13 +636,14 @@ fun ExploreGridList(
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
-                                getIsFavorite = { it.isFavorite },
+                                getIsFavorite = { favoriteViewModel.getFavoriteState(it) },
                                 getLabel = { it.label },
                                 getBackgroundLabelColor = { it.backgroundLabelColor },
                                 getTextLabelColor = { it.textLabelColor },
                                 onFavoriteClick = { kulinerItem, isFav ->
-                                    kulinerItem.isFavorite = isFav
-                                }
+                                    favoriteViewModel.toggleFavorite(kulinerItem)
+                                },
+                                favoriteViewModel = favoriteViewModel
                             )
                         }
                     }
@@ -660,7 +677,7 @@ fun SearchResultsHeader(
 }
 
 @Composable
-fun <T> CreateSearchCard(
+fun <T : Any> CreateSearchCard(
     item: T,
     getImgRes: (T) -> Int,
     getTitle: (T) -> String,
@@ -670,9 +687,15 @@ fun <T> CreateSearchCard(
     getLabel: (T) -> String,
     getBackgroundLabelColor: (T) -> Color,
     getTextLabelColor: (T) -> Color,
-    onFavoriteClick: (T, Boolean) -> Unit
+    onFavoriteClick: (T, Boolean) -> Unit,
+    favoriteViewModel: FavoriteViewModel
 ) {
-    var isFav by remember { mutableStateOf(getIsFavorite(item)) }
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(item)) }
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    LaunchedEffect(favoriteItems) {
+        isFav = favoriteViewModel.getFavoriteState(item)
+    }
+
     val formatter = DecimalFormat("#.###")
     val price = getPrice(item)
     val priceFormatted = if (price % 1.0 == 0.0) {
@@ -770,8 +793,8 @@ fun <T> CreateSearchCard(
                             contentDescription = "Favorite",
                             modifier = Modifier
                                 .clickable {
-                                    isFav = !isFav
-                                    onFavoriteClick(item, isFav)
+                                    favoriteViewModel.toggleFavorite(item)
+                                    isFav = favoriteViewModel.getFavoriteState(item)
                                 }
                         )
                     }

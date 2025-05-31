@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
@@ -75,6 +76,8 @@ import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
@@ -86,6 +89,9 @@ import kotlin.math.abs
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val authState = authViewModel.authState.observeAsState()
 
     LaunchedEffect(authState.value) {
@@ -101,7 +107,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         }
     }
 
-    HomePageContent(navController)
+    HomePageContent(navController, favoriteViewModel)
 }
 
 // Top ads section
@@ -333,7 +339,7 @@ fun HomeTab() {
 
 // Current location section
 @Composable
-fun CurrentLocation(navController: NavController) {
+fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -385,10 +391,8 @@ fun CurrentLocation(navController: NavController) {
 }
 
 @Composable
-fun WhatIsCard(place: TourItem) {
-    var isFav by remember {
-        mutableStateOf(place.isFavorite)
-    }
+fun WhatIsCard(place: TourItem, favoriteViewModel: FavoriteViewModel = viewModel()) {
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(place)) }
 
     Card(
         modifier = Modifier
@@ -461,8 +465,8 @@ fun WhatIsCard(place: TourItem) {
                             tint = if (isFav) Color.Red else Color.White,
                             modifier = Modifier
                                 .clickable {
-                                    isFav = !isFav
-                                    place.isFavorite = isFav
+                                    favoriteViewModel.toggleFavorite(place)
+                                    isFav = favoriteViewModel.getFavoriteState(place)
                                 }
                         )
                     }
@@ -841,7 +845,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
 
 // All HomePage content
 @Composable
-fun HomePageContent(navController: NavController) {
+fun HomePageContent(navController: NavController, favoriteViewModel: FavoriteViewModel) {
     LazyColumn(
         modifier = Modifier
             .background(Color(0xFFF8F8F8))

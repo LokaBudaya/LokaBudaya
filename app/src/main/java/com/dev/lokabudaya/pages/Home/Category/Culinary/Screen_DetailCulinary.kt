@@ -37,6 +37,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.KulinerItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -52,13 +53,20 @@ fun DetailCulinaryPage(
     modifier: Modifier = Modifier,
     navController: NavController,
     authViewModel: AuthViewModel,
-    kulinerItem: KulinerItem,
-    favoriteViewModel: FavoriteViewModel = viewModel()
+    kulinerItem: KulinerItem
 ) {
     val context = LocalContext.current
     val apiKey = stringResource(id = R.string.google_map_api_key)
     val coroutineScope = rememberCoroutineScope()
-    var isFavorite by remember { mutableStateOf(favoriteViewModel.getFavoriteState(kulinerItem)) }
+
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    var isFavorite by remember { mutableStateOf(kulinerItem.isFavorite) }
+    LaunchedEffect(favoriteItems) {
+        isFavorite = favoriteViewModel.getFavoriteState(kulinerItem)
+    }
 
     val previewImages = listOf(
         kulinerItem.imgRes,

@@ -21,7 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
@@ -45,14 +49,18 @@ import com.dev.lokabudaya.data.DataProvider.myTickets
 import com.dev.lokabudaya.data.Ticket
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Book.WishlistListItem
-import com.dev.lokabudaya.pages.Book.getAllFavoriteItems
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 
 // Main Screen
 @Composable
 fun TicketPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val authState = authViewModel.authState.observeAsState()
 
     LaunchedEffect(authState.value) {
@@ -82,7 +90,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
         item {
             Spacer(modifier = Modifier.height(16.dp))
             WishlistHeader(navController)
-            WishlistSectionTicket()
+            WishlistSectionTicket(favoriteViewModel)
         }
     }
 }
@@ -263,11 +271,14 @@ fun WishlistHeader(navController: NavController) {
 
 // Wishlist Ticket Section
 @Composable
-fun WishlistSectionTicket() {
-    var refreshTrigger by remember { mutableStateOf(0) }
-
-    val allFavoriteItems = remember(refreshTrigger) { getAllFavoriteItems() }
-    val topThreeItems = allFavoriteItems.take(3)
+fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel) {
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    val allFavoriteItems by remember(favoriteItems) {
+        derivedStateOf { favoriteViewModel.getAllFavoriteItems() }
+    }
+    val topThreeItems by remember(allFavoriteItems) {
+        derivedStateOf { allFavoriteItems.take(3) }
+    }
 
     if (topThreeItems.isEmpty()) {
         Box(
@@ -289,12 +300,14 @@ fun WishlistSectionTicket() {
             modifier = Modifier.fillMaxWidth()
         ) {
             topThreeItems.forEachIndexed { index, item ->
-                WishlistListItem(
-                    item = item,
-                    onFavoriteChanged = {
-                        refreshTrigger++
-                    }
-                )
+                key(favoriteViewModel.getItemId(item)) {
+                    WishlistListItem(
+                        item = item,
+                        favoriteViewModel = favoriteViewModel,
+                        onFavoriteChanged = {
+                        }
+                    )
+                }
                 if (index < topThreeItems.size - 1) {
                     HorizontalDivider(thickness = 2.dp, color = Color(0xFFE0E0E0))
                 }

@@ -127,7 +127,7 @@ object DataProvider {
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Bestik Pak Darmo",
+            title = "Bestik Pak Darmo 2",
             price = 15000,
             rating = 4.9,
             location = "Surakarta",
@@ -149,7 +149,7 @@ object DataProvider {
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy",
+            title = "Gacoan Yummy 2",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -160,7 +160,7 @@ object DataProvider {
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy",
+            title = "Gacoan Yummy 3",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -171,7 +171,7 @@ object DataProvider {
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy",
+            title = "Gacoan Yummy 4",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -182,7 +182,7 @@ object DataProvider {
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy",
+            title = "Gacoan Yummy 5",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -210,7 +210,7 @@ object DataProvider {
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy",
+            title = "Event Yummy 2",
             price = 999999,
             rating = 4.5,
             location = "Surakarta",
@@ -224,7 +224,7 @@ object DataProvider {
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy",
+            title = "Event Yummy 3",
             price = 999999,
             rating = 4.5,
             location = "Surakarta",
@@ -238,7 +238,7 @@ object DataProvider {
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy",
+            title = "Event Yummy 4",
             price = 999999,
             rating = 4.5,
             location = "Surakarta",
@@ -307,7 +307,7 @@ object DataProvider {
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy",
+            title = "Tour Yummy 2",
             price = 999999,
             rating = 4.5,
             location = "Yogyakarta",
@@ -318,7 +318,7 @@ object DataProvider {
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy",
+            title = "Tour Yummy 3",
             price = 999999,
             rating = 4.5,
             location = "Yogyakarta",
@@ -329,7 +329,7 @@ object DataProvider {
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy",
+            title = "Tour Yummy 4",
             price = 999999,
             rating = 4.5,
             location = "Surakarta",

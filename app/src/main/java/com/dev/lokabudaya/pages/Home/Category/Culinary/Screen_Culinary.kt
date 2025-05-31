@@ -26,6 +26,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +43,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.KulinerItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModel
+import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.pages.Search.FilterList
@@ -109,7 +114,10 @@ fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, au
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Kuliner(filterOptions = filterOptions, navController = navController)
+        Screen_Kuliner(
+            filterOptions = filterOptions,
+            navController = navController,
+            authViewModel = authViewModel)
     }
 }
 
@@ -168,7 +176,13 @@ fun HeaderCulinarySection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
+fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(),
+                   navController: NavController,
+                   authViewModel: AuthViewModel
+) {
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(authViewModel)
+    )
     val allKulinerItems = DataProvider.kulinerItemLists
     val filteredItems = remember(filterOptions) {
         allKulinerItems.filter { item ->
@@ -234,6 +248,7 @@ fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(), navController
 
                 CreateKuliner(
                     kulinerItem = kulinerItem,
+                    favoriteViewModel = favoriteViewModel,
                     onClick = {
                         val originalIndex = DataProvider.kulinerItemLists.indexOf(kulinerItem)
                         navController.navigate("DetailCulinaryPage/$originalIndex")
@@ -245,9 +260,14 @@ fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(), navController
 }
 
 @Composable
-fun CreateKuliner(kulinerItem: KulinerItem, onClick: () -> Unit = {}) {
-    var isFav by remember {
-        mutableStateOf(kulinerItem.isFavorite)
+fun CreateKuliner(kulinerItem: KulinerItem,
+                  onClick: () -> Unit = {},
+                  favoriteViewModel: FavoriteViewModel = viewModel()
+) {
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(kulinerItem)) }
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
+    LaunchedEffect(favoriteItems) {
+        isFav = favoriteViewModel.getFavoriteState(kulinerItem)
     }
     val formatter = DecimalFormat("#,###")
     val priceFormatted = formatter.format(kulinerItem.price)
@@ -342,8 +362,8 @@ fun CreateKuliner(kulinerItem: KulinerItem, onClick: () -> Unit = {}) {
                             contentDescription = "Favorite",
                             modifier = Modifier
                                 .clickable {
-                                    isFav = !isFav
-                                    kulinerItem.isFavorite = isFav
+                                    favoriteViewModel.toggleFavorite(kulinerItem)
+                                    isFav = favoriteViewModel.getFavoriteState(kulinerItem)
                                 }
                         )
                     }
