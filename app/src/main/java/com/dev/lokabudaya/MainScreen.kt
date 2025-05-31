@@ -33,19 +33,25 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.navArgument
+import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.DataProvider.eventItemLists
+import com.dev.lokabudaya.data.DataProvider.kulinerItemLists
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Auth.EmailVerificationPage
 import com.dev.lokabudaya.pages.Auth.LoginPage
 import com.dev.lokabudaya.pages.Auth.SignupPage
 import com.dev.lokabudaya.pages.Book.BookPage
+import com.dev.lokabudaya.pages.Culinary.DetailCulinaryPage
 import com.dev.lokabudaya.pages.Home.Blog.BlogPage
 import com.dev.lokabudaya.pages.Home.HomePage
 import com.dev.lokabudaya.pages.Profile.ProfilePage
-import com.dev.lokabudaya.pages.Search.Kuliner.CulinaryPage
-import com.dev.lokabudaya.pages.Home.Category.EventPage
+import com.dev.lokabudaya.pages.Home.Category.Culinary.CulinaryPage
+import com.dev.lokabudaya.pages.Home.Category.Event.DetailEventPage
+import com.dev.lokabudaya.pages.Home.Category.Event.EventPage
+import com.dev.lokabudaya.pages.Home.Category.Tour.DetailTourPage
 import com.dev.lokabudaya.pages.Search.SearchPage
-import com.dev.lokabudaya.pages.Home.Category.TourPage
+import com.dev.lokabudaya.pages.Home.Category.Tour.TourPage
 import com.dev.lokabudaya.pages.Map.MapPage
 import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
 import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
@@ -171,6 +177,45 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Culinary.route) {
                     CulinaryPage(modifier, navController, authViewModel)
+                }
+                composable(
+                    route = "DetailCulinaryPage/{kulinerIndex}",
+                    arguments = listOf(navArgument("kulinerIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val kulinerIndex = backStackEntry.arguments?.getInt("kulinerIndex") ?: 0
+                    val kulinerItem = kulinerItemLists[kulinerIndex]
+                    DetailCulinaryPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        kulinerItem = kulinerItem
+                    )
+                }
+                composable(
+                    route = "DetailEventPage/{eventIndex}",
+                    arguments = listOf(navArgument("eventIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val eventIndex = backStackEntry.arguments?.getInt("eventIndex") ?: 0
+                    val eventItem = eventItemLists[eventIndex]
+                    DetailEventPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        eventItem = eventItem
+                    )
+                }
+                composable(
+                    route = "DetailTourPage/{tourIndex}",
+                    arguments = listOf(navArgument("tourIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val tourIndex = backStackEntry.arguments?.getInt("tourIndex") ?: 0
+                    val tourItem = DataProvider.tourItemLists[tourIndex]
+                    DetailTourPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        tourItem = tourItem
+                    )
                 }
                 composable(route = ScreenRoute.Event.route) {
                     EventPage(modifier, navController, authViewModel)

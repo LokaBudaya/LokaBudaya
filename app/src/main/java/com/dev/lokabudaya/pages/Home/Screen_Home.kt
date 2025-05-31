@@ -657,7 +657,7 @@ fun ListEventCard(event: EventItem) {
                                     modifier = Modifier.size(12.dp)
                                 )
                                 Text(
-                                    text = event.time,
+                                    text = event.eventTime,
                                     color = Color.Black,
                                     fontSize = 12.sp,
                                     modifier = Modifier

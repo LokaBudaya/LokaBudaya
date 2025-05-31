@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages.Home.Category
+package com.dev.lokabudaya.pages.Home.Category.Event
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -45,7 +45,6 @@ import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
-import com.dev.lokabudaya.data.DataProvider.eventItemLists
 import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Search.FilterList
@@ -110,7 +109,7 @@ fun EventPage(modifier: Modifier = Modifier, navController: NavController, authV
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Event(filterOptions = filterOptions)
+        Screen_Event(filterOptions = filterOptions, navController = navController)
     }
 }
 
@@ -169,7 +168,7 @@ fun HeaderEventSection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Event(filterOptions: FilterOptions = FilterOptions()) {
+fun Screen_Event(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
     val allEventItems = DataProvider.eventItemLists
     val filteredItems = remember(filterOptions) {
         allEventItems.filter { item ->
@@ -232,14 +231,20 @@ fun Screen_Event(filterOptions: FilterOptions = FilterOptions()) {
                 }
             ) { index ->
                 val eventItem = filteredItems[index]
-                CreateEvent(eventItem)
+                CreateEvent(
+                    eventItem = eventItem,
+                    onClick = {
+                        val originalIndex = DataProvider.eventItemLists.indexOf(eventItem)
+                        navController.navigate("DetailEventPage/$originalIndex")
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun CreateEvent(eventItem: EventItem) {
+fun CreateEvent(eventItem: EventItem, onClick: () -> Unit = {}) {
     var isFav by remember {
         mutableStateOf(eventItem.isFavorite)
     }
@@ -251,6 +256,7 @@ fun CreateEvent(eventItem: EventItem) {
             .width(164.dp)
             .height(224.dp)
             .shadow(2.dp, shape = RoundedCornerShape(16.dp), clip = false)
+            .clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
@@ -270,7 +276,6 @@ fun CreateEvent(eventItem: EventItem) {
                             .fillMaxHeight(.65f)
                             .fillMaxWidth()
                     )
-                    // Tambahkan label seperti di CreateSearchCard
                     Box(
                         modifier = Modifier
                             .fillMaxHeight(.65f)
@@ -303,7 +308,7 @@ fun CreateEvent(eventItem: EventItem) {
                         color = Color.Black
                     )
                     Text(
-                        text = "Rp $priceFormatted", // Tambah spasi setelah Rp
+                        text = "Rp $priceFormatted",
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xff2C4CA5)
                     )
