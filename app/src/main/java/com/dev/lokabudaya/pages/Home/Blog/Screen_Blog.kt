@@ -45,7 +45,7 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 @Composable
 fun BlogPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     Column(modifier = modifier
-        .padding(16.dp)
+        .padding(horizontal = 16.dp)
         .background(Color(0xFFF8F8F8))
     ) {
         HeaderBlogSection(navController)
@@ -59,7 +59,9 @@ fun BlogPage(modifier: Modifier = Modifier, navController: NavController, authVi
 fun HeaderBlogSection(navController: NavController) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -103,7 +105,7 @@ fun BlogItem(blog: BlogCardClass) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
+            .padding(horizontal = 0.dp)
             .height(148.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -183,7 +185,10 @@ fun BlogItem(blog: BlogCardClass) {
                     }
                 }
             }
-            HorizontalDivider()
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = Color(0xFFC8C7CC)
+            )
         }
     }
 }
