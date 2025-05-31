@@ -21,6 +21,9 @@ data class KulinerItem(
     val rating:Double,
     val location:String,
     var isFavorite:Boolean,
+    var desc:String,
+    var latitude:Double,
+    var longtitude:Double,
     val label: String = "Kuliner",
     val backgroundLabelColor: Color = Color(0xFFFFEAC3),
     val textLabelColor: Color = Color(0xFFEA8D00)
@@ -32,10 +35,14 @@ data class EventItem(
     val price:Int,
     val rating:Double,
     val location:String,
-    val time: String, //harusnya pake time
     var isFavorite:Boolean,
-    val label: String = "Event",
+    val label:String = "Event",
     val category: String,
+    val desc:String,
+    val latitude:Double,
+    val longtitude:Double,
+    val eventDate:String,
+    val eventTime:String,
     val backgroundLabelColor: Color = Color(0xFFFFC3E8),
     val textLabelColor: Color = Color(0xFFEA00DB)
 )
@@ -47,6 +54,9 @@ data class TourItem(
     val rating:Double,
     val location:String,
     var isFavorite:Boolean,
+    var desc:String,
+    var latitude:Double,
+    var longtitude:Double,
     val label:String = "Tour",
     val backgroundLabelColor: Color = Color(0xFFC3F2FF),
     val textLabelColor: Color = Color(0xFF00B6EA)
@@ -110,7 +120,10 @@ object DataProvider {
             price = 15000,
             rating = 4.9,
             location = "Surakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -118,7 +131,10 @@ object DataProvider {
             price = 15000,
             rating = 4.9,
             location = "Surakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -126,7 +142,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakata",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -134,7 +153,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakata",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -142,7 +164,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakata",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -150,7 +175,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakata",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
@@ -158,81 +186,111 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakata",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKRIPSI MAKANAN",
+            latitude = -7.5709241,
+            longtitude = 110.7926132
         ),
 
     )
     val eventItemLists = listOf(
-        // kurang user
         EventItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Event Yummy",
             price = 999999,
             rating = 4.5,
-            time = "14.00",
             location = "Surakarta",
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Event Yummy",
             price = 999999,
             rating = 4.5,
-            time = "14.00",
             location = "Surakarta",
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Event Yummy",
             price = 999999,
             rating = 4.5,
-            time = "14.00",
             location = "Surakarta",
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Event Yummy",
             price = 999999,
             rating = 4.5,
-            time = "14.00",
             location = "Surakarta",
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_reogponorogo,
             title = "Wayang Kulit",
             price = 90000,
             rating = 4.5,
-            time = "14.00",
             location = "Surakarta",
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             title = "Tari Saman",
             imgRes = R.drawable.img_event,
             rating = 4.8,
             location = "Yogyakarta",
-            time = "13:00 WIB",
             price = 20000,
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         ),
         EventItem(
             title = "Tari Tor-tor",
             imgRes = R.drawable.img_event,
             rating = 4.4,
             location = "Purwokerto",
-            time = "09:00 WIB",
             price = 35000,
             isFavorite = false,
-            category = "Pertunjukan Seni"
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            eventDate = "2025-12-31",
+            eventTime = "19:00"
         )
     )
     val tourItemLists = listOf(
@@ -242,7 +300,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKIRPSI TOUR",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
@@ -250,7 +311,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Yogyakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKIRPSI TOUR",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
@@ -258,7 +322,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Yogyakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKIRPSI TOUR",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339
         ),
         TourItem(
             imgRes = R.drawable.img_tehtarik,
@@ -266,7 +333,10 @@ object DataProvider {
             price = 999999,
             rating = 4.5,
             location = "Surakarta",
-            isFavorite = false
+            isFavorite = false,
+            desc = "INI DESKIRPSI TOUR",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339
         )
     )
     val myTickets = listOf(

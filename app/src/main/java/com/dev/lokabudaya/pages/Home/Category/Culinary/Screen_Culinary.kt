@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages.Search.Kuliner
+package com.dev.lokabudaya.pages.Home.Category.Culinary
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -109,7 +109,7 @@ fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, au
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Kuliner(filterOptions = filterOptions)
+        Screen_Kuliner(filterOptions = filterOptions, navController = navController)
     }
 }
 
@@ -168,7 +168,7 @@ fun HeaderCulinarySection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions()) {
+fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
     val allKulinerItems = DataProvider.kulinerItemLists
     val filteredItems = remember(filterOptions) {
         allKulinerItems.filter { item ->
@@ -232,14 +232,20 @@ fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions()) {
             ) { index ->
                 val kulinerItem = filteredItems[index]
 
-                CreateKuliner(kulinerItem)
+                CreateKuliner(
+                    kulinerItem = kulinerItem,
+                    onClick = {
+                        val originalIndex = DataProvider.kulinerItemLists.indexOf(kulinerItem)
+                        navController.navigate("DetailCulinaryPage/$originalIndex")
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun CreateKuliner(kulinerItem: KulinerItem) {
+fun CreateKuliner(kulinerItem: KulinerItem, onClick: () -> Unit = {}) {
     var isFav by remember {
         mutableStateOf(kulinerItem.isFavorite)
     }
@@ -251,6 +257,7 @@ fun CreateKuliner(kulinerItem: KulinerItem) {
             .width(164.dp)
             .height(224.dp)
             .shadow(2.dp, shape = RoundedCornerShape(16.dp), clip = false)
+            .clickable { onClick() }
     ) {
         Box(
             modifier = Modifier

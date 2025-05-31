@@ -1,4 +1,4 @@
-package com.dev.lokabudaya.pages.Home.Category
+package com.dev.lokabudaya.pages.Home.Category.Tour
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -45,7 +45,6 @@ import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
-import com.dev.lokabudaya.data.DataProvider.tourItemLists
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Search.FilterList
@@ -110,7 +109,10 @@ fun TourPage(modifier: Modifier = Modifier, navController: NavController, authVi
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Screen_Tour(filterOptions = filterOptions)
+        Screen_Tour(
+            filterOptions = filterOptions,
+            navController = navController
+        )
     }
 }
 
@@ -169,7 +171,7 @@ fun HeaderTourSection(navController: NavController) {
 }
 
 @Composable
-fun Screen_Tour(filterOptions: FilterOptions = FilterOptions()) {
+fun Screen_Tour(filterOptions: FilterOptions = FilterOptions(), navController: NavController) {
     val allTourItems = DataProvider.tourItemLists
     val filteredItems = remember(filterOptions) {
         allTourItems.filter { item ->
@@ -232,14 +234,20 @@ fun Screen_Tour(filterOptions: FilterOptions = FilterOptions()) {
                 }
             ) { index ->
                 val tourItem = filteredItems[index]
-                CreateTour(tourItem)
+                CreateTour(
+                    tourItem = tourItem,
+                    onClick = {
+                        val originalIndex = DataProvider.tourItemLists.indexOf(tourItem)
+                        navController.navigate("DetailTourPage/$originalIndex")
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun CreateTour(tourItem: TourItem) {
+fun CreateTour(tourItem: TourItem, onClick: () -> Unit = {}) {
     var isFav by remember {
         mutableStateOf(tourItem.isFavorite)
     }
@@ -251,6 +259,7 @@ fun CreateTour(tourItem: TourItem) {
             .width(164.dp)
             .height(224.dp)
             .shadow(2.dp, shape = RoundedCornerShape(16.dp), clip = false)
+            .clickable { onClick() }
     ) {
         Box(
             modifier = Modifier
