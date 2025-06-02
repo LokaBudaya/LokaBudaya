@@ -26,9 +26,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -37,21 +35,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
-import com.dev.lokabudaya.data.DataProvider.myTickets
-import com.dev.lokabudaya.data.Ticket
+import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.DataProvider.ticketItemLists
+import com.dev.lokabudaya.data.TicketItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Book.WishlistListItem
+import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
+import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
 
@@ -81,11 +85,18 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
             Spacer(modifier = Modifier.height(32.dp))
             HeaderSection()
         }
-        item {
+        items(
+            count = ticketItemLists.size
+        ){ index ->
             Spacer(modifier = Modifier.height(16.dp))
-            CreateTicket(myTickets[0])
+            CreateTicket(
+                ticketItemLists[index],
+                onClick = {
+                    val originalIndex = ticketItemLists.indexOf(ticket)
+                    navController.navigate("DetailTicketPage/$originalIndex")
+                }
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            CreateTicket(myTickets[0])
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -129,11 +140,17 @@ fun SearchIcon() {
 
 // Ticket section
 @Composable
-fun CreateTicket(ticket: Ticket) {
+fun CreateTicket(
+    ticketItem: TicketItem,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(204.dp),
+            .height(204.dp)
+            .clickable {
+                onClick()
+            },
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -157,7 +174,7 @@ fun CreateTicket(ticket: Ticket) {
             ) {
                 Text(
                     textAlign = TextAlign.Left,
-                    text = ticket.title,
+                    text = ticketItem.title,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 44.sp,
                     lineHeight = 44.sp,
@@ -177,7 +194,7 @@ fun CreateTicket(ticket: Ticket) {
                     ){
                         Text(
                             textAlign = TextAlign.Right,
-                            text = ticket.date,
+                            text = ticketItem.date,
                             fontWeight = FontWeight.Medium,
                             fontSize = 20.sp,
                             color = Color.White
@@ -185,7 +202,7 @@ fun CreateTicket(ticket: Ticket) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             textAlign = TextAlign.Right,
-                            text = ticket.location,
+                            text = ticketItem.location,
                             lineHeight = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.White
@@ -209,7 +226,7 @@ fun CreateTicket(ticket: Ticket) {
                     .weight(.42f)
                     .drawBehind {
                         val borderSize = 2.dp.toPx()
-                        val y = borderSize/2
+                        val y = borderSize / 2
 
                         drawLine(
                             color = Color.White,
@@ -228,12 +245,15 @@ fun CreateTicket(ticket: Ticket) {
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Image(
-                        painter = painterResource(ticket.qrCode),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth,
+                    Text(
+                        text = ticketItem.id,
+                        fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
+                        color = White,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        textAlign = TextAlign.Center,
+                        fontSize = 84.sp
                     )
                 }
             }
@@ -313,5 +333,13 @@ fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel) {
                 }
             }
         }
+    }
+}
+
+val ticket = ticketItemLists[0]
+@Composable
+@Preview
+fun Preview() {
+    LokaBudayaTheme {
     }
 }

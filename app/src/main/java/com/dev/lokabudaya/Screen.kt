@@ -3,7 +3,7 @@ package com.dev.lokabudaya
 sealed class ScreenRoute(val route: String) {
     object Home: ScreenRoute("HomePage")
     object Search: ScreenRoute("SearchPage")
-    object Ticket: ScreenRoute("ticketPage")
+    object Ticket: ScreenRoute("TicketPage")
     object Book: ScreenRoute("bookPage")
     object Profile: ScreenRoute("ProfilePage")
     object Login: ScreenRoute("LoginPage")

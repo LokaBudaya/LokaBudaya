@@ -36,6 +36,7 @@ import androidx.navigation.navArgument
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.eventItemLists
 import com.dev.lokabudaya.data.DataProvider.kulinerItemLists
+import com.dev.lokabudaya.data.DataProvider.ticketItemLists
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Auth.EmailVerificationPage
@@ -59,6 +60,7 @@ import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
 import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
+import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
@@ -166,9 +168,6 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 composable(route = ScreenRoute.Search.route) {
                     SearchPage(modifier, navController, authViewModel)
                 }
-                composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage(modifier, navController, authViewModel)
-                }
                 composable(route = ScreenRoute.Book.route) {
                     BookPage(modifier, navController, authViewModel)
                 }
@@ -177,6 +176,22 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Culinary.route) {
                     CulinaryPage(modifier, navController, authViewModel)
+                }
+                composable(route = ScreenRoute.Ticket.route) {
+                    TicketPage(modifier, navController, authViewModel)
+                }
+                composable(
+                    route = "DetailTicketPage/{ticketIndex}",
+                    arguments = listOf(navArgument("ticketIndex") {type = NavType.IntType})
+                ) { backEntry ->
+                    val ticketIndex = backEntry.arguments?.getInt("ticketIndex") ?: 0
+                    val ticketItem = ticketItemLists[ticketIndex]
+                    DetailTicketPage(
+                        modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        ticketItem = ticketItem
+                    )
                 }
                 composable(
                     route = "DetailCulinaryPage/{kulinerIndex}",

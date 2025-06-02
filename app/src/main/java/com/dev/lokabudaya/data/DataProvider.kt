@@ -61,11 +61,14 @@ data class TourItem(
     val backgroundLabelColor: Color = Color(0xFFC3F2FF),
     val textLabelColor: Color = Color(0xFF00B6EA)
 )
-data class Ticket(
+data class TicketItem(
+    val id:String = UUID.randomUUID().toString().take(12),
     val title:String,
+    val detailedDesc:String,
     val date:String,
     val location:String,
-    val qrCode:Int
+    val qrCode:Int,
+    val image:Int
 )
 
 object DataProvider {
@@ -339,12 +342,14 @@ object DataProvider {
             longtitude = 110.81591618151339
         )
     )
-    val myTickets = listOf(
-        Ticket(
+    val ticketItemLists = listOf(
+        TicketItem(
             title = "Artjog 2025",
+            detailedDesc = "pantai indah dengan pemandangan yang fantastis aaaaanjayyyyy aku gatau harus yapiing apa lagi padahal ini gacoan ya bukan pantai kak? sehat? allahuakbar ya Allah nulis apalagi tolong tolong tolong tolong tolong tolong",
             date = "25 Agustus 2525",
             location = "Universitas Sebelas Maret, Yogyakarta",
-            qrCode = R.drawable.img_qrcode_dummy
+            qrCode = R.drawable.img_qrcode_dummy,
+            image = R.drawable.img_event
         )
     )
 }
