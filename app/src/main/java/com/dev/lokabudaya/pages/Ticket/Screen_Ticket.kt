@@ -66,6 +66,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
         factory = FavoriteViewModelFactory(authViewModel)
     )
     val authState = authViewModel.authState.observeAsState()
+    val topThreeTickets = remember { ticketItemLists.take(3) }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -83,16 +84,16 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
     ) {
         item {
             Spacer(modifier = Modifier.height(32.dp))
-            HeaderSection()
+            HeaderSection(navController = navController)
         }
         items(
-            count = ticketItemLists.size
-        ){ index ->
+            count = topThreeTickets.size
+        ) { index ->
             Spacer(modifier = Modifier.height(16.dp))
             CreateTicket(
-                ticketItemLists[index],
+                topThreeTickets[index],
                 onClick = {
-                    val originalIndex = ticketItemLists.indexOf(ticketItemLists[index])
+                    val originalIndex = ticketItemLists.indexOf(topThreeTickets[index])
                     navController.navigate("DetailTicketPage/$originalIndex")
                 }
             )
@@ -108,7 +109,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
 
 // Header Section
 @Composable
-fun HeaderSection() {
+fun HeaderSection(navController: NavController) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -124,7 +125,7 @@ fun HeaderSection() {
                 )
             )
         }
-        //SearchIcon()
+        TicketDetailIcon(navController = navController)
     }
 }
 
@@ -135,6 +136,20 @@ fun SearchIcon() {
         contentDescription = "Search",
         tint = bigTextColor,
         modifier = Modifier.size(20.dp)
+    )
+}
+
+@Composable
+fun TicketDetailIcon(navController: NavController) {
+    Icon(
+        painter = painterResource(id = R.drawable.ic_ticketdetail),
+        contentDescription = "Detail Ticket",
+        tint = bigTextColor,
+        modifier = Modifier
+            .size(28.dp)
+            .clickable {
+                navController.navigate("TicketListPage")
+            }
     )
 }
 

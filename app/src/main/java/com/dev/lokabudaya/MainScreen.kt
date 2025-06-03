@@ -65,6 +65,7 @@ import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
 import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
 import com.dev.lokabudaya.pages.Ticket.TicketDetailBuyPage
+import com.dev.lokabudaya.pages.Ticket.TicketListPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.ui.theme.White
@@ -265,6 +266,14 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                         tourItem = tourItem
                     )
                 }
+                composable(route = "TicketListPage") {
+                    TicketListPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel
+                    )
+                }
+
                 composable(route = ScreenRoute.Event.route) {
                     EventPage(modifier, navController, authViewModel)
                 }
