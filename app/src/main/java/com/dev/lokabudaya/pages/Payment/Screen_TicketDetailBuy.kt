@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.EventItem
@@ -30,35 +29,30 @@ import com.dev.lokabudaya.data.TicketOrder
 import com.dev.lokabudaya.data.TicketType
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import java.text.NumberFormat
+import java.time.LocalDate
 import java.util.*
 
 @Composable
-fun TicketDetailPage(
+fun TicketDetailBuyPage(
     modifier: Modifier = Modifier,
     navController: NavController,
-    eventItem: EventItem
+    eventItem: EventItem,
+    ticketViewModel: TicketViewModel = viewModel()
 ) {
     val ticketTypes = remember {
         listOf(
             TicketType(
-                id = "regular",
-                name = "Regular Ticket",
+                id = "dewasa",
+                name = "Tiket Dewasa",
                 price = eventItem.price,
-                description = "Akses ke semua area event",
+                description = "Tiket khusus dewasa di atas 17 tahun",
                 maxQuantity = 10
             ),
             TicketType(
-                id = "vip",
-                name = "VIP Ticket",
-                price = eventItem.price + 50000,
-                description = "Akses VIP + Meet & Greet",
-                maxQuantity = 5
-            ),
-            TicketType(
-                id = "student",
-                name = "Student Ticket",
+                id = "anak",
+                name = "Tiket Anak",
                 price = eventItem.price - 10000,
-                description = "Khusus mahasiswa (perlu KTM)",
+                description = "Tiket khusus anak di bawah 17 tahun",
                 maxQuantity = 10
             )
         )
@@ -124,8 +118,8 @@ fun TicketDetailPage(
                 totalQuantity = totalQuantity,
                 totalPrice = totalPrice,
                 onPurchaseClick = {
-                    // TODO: Navigate ke payment page
-                    // navController.navigate("PaymentPage")
+                    ticketViewModel.updateTicketOrders(ticketOrders, eventItem)
+                    navController.navigate("MidtransPaymentPage")
                 }
             )
         }
@@ -201,7 +195,6 @@ fun EventInfoSection(eventItem: EventItem) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Date & Time
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -213,7 +206,11 @@ fun EventInfoSection(eventItem: EventItem) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "31 Desember 2024, 19:00 WIB",
+                    text = formatEventDateTimeRange(
+                        startDate = eventItem.startDate,
+                        endDate = eventItem.endDate,
+                        eventTime = eventItem.eventTime
+                    ),
                     fontSize = 14.sp,
                     color = Color.Black
                 )
@@ -221,7 +218,6 @@ fun EventInfoSection(eventItem: EventItem) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Location
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -239,6 +235,41 @@ fun EventInfoSection(eventItem: EventItem) {
                 )
             }
         }
+    }
+}
+
+fun formatEventDateTime(startDate: LocalDate, eventTime: String): String {
+    // Format tanggal ke Bahasa Indonesia
+    val dayOfMonth = startDate.dayOfMonth
+    val month = when (startDate.monthValue) {
+        1 -> "Januari"
+        2 -> "Februari"
+        3 -> "Maret"
+        4 -> "April"
+        5 -> "Mei"
+        6 -> "Juni"
+        7 -> "Juli"
+        8 -> "Agustus"
+        9 -> "September"
+        10 -> "Oktober"
+        11 -> "November"
+        12 -> "Desember"
+        else -> "Unknown"
+    }
+    val year = startDate.year
+
+    return "$dayOfMonth $month $year, $eventTime"
+}
+
+fun formatEventDateTimeRange(startDate: LocalDate, endDate: LocalDate, eventTime: String): String {
+    return if (startDate == endDate) {
+        // Single day event
+        formatEventDateTime(startDate, eventTime)
+    } else {
+        // Multi-day event
+        val startFormatted = formatEventDateTime(startDate, "")
+        val endFormatted = formatEventDateTime(endDate, "")
+        "$startFormatted - $endFormatted, $eventTime"
     }
 }
 
@@ -285,7 +316,6 @@ fun TicketSelectionCard(
                     )
                 }
 
-                // Quantity Selector
                 QuantitySelector(
                     quantity = ticketOrder.quantity,
                     maxQuantity = ticketOrder.ticketType.maxQuantity,
@@ -293,7 +323,6 @@ fun TicketSelectionCard(
                 )
             }
 
-            // Total price untuk ticket type ini
             if (ticketOrder.quantity > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -319,7 +348,6 @@ fun QuantitySelector(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Decrease button
         IconButton(
             onClick = {
                 if (quantity > 0) {
@@ -342,7 +370,6 @@ fun QuantitySelector(
             )
         }
 
-        // Quantity display
         Text(
             text = quantity.toString(),
             fontSize = 18.sp,
@@ -352,7 +379,6 @@ fun QuantitySelector(
             textAlign = TextAlign.Center
         )
 
-        // Increase button
         IconButton(
             onClick = {
                 if (quantity < maxQuantity) {
