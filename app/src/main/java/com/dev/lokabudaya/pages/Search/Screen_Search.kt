@@ -184,7 +184,8 @@ fun SearchPage(modifier: Modifier = Modifier,
         ExploreGridList(
             searchQuery = searchQuery,
             filterOptions = filterOptions,
-            favoriteViewModel = favoriteViewModel
+            favoriteViewModel = favoriteViewModel,
+            navController = navController
         )
     }
 }
@@ -483,7 +484,8 @@ fun CombinerList() : List<CombinedItem> {
 fun ExploreGridList(
     searchQuery: String = "",
     filterOptions: FilterOptions = FilterOptions(),
-    favoriteViewModel: FavoriteViewModel
+    favoriteViewModel: FavoriteViewModel,
+    navController: NavController
 ) {
     val combinedList = CombinerList()
 
@@ -591,7 +593,24 @@ fun ExploreGridList(
                 }
             ) { index ->
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            when (val item = filteredList[index]) {
+                                is CombinedItem.KulinerItem -> {
+                                    val originalIndex = DataProvider.kulinerItemLists.indexOf(item.kulinerItem)
+                                    navController.navigate("DetailCulinaryPage/$originalIndex")
+                                }
+                                is CombinedItem.EventItem -> {
+                                    val originalIndex = DataProvider.eventItemLists.indexOf(item.eventItem)
+                                    navController.navigate("DetailEventPage/$originalIndex")
+                                }
+                                is CombinedItem.TourItem -> {
+                                    val originalIndex = DataProvider.tourItemLists.indexOf(item.tourItem)
+                                    navController.navigate("DetailTourPage/$originalIndex")
+                                }
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     when (val item = filteredList[index]) {

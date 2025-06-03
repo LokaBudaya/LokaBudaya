@@ -92,7 +92,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
             CreateTicket(
                 ticketItemLists[index],
                 onClick = {
-                    val originalIndex = ticketItemLists.indexOf(ticket)
+                    val originalIndex = ticketItemLists.indexOf(ticketItemLists[index])
                     navController.navigate("DetailTicketPage/$originalIndex")
                 }
             )
@@ -101,7 +101,7 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
         item {
             Spacer(modifier = Modifier.height(16.dp))
             WishlistHeader(navController)
-            WishlistSectionTicket(favoriteViewModel)
+            WishlistSectionTicket(favoriteViewModel, navController = navController)
         }
     }
 }
@@ -291,7 +291,7 @@ fun WishlistHeader(navController: NavController) {
 
 // Wishlist Ticket Section
 @Composable
-fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel) {
+fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel, navController: NavController) {
     val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
     val allFavoriteItems by remember(favoriteItems) {
         derivedStateOf { favoriteViewModel.getAllFavoriteItems() }
@@ -324,6 +324,7 @@ fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel) {
                     WishlistListItem(
                         item = item,
                         favoriteViewModel = favoriteViewModel,
+                        navController = navController,
                         onFavoriteChanged = {
                         }
                     )
