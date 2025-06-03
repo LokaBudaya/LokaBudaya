@@ -94,6 +94,47 @@ data class TicketOrder(
         get() = ticketType.price * quantity
 }
 
+data class TicketData(
+    val id: String = UUID.randomUUID().toString(),
+    val eventId: String = "",
+    val eventTitle: String = "",
+    val eventImageRes: Int = 0,
+    val eventLocation: String = "",
+    val eventStartDate: String = "",
+    val eventTime: String = "",
+    val ticketOrders: List<PaymentTicketOrder> = emptyList(),
+    val totalAmount: Int = 0,
+    val totalQuantity: Int = 0,
+    val purchaseDate: Long = System.currentTimeMillis(),
+    val status: String = "active", // active, used, expired
+    val userId: String = ""
+) {
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        eventId = "",
+        eventTitle = "",
+        eventImageRes = 0,
+        eventLocation = "",
+        eventStartDate = "",
+        eventTime = "",
+        ticketOrders = emptyList(),
+        totalAmount = 0,
+        totalQuantity = 0,
+        purchaseDate = System.currentTimeMillis(),
+        status = "active",
+        userId = ""
+    )
+}
+
+data class PaymentTicketOrder(
+    val ticketTypeName: String = "",
+    val quantity: Int = 0,
+    val price: Int = 0,
+    val totalPrice: Int = 0
+) {
+    constructor() : this("", 0, 0, 0)
+}
+
 object DataProvider {
     val blogCards = listOf(
         BlogCardClass(

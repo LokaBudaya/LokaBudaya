@@ -63,6 +63,7 @@ import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
 import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
+import com.dev.lokabudaya.pages.Ticket.DetailTicketFirestorePage
 import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
 import com.dev.lokabudaya.pages.Ticket.TicketDetailBuyPage
 import com.dev.lokabudaya.pages.Ticket.TicketListPage
@@ -185,7 +186,19 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                     CulinaryPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage(modifier, navController, authViewModel)
+                    TicketPage(modifier, navController, authViewModel, ticketViewModel)
+                }
+                composable(
+                    route = "DetailTicketFirestore/{ticketId}",
+                    arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
+                    DetailTicketFirestorePage(
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        ticketViewModel = ticketViewModel,
+                        ticketId = ticketId
+                    )
                 }
                 composable(
                     route = "TicketDetailPage/{eventIndex}",
@@ -270,10 +283,10 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                     TicketListPage(
                         modifier = modifier,
                         navController = navController,
-                        authViewModel = authViewModel
+                        authViewModel = authViewModel,
+                        ticketViewModel = ticketViewModel
                     )
                 }
-
                 composable(route = ScreenRoute.Event.route) {
                     EventPage(modifier, navController, authViewModel)
                 }

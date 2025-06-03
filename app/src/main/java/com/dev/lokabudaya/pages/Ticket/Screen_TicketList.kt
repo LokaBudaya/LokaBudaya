@@ -22,18 +22,25 @@ import com.dev.lokabudaya.data.DataProvider.ticketItemLists
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
 fun TicketListPage(
     modifier: Modifier = Modifier,
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    ticketViewModel: TicketViewModel
 ) {
     val authState = authViewModel.authState.observeAsState()
+    val userTickets by ticketViewModel.userTickets.collectAsState()
+    val isLoading by ticketViewModel.isLoading.collectAsState()
 
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            is AuthState.Authenticated -> {
+                ticketViewModel.refreshTickets()
+            }
             else -> Unit
         }
     }
@@ -48,24 +55,31 @@ fun TicketListPage(
             onBackClick = { navController.popBackStack() }
         )
 
-        // List semua tiket
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            items(
-                count = ticketItemLists.size
-            ) { index ->
-                CreateTicket(
-                    ticketItemLists[index],
-                    onClick = {
-                        val originalIndex = ticketItemLists.indexOf(ticketItemLists[index])
-                        navController.navigate("DetailTicketPage/$originalIndex")
-                    }
-                )
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = selectedCategoryColor)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                items(
+                    count = userTickets.size
+                ) { index ->
+                    CreateTicketFromFirestore(
+                        ticketData = userTickets[index],
+                        onClick = {
+                            navController.navigate("DetailTicketFirestore/${userTickets[index].id}")
+                        }
+                    )
+                }
             }
         }
     }

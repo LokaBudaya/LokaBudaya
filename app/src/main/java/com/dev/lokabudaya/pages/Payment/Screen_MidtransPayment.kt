@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import com.dev.lokabudaya.data.PaymentTicketOrder
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,23 +34,16 @@ import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
 
-data class PaymentTicketOrder(
-    val ticketTypeName: String,
-    val quantity: Int,
-    val price: Int,
-    val totalPrice: Int
-)
-
 @Composable
 fun MidtransPaymentPage(
     modifier: Modifier = Modifier,
     navController: NavController,
     ticketViewModel: TicketViewModel = viewModel()
 ) {
-    val ticketOrders by ticketViewModel.selectedTicketOrders.collectAsState()
+    val ticketOrdersList: List<PaymentTicketOrder> by ticketViewModel.selectedTicketOrders.collectAsState()
     val eventItem by ticketViewModel.selectedEventItem.collectAsState()
 
-    if (eventItem == null || ticketOrders.isEmpty()) {
+    if (eventItem == null || ticketOrdersList.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -65,7 +59,7 @@ fun MidtransPaymentPage(
 
         LaunchedEffect(Unit) {
             kotlinx.coroutines.delay(3000)
-            if (eventItem == null || ticketOrders.isEmpty()) {
+            if (eventItem == null || ticketOrdersList.isEmpty()) {
                 navController.popBackStack()
             }
         }
@@ -74,8 +68,9 @@ fun MidtransPaymentPage(
 
     val nonNullEventItem = eventItem!!
     val context = LocalContext.current
-    val totalAmount = ticketOrders.sumOf { it.totalPrice }
-    val totalQuantity = ticketOrders.sumOf { it.quantity }
+    val totalAmount = ticketOrdersList.sumOf { order: PaymentTicketOrder -> order.totalPrice }
+    val totalQuantity = ticketOrdersList.sumOf { order: PaymentTicketOrder -> order.quantity }
+    val filteredTicketOrders = ticketOrdersList.filter { order: PaymentTicketOrder -> order.quantity > 0 }
 
     var isLoading by remember { mutableStateOf(false) }
 
@@ -111,7 +106,7 @@ fun MidtransPaymentPage(
                 )
             }
 
-            items(ticketOrders.filter { it.quantity > 0 }) { order ->
+            items(filteredTicketOrders) { order ->
                 TicketOrderCard(ticketOrder = order)
             }
 
@@ -138,9 +133,10 @@ fun MidtransPaymentPage(
                 processPayment(
                     context = context,
                     eventItem = nonNullEventItem,
-                    ticketOrders = ticketOrders,
+                    ticketOrders = ticketOrdersList,
                     totalAmount = totalAmount,
                     navController = navController,
+                    ticketViewModel = ticketViewModel,
                     onComplete = { isLoading = false }
                 )
             }
@@ -467,16 +463,33 @@ fun processPayment(
     ticketOrders: List<PaymentTicketOrder>,
     totalAmount: Int,
     navController: NavController,
+    ticketViewModel: TicketViewModel,
     onComplete: () -> Unit
 ) {
     try {
         // TODO: Implement Midtrans payment integration
-        // Untuk sementara, simulate success
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            onComplete()
-            navController.navigate("PaymentSuccessPage")
+            ticketViewModel.saveTicketAfterPayment(
+                eventItem = eventItem,
+                ticketOrders = ticketOrders,
+                totalAmount = totalAmount,
+                onSuccess = {
+                    android.util.Log.d("Payment", "Ticket saved successfully")
+                    onComplete() // Reset loading state
+                    navController.navigate("PaymentSuccessPage") {
+                        // PERBAIKAN: Clear back stack untuk prevent back to payment
+                        popUpTo("MidtransPaymentPage") { inclusive = true }
+                    }
+                },
+                onError = { error ->
+                    android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
+                    onComplete() // Reset loading state
+                    // TODO: Show error message to user
+                }
+            )
         }, 2000)
     } catch (e: Exception) {
+        android.util.Log.e("Payment", "Process payment error: ${e.message}")
         onComplete()
         // TODO: Show error message
     }

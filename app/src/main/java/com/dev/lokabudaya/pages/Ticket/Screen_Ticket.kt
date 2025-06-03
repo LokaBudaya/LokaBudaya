@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.ticketItemLists
+import com.dev.lokabudaya.data.TicketData
 import com.dev.lokabudaya.data.TicketItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
@@ -58,19 +60,28 @@ import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.mediumTextColor
+import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 // Main Screen
 @Composable
-fun TicketPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+fun TicketPage(modifier: Modifier = Modifier,
+               navController: NavController,
+               authViewModel: AuthViewModel,
+               ticketViewModel: TicketViewModel
+) {
     val favoriteViewModel: FavoriteViewModel = viewModel(
         factory = FavoriteViewModelFactory(authViewModel)
     )
     val authState = authViewModel.authState.observeAsState()
-    val topThreeTickets = remember { ticketItemLists.take(3) }
+    val userTickets by ticketViewModel.userTickets.collectAsState()
+    val isLoading by ticketViewModel.isLoading.collectAsState()
 
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
+            is AuthState.Authenticated -> {
+                ticketViewModel.refreshTickets()
+            }
             else -> Unit
         }
     }
@@ -86,24 +97,227 @@ fun TicketPage(modifier: Modifier = Modifier, navController: NavController, auth
             Spacer(modifier = Modifier.height(32.dp))
             HeaderSection(navController = navController)
         }
-        items(
-            count = topThreeTickets.size
-        ) { index ->
-            Spacer(modifier = Modifier.height(16.dp))
-            CreateTicket(
-                topThreeTickets[index],
-                onClick = {
-                    val originalIndex = ticketItemLists.indexOf(topThreeTickets[index])
-                    navController.navigate("DetailTicketPage/$originalIndex")
+        item {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                Text(
+                    text = "Recent Orders",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = bigTextColor
+                )
+                if (userTickets.size > 3) {
+                    Text(
+                        text = "Selengkapnya >",
+                        fontSize = 12.sp,
+                        color = mediumTextColor,
+                        modifier = Modifier.clickable {
+                            navController.navigate("TicketListPage")
+                        }
+                    )
                 }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            }
         }
+
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = selectedCategoryColor)
+                }
+            }
+        } else if (userTickets.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Belum ada tiket",
+                            color = Color.Gray,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        } else {
+            val topThreeTickets = userTickets.take(3)
+            items(
+                count = topThreeTickets.size
+            ) { index ->
+                Spacer(modifier = Modifier.height(16.dp))
+                CreateTicketFromFirestore(
+                    ticketData = topThreeTickets[index],
+                    onClick = {
+                        navController.navigate("DetailTicketFirestore/${topThreeTickets[index].id}")
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+
         item {
             Spacer(modifier = Modifier.height(16.dp))
             WishlistHeader(navController)
             WishlistSectionTicket(favoriteViewModel, navController = navController)
         }
+    }
+}
+
+@Composable
+fun CreateTicketFromFirestore(
+    ticketData: TicketData,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(204.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.img_ticket),
+            contentDescription = "Ticket image",
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(horizontal = 17.dp)
+                .padding(top = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(.58f),
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    textAlign = TextAlign.Left,
+                    text = ticketData.eventTitle,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 44.sp,
+                    lineHeight = 44.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 12.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            textAlign = TextAlign.Right,
+                            text = formatTicketDate(ticketData.eventStartDate, ticketData.eventTime),
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 20.sp,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            textAlign = TextAlign.Right,
+                            text = ticketData.eventLocation,
+                            lineHeight = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.White
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Lihat Detail",
+                        textAlign = TextAlign.Right,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(.42f)
+                    .drawBehind {
+                        val borderSize = 2.dp.toPx()
+                        val y = borderSize / 2
+
+                        drawLine(
+                            color = Color.White,
+                            start = Offset(0f, y),
+                            end = Offset(size.width, y),
+                            strokeWidth = borderSize,
+                            pathEffect = PathEffect.dashPathEffect(
+                                intervals = floatArrayOf(borderSize * 4, borderSize * 4),
+                                phase = 0f
+                            )
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = ticketData.id.take(12), // Gunakan ID ticket sebagai barcode
+                        fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
+                        color = White,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        textAlign = TextAlign.Center,
+                        fontSize = 84.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun formatTicketDate(dateString: String, timeString: String): String {
+    return try {
+        val date = java.time.LocalDate.parse(dateString)
+        val day = date.dayOfMonth
+        val month = when (date.monthValue) {
+            1 -> "Jan"
+            2 -> "Feb"
+            3 -> "Mar"
+            4 -> "Apr"
+            5 -> "Mei"
+            6 -> "Jun"
+            7 -> "Jul"
+            8 -> "Agu"
+            9 -> "Sep"
+            10 -> "Okt"
+            11 -> "Nov"
+            12 -> "Des"
+            else -> "Unknown"
+        }
+        "$day $month"
+    } catch (e: Exception) {
+        dateString
     }
 }
 
