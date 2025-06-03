@@ -77,6 +77,23 @@ data class TicketItem(
     val image:Int
 )
 
+data class TicketType(
+    val id: String,
+    val name: String,
+    val price: Int,
+    val description: String,
+    val maxQuantity: Int = 10,
+    val minQuantity: Int = 0
+)
+
+data class TicketOrder(
+    val ticketType: TicketType,
+    var quantity: Int = 0
+) {
+    val totalPrice: Int
+        get() = ticketType.price * quantity
+}
+
 object DataProvider {
     val blogCards = listOf(
         BlogCardClass(

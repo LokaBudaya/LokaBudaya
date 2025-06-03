@@ -61,6 +61,7 @@ import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
 import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
+import com.dev.lokabudaya.pages.Ticket.TicketDetailPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
@@ -179,6 +180,18 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                 }
                 composable(route = ScreenRoute.Ticket.route) {
                     TicketPage(modifier, navController, authViewModel)
+                }
+                composable(
+                    route = "TicketDetailPage/{eventIndex}",
+                    arguments = listOf(navArgument("eventIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val eventIndex = backStackEntry.arguments?.getInt("eventIndex") ?: 0
+                    val eventItem = DataProvider.eventItemLists[eventIndex]
+                    TicketDetailPage(
+                        modifier = modifier,
+                        navController = navController,
+                        eventItem = eventItem
+                    )
                 }
                 composable(
                     route = "DetailTicketPage/{ticketIndex}",
