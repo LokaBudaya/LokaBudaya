@@ -22,13 +22,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,6 +53,8 @@ import com.google.android.libraries.places.api.Places
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.time.LocalDate
+import java.time.format.TextStyle
 import java.util.*
 
 @Composable
@@ -110,8 +119,7 @@ fun DetailEventPage(
                 painter = painterResource(id = eventItem.imgRes),
                 contentDescription = eventItem.title,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .blur(radius = 2.dp),
+                    .fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
 
@@ -179,21 +187,45 @@ fun DetailEventPage(
                     )
                     .padding(16.dp)
             ) {
-                Text(
-                    text = eventItem.title,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row (
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(.6f),
+                        text = eventItem.title,
+                        fontSize = 48.sp,
+                        lineHeight = 48.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 24.dp)
+                            .shadow(elevation = 8.dp)
+                            .size(116.dp)
+                            .weight(.3f)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD5C578)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        FormatEventDate(
+                            startDate = eventItem.startDate,
+                            endDate = eventItem.endDate,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
 
-                Text(
+                /*Text(
                     text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                         .format(eventItem.price),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = selectedCategoryColor,
                     modifier = Modifier.padding(top = 4.dp)
-                )
+                )*/
 
                 Row(
                     modifier = Modifier
@@ -350,7 +382,7 @@ fun DetailEventPage(
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
-                            text = eventItem.eventDate,
+                            text = eventItem.startDate.toString(),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,
@@ -455,4 +487,65 @@ fun DetailEventPage(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+// fungsi untuk memformat tanggal
+@Composable
+fun FormatEventDate(
+    startDate : LocalDate,
+    endDate : LocalDate,
+    modifier: Modifier
+) {
+    val formatted = remember(startDate, endDate) {
+        if (startDate == endDate) {
+            buildAnnotatedString {
+                appendStyledDayAndMonth(startDate)
+            }
+        } else if (startDate.month == endDate.month && startDate.year == endDate.year) {
+            buildAnnotatedString {
+                appendStyledText("${startDate.dayOfMonth} - ${endDate.dayOfMonth}", isDay = true)
+                append(" ")
+                appendStyledText(
+                    startDate.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                    isDay = false
+                )
+            }
+        } else {
+            buildAnnotatedString {
+                appendStyledDayAndMonth(startDate)
+                append(" - ")
+                appendStyledDayAndMonth(endDate)
+            }
+        }
+    }
+
+    Text(
+        text = formatted,
+        modifier = modifier,
+        color = Color.White,
+        textAlign = TextAlign.Left,
+        lineHeight = 32.sp
+
+    )
+}
+
+// Helper Function
+private fun AnnotatedString.Builder.appendStyledText(text:String, isDay:Boolean) {
+    withStyle(
+        style = SpanStyle(
+            fontSize = if (isDay) 36.sp else 24.sp,
+            fontWeight = if(isDay) FontWeight.Bold else FontWeight.Medium
+        )
+    ) {
+            append(text)
+    }
+}
+
+private fun AnnotatedString.Builder.appendStyledDayAndMonth(date: LocalDate) {
+    appendStyledText(date.dayOfMonth.toString(), isDay = true)
+    append(" ")
+    appendStyledText(
+        date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+        isDay = false
+    )
 }

@@ -2,6 +2,8 @@ package com.dev.lokabudaya.data
 
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
+import java.time.LocalDate
+import java.time.Month
 import java.util.UUID
 
 data class BlogCardClass(
@@ -41,7 +43,11 @@ data class EventItem(
     val desc:String,
     val latitude:Double,
     val longtitude:Double,
-    val eventDate:String,
+    val startDate:LocalDate,
+    val endDate:LocalDate,
+//    val eventDateDay:String,
+//    val eventDateMonth: String,
+//    val eventDateYear: String,
     val eventTime:String,
     val backgroundLabelColor: Color = Color(0xFFFFC3E8),
     val textLabelColor: Color = Color(0xFFEA00DB)
@@ -208,7 +214,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 10),
             eventTime = "19:00"
         ),
         EventItem(
@@ -222,7 +229,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         ),
         EventItem(
@@ -236,7 +244,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         ),
         EventItem(
@@ -250,7 +259,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         ),
         EventItem(
@@ -264,7 +274,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         ),
         EventItem(
@@ -278,7 +289,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         ),
         EventItem(
@@ -292,7 +304,8 @@ object DataProvider {
             desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
-            eventDate = "2025-12-31",
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
             eventTime = "19:00"
         )
     )
