@@ -384,14 +384,16 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
             modifier = Modifier.fillMaxWidth()
         ) {
             items(DataProvider.tourItemLists) { place ->
-                WhatIsCard(place = place)
+                WhatIsCard(place = place, navController = navController, favoriteViewModel = favoriteViewModel)
             }
         }
     }
 }
 
 @Composable
-fun WhatIsCard(place: TourItem, favoriteViewModel: FavoriteViewModel = viewModel()) {
+fun WhatIsCard(place: TourItem,
+               navController: NavController,
+               favoriteViewModel: FavoriteViewModel = viewModel()) {
     var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(place)) }
 
     Card(
@@ -402,7 +404,10 @@ fun WhatIsCard(place: TourItem, favoriteViewModel: FavoriteViewModel = viewModel
         colors = CardDefaults.cardColors(
             containerColor = Color.Gray
         ),
-        onClick = { },
+        onClick = {
+            val originalIndex = DataProvider.tourItemLists.indexOf(place)
+            navController.navigate("DetailTourPage/$originalIndex")
+        },
         shape = RoundedCornerShape(12.dp)
     ) {
         Box(
