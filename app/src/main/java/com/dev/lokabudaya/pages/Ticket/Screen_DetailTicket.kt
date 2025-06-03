@@ -44,6 +44,8 @@ import com.dev.lokabudaya.data.TicketItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.White
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 // Detail ticket Screen
 @Composable
@@ -54,10 +56,21 @@ fun DetailTicketPage(
     ticketItem: TicketItem
 ) {
     val authState = authViewModel.authState.observeAsState()
+    var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
+    var displayName by remember { mutableStateOf("Loading...") }
+
+    LaunchedEffect(Unit) {
+        currentUser = FirebaseAuth.getInstance().currentUser
+        displayName = currentUser?.displayName ?: "User"
+    }
+
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
-            else -> Unit
+            else -> {
+                currentUser = FirebaseAuth.getInstance().currentUser
+                displayName = currentUser?.displayName ?: "User"
+            }
         }
     }
 
@@ -150,8 +163,7 @@ fun DetailTicketPage(
                                     color = White
                                 )
                                 Text(
-                                    //text = user.nama
-                                    text = "Adika Nugraha",
+                                    text = displayName,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     lineHeight = 16.sp,
