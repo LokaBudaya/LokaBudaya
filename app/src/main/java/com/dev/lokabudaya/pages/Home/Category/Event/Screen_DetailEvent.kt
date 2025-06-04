@@ -2,11 +2,15 @@ package com.dev.lokabudaya.pages.Home.Category.Event
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +25,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -113,13 +118,14 @@ fun DetailEventPage(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(450.dp)
         ) {
             Image(
                 painter = painterResource(id = eventItem.imgRes),
                 contentDescription = eventItem.title,
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
                 contentScale = ContentScale.Crop
             )
 
@@ -129,8 +135,12 @@ fun DetailEventPage(
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                Color.Black.copy(alpha = 0.3f),
-                                Color.Black.copy(alpha = 0.7f)
+                                Color.White.copy(alpha = 0.0f),
+                                Color.White.copy(alpha = 0.2f),
+                                Color.White.copy(alpha = 0.3f),
+                                Color.White.copy(alpha = 0.6f),
+                                Color.White.copy(alpha = 0.8f),
+                                Color.White.copy(alpha = 1f)
                             ),
                             startY = 100f
                         )
@@ -177,18 +187,23 @@ fun DetailEventPage(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
+                    .height(250.dp)
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.8f)
+                                Color.White.copy(alpha = .2f),
+                                Color.White.copy(alpha = .3f),
+                                Color.White.copy(alpha = 1f)
                             )
                         )
                     )
-                    .padding(16.dp)
+                    .padding(horizontal=16.dp),
+                verticalArrangement = Arrangement.Top
             ) {
                 Row (
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom
                 ) {
                     Text(
                         modifier = Modifier
@@ -198,15 +213,15 @@ fun DetailEventPage(
                         fontSize = 48.sp,
                         lineHeight = 48.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color(0xFF01103A)
                     )
                     Box(
                         modifier = Modifier
                             .offset(x = 24.dp)
-                            .shadow(elevation = 8.dp)
                             .size(116.dp)
-                            .weight(.3f)
+                            .shadow(elevation = 8.dp, shape = CircleShape, clip = false)
                             .clip(CircleShape)
+                            .weight(.3f)
                             .background(Color(0xFFD5C578)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -218,138 +233,109 @@ fun DetailEventPage(
                     }
                 }
 
-                /*Text(
-                    text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                        .format(eventItem.price),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = selectedCategoryColor,
-                    modifier = Modifier.padding(top = 4.dp)
-                )*/
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        .padding(vertical = 12.dp, horizontal = 56.dp)
+                        .height(80.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Card(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(.85f)
+                            .fillMaxHeight()
+                            .shadow(2.dp, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp)),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.9f)
+                            containerColor = Color.White
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .padding(top = 4.dp, bottom = 12.dp),
+                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
+                            Text(
+                                text = "Time",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                            )
+                            Text(
+                                text = eventItem.eventTime,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .shadow(2.dp, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .padding(top = 4.dp, bottom = 12.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.Top,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = "Rating",
-                                    tint = Color(0xFFFFB300),
-                                    modifier = Modifier.size(16.dp)
-                                )
                                 Text(
-                                    text = eventItem.rating.toString(),
-                                    fontSize = 14.sp,
+                                    text = "Location",
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black,
-                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                                Image(
+                                    painter = painterResource(R.drawable.ic_detail_location),
+                                    contentDescription = null
                                 )
                             }
                             Text(
-                                text = "Rating",
-                                fontSize = 12.sp,
-                                color = Color.Gray
+                                text = eventItem.location,
+                                textAlign = TextAlign.Left,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black.copy(alpha = .6f)
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.9f)
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Attendees",
-                                    tint = selectedCategoryColor,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    text = "250",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                            Text(
-                                text = "Attendees",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.9f)
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBack,
-                                    contentDescription = "Date",
-                                    tint = Color(0xFF4CAF50),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    text = "31",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                            Text(
-                                text = "Dec",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
                 }
             }
         }
 
+        HorizontalDivider(
+            modifier = Modifier.alpha(.2f)
+        )
+
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(12.dp)
+                .padding(horizontal = 12.dp)
         ) {
             Text(
                 text = "Overview",
@@ -360,58 +346,185 @@ fun DetailEventPage(
             Text(
                 text = eventItem.desc,
                 fontSize = 14.sp,
-                color = Color.Gray,
-                lineHeight = 20.sp,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Justify,
+                color = Color.Black.copy(alpha = .6f),
+                lineHeight = 14.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        HorizontalDivider(
+            modifier = Modifier.alpha(.2f)
+        )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = "Ticket",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_detail_ticket),
+                        contentDescription = null,
+                        tint = Color(0xFF2C4CA5)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .width(24.dp)
+                    )
+                    Column (
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Date",
-                            tint = selectedCategoryColor,
-                            modifier = Modifier.size(16.dp)
+                        Text(
+                            text = "Anak-anak",
+                            color = Color.Black.copy(alpha = .6f),
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
                         )
                         Text(
-                            text = eventItem.startDate.toString(),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Time",
-                            tint = selectedCategoryColor,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = eventItem.eventTime,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 8.dp)
+                            text = "Free",  // ini apa weh
+                            color = Color(0xFF2C4CA5),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
                         )
                     }
                 }
+                Image(
+                    painter = painterResource(R.drawable.ic_detail_add_ticket),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {
+                                // Nambah
+                            }
+                        )
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(12.dp))
 
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_detail_ticket),
+                        contentDescription = null,
+                        tint = Color(0xFF2C4CA5)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .width(24.dp)
+                    )
+                    Column (
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = "Anak-anak",
+                            color = Color.Black.copy(alpha = .6f),
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Free",  // ini apa weh
+                            color = Color(0xFF2C4CA5),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                Image(
+                    painter = painterResource(R.drawable.ic_detail_add_ticket),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {
+                                // Nambah
+                            }
+                        )
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_detail_ticket),
+                        contentDescription = null,
+                        tint = Color(0xFF2C4CA5)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .width(24.dp)
+                    )
+                    Column (
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = "Anak-anak",
+                            color = Color.Black.copy(alpha = .6f),
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Free",  // ini apa weh
+                            color = Color(0xFF2C4CA5),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+                Image(
+                    painter = painterResource(R.drawable.ic_detail_add_ticket),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {
+                                // Nambah
+                            }
+                        )
+                )
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.alpha(.2f)
+        )
+
+        Column (
+            modifier = Modifier.padding(12.dp)
+        ) {
             Text(
                 text = "Preview",
                 fontSize = 20.sp,
@@ -421,10 +534,8 @@ fun DetailEventPage(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+            LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.height(120.dp)
             ) {
                 items(previewImages) { imageRes ->
@@ -524,7 +635,7 @@ fun FormatEventDate(
         modifier = modifier,
         color = Color.White,
         textAlign = TextAlign.Left,
-        lineHeight = 32.sp
+        lineHeight = 36.sp
 
     )
 }

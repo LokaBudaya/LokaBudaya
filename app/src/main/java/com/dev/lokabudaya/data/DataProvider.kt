@@ -3,6 +3,7 @@ package com.dev.lokabudaya.data
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.Month
 import java.util.UUID
 
@@ -48,7 +49,7 @@ data class EventItem(
 //    val eventDateDay:String,
 //    val eventDateMonth: String,
 //    val eventDateYear: String,
-    val eventTime:String,
+    val eventTime: String,
     val backgroundLabelColor: Color = Color(0xFFFFC3E8),
     val textLabelColor: Color = Color(0xFFEA00DB)
 )
@@ -211,12 +212,12 @@ object DataProvider {
             location = "Surakarta",
             isFavorite = false,
             category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
+            desc = "pantai indah dengan pemandangan yang fantastis anjayyyyy aku gatau harus yapiing apa lagi padahal ini gacoan ya bukan pantai kak? sehat? allahuakbar ya Allah nulis apalagi tolong tolong tolong tolong tolong tolong",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
             startDate = LocalDate.of(2025, 6, 10),
             endDate = LocalDate.of(2025, 6, 10),
-            eventTime = "19:00"
+            eventTime = "10 AM - 10 PM"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
@@ -231,7 +232,7 @@ object DataProvider {
             longtitude = 110.81591618151339,
             startDate = LocalDate.of(2025, 6, 10),
             endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
+            eventTime = "10 AM - 10 PM"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
