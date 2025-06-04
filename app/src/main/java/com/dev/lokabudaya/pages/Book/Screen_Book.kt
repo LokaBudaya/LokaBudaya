@@ -91,6 +91,7 @@ fun BookPage(modifier: Modifier = Modifier, navController: NavController, authVi
         WishlistSection(
             selectedFilter = selectedFilter,
             favoriteViewModel = favoriteViewModel,
+            navController = navController,
             onFavoriteChanged = {
             }
         )
@@ -200,6 +201,7 @@ fun FilterSection(
 fun WishlistSection(
     selectedFilter: FilterOption = FilterOption.ALL,
     favoriteViewModel: FavoriteViewModel,
+    navController: NavController,
     onFavoriteChanged: () -> Unit = {}
 ) {
     val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
@@ -245,6 +247,7 @@ fun WishlistSection(
                 WishlistListItem(
                     item = item,
                     favoriteViewModel = favoriteViewModel,
+                    navController = navController,
                     onFavoriteChanged = onFavoriteChanged
                 )
                 if (filteredItems.indexOf(item) < filteredItems.size - 1) {
@@ -260,6 +263,7 @@ fun WishlistSection(
 fun WishlistListItem(
     item: Any,
     favoriteViewModel: FavoriteViewModel,
+    navController: NavController,
     onFavoriteChanged: () -> Unit = {}
 ) {
     var isFavorite by remember { mutableStateOf(favoriteViewModel.getFavoriteState(item)) }
@@ -273,7 +277,23 @@ fun WishlistListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(vertical = 12.dp, horizontal = 16.dp)
+            .clickable {
+                when (item) {
+                    is KulinerItem -> {
+                        val originalIndex = DataProvider.kulinerItemLists.indexOf(item)
+                        navController.navigate("DetailCulinaryPage/$originalIndex")
+                    }
+                    is EventItem -> {
+                        val originalIndex = DataProvider.eventItemLists.indexOf(item)
+                        navController.navigate("DetailEventPage/$originalIndex")
+                    }
+                    is TourItem -> {
+                        val originalIndex = DataProvider.tourItemLists.indexOf(item)
+                        navController.navigate("DetailTourPage/$originalIndex")
+                    }
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         WishlistImage(item)

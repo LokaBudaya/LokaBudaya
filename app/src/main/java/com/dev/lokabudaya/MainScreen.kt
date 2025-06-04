@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -54,14 +55,20 @@ import com.dev.lokabudaya.pages.Home.Category.Tour.DetailTourPage
 import com.dev.lokabudaya.pages.Search.SearchPage
 import com.dev.lokabudaya.pages.Home.Category.Tour.TourPage
 import com.dev.lokabudaya.pages.Map.MapPage
+import com.dev.lokabudaya.pages.Payment.MidtransPaymentPage
+import com.dev.lokabudaya.pages.Payment.PaymentSuccessPage
 import com.dev.lokabudaya.pages.Profile.Menu.AccessibilityPage
 import com.dev.lokabudaya.pages.Profile.Menu.ActivityPage
 import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
 import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
+import com.dev.lokabudaya.pages.Ticket.DetailTicketFirestorePage
 import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
+import com.dev.lokabudaya.pages.Ticket.TicketDetailBuyPage
+import com.dev.lokabudaya.pages.Ticket.TicketListPage
 import com.dev.lokabudaya.pages.Ticket.TicketPage
+import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.fabColor
 import com.dev.lokabudaya.ui.theme.navColor
@@ -76,6 +83,7 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
     val currentRoute = navBackStackEntry?.destination?.route
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
+    val ticketViewModel: TicketViewModel = viewModel()
 
     val startDestination = remember(authState.value) {
         when (authState.value) {
@@ -178,7 +186,32 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                     CulinaryPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Ticket.route) {
-                    TicketPage(modifier, navController, authViewModel)
+                    TicketPage(modifier, navController, authViewModel, ticketViewModel)
+                }
+                composable(
+                    route = "DetailTicketFirestore/{ticketId}",
+                    arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
+                    DetailTicketFirestorePage(
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        ticketViewModel = ticketViewModel,
+                        ticketId = ticketId
+                    )
+                }
+                composable(
+                    route = "TicketDetailPage/{eventIndex}",
+                    arguments = listOf(navArgument("eventIndex") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val eventIndex = backStackEntry.arguments?.getInt("eventIndex") ?: 0
+                    val eventItem = DataProvider.eventItemLists[eventIndex]
+                    TicketDetailBuyPage(
+                        modifier = modifier,
+                        navController = navController,
+                        eventItem = eventItem,
+                        ticketViewModel = ticketViewModel
+                    )
                 }
                 composable(
                     route = "DetailTicketPage/{ticketIndex}",
@@ -191,6 +224,20 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                         navController = navController,
                         authViewModel = authViewModel,
                         ticketItem = ticketItem
+                    )
+                }
+                composable(route = "MidtransPaymentPage") {
+                    MidtransPaymentPage(
+                        modifier = modifier,
+                        navController = navController,
+                        ticketViewModel = ticketViewModel
+                    )
+                }
+
+                composable(route = "PaymentSuccessPage") {
+                    PaymentSuccessPage(
+                        modifier = modifier,
+                        navController = navController
                     )
                 }
                 composable(
@@ -230,6 +277,14 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                         navController = navController,
                         authViewModel = authViewModel,
                         tourItem = tourItem
+                    )
+                }
+                composable(route = "TicketListPage") {
+                    TicketListPage(
+                        modifier = modifier,
+                        navController = navController,
+                        authViewModel = authViewModel,
+                        ticketViewModel = ticketViewModel
                     )
                 }
                 composable(route = ScreenRoute.Event.route) {

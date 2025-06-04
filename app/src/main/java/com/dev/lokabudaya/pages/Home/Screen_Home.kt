@@ -37,6 +37,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -384,14 +386,16 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
             modifier = Modifier.fillMaxWidth()
         ) {
             items(DataProvider.tourItemLists) { place ->
-                WhatIsCard(place = place)
+                WhatIsCard(place = place, navController = navController, favoriteViewModel = favoriteViewModel)
             }
         }
     }
 }
 
 @Composable
-fun WhatIsCard(place: TourItem, favoriteViewModel: FavoriteViewModel = viewModel()) {
+fun WhatIsCard(place: TourItem,
+               navController: NavController,
+               favoriteViewModel: FavoriteViewModel = viewModel()) {
     var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(place)) }
 
     Card(
@@ -402,7 +406,10 @@ fun WhatIsCard(place: TourItem, favoriteViewModel: FavoriteViewModel = viewModel
         colors = CardDefaults.cardColors(
             containerColor = Color.Gray
         ),
-        onClick = { },
+        onClick = {
+            val originalIndex = DataProvider.tourItemLists.indexOf(place)
+            navController.navigate("DetailTourPage/$originalIndex")
+        },
         shape = RoundedCornerShape(12.dp)
     ) {
         Box(
@@ -496,7 +503,7 @@ fun Recommended() {
 
 // List event section
 @Composable
-fun ListEvent() {
+fun ListEvent(navController: NavController) {
     val top3Events = DataProvider.eventItemLists
         .sortedWith(
             compareByDescending<EventItem> { it.rating }
@@ -508,13 +515,13 @@ fun ListEvent() {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         top3Events.forEach { event ->
-            ListEventCard(event = event)
+            ListEventCard(event = event, navController = navController)
         }
     }
 }
 
 @Composable
-fun ListEventCard(event: EventItem) {
+fun ListEventCard(event: EventItem, navController: NavController) {
     val formatter = DecimalFormat("#.###")
     val priceFormatted = if (event.price % 1.0 == 0.0) {
         formatter.format(event.price)
@@ -674,13 +681,16 @@ fun ListEventCard(event: EventItem) {
                                 .background(Color(0xFF9D8C3A))
                                 .wrapContentSize()
                                 .padding(horizontal = 20.dp, vertical = 4.dp)
-                                .clickable { }
+                                .clickable {
+                                    val eventIndex = DataProvider.eventItemLists.indexOf(event)
+                                    navController.navigate("TicketDetailPage/$eventIndex")
+                                }
                         ) {
-                            Text(
-                                text = "Buy Now",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
+                                Text(
+                                    text = "Buy Now",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
                         }
                     }
                 }
@@ -868,7 +878,7 @@ fun HomePageContent(navController: NavController, favoriteViewModel: FavoriteVie
                 Spacer(modifier = Modifier.height(16.dp))
                 Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
-                ListEvent()
+                ListEvent(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
                 Blog(navController = navController)
             }

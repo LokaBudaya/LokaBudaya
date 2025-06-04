@@ -3,7 +3,6 @@ package com.dev.lokabudaya.data
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.Month
 import java.util.UUID
 
@@ -49,7 +48,7 @@ data class EventItem(
 //    val eventDateDay:String,
 //    val eventDateMonth: String,
 //    val eventDateYear: String,
-    val eventTime: String,
+    val eventTime:String,
     val backgroundLabelColor: Color = Color(0xFFFFC3E8),
     val textLabelColor: Color = Color(0xFFEA00DB)
 )
@@ -77,6 +76,64 @@ data class TicketItem(
     val qrCode:Int,
     val image:Int
 )
+
+data class TicketType(
+    val id: String,
+    val name: String,
+    val price: Int,
+    val description: String,
+    val maxQuantity: Int = 10,
+    val minQuantity: Int = 0
+)
+
+data class TicketOrder(
+    val ticketType: TicketType,
+    var quantity: Int = 0
+) {
+    val totalPrice: Int
+        get() = ticketType.price * quantity
+}
+
+data class TicketData(
+    val id: String = UUID.randomUUID().toString(),
+    val eventId: String = "",
+    val eventTitle: String = "",
+    val eventImageRes: Int = 0,
+    val eventLocation: String = "",
+    val eventStartDate: String = "",
+    val eventTime: String = "",
+    val ticketOrders: List<PaymentTicketOrder> = emptyList(),
+    val totalAmount: Int = 0,
+    val totalQuantity: Int = 0,
+    val purchaseDate: Long = System.currentTimeMillis(),
+    val status: String = "active", // active, used, expired
+    val userId: String = ""
+) {
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        eventId = "",
+        eventTitle = "",
+        eventImageRes = 0,
+        eventLocation = "",
+        eventStartDate = "",
+        eventTime = "",
+        ticketOrders = emptyList(),
+        totalAmount = 0,
+        totalQuantity = 0,
+        purchaseDate = System.currentTimeMillis(),
+        status = "active",
+        userId = ""
+    )
+}
+
+data class PaymentTicketOrder(
+    val ticketTypeName: String = "",
+    val quantity: Int = 0,
+    val price: Int = 0,
+    val totalPrice: Int = 0
+) {
+    constructor() : this("", 0, 0, 0)
+}
 
 object DataProvider {
     val blogCards = listOf(
@@ -212,12 +269,12 @@ object DataProvider {
             location = "Surakarta",
             isFavorite = false,
             category = "Pertunjukan Seni",
-            desc = "pantai indah dengan pemandangan yang fantastis anjayyyyy aku gatau harus yapiing apa lagi padahal ini gacoan ya bukan pantai kak? sehat? allahuakbar ya Allah nulis apalagi tolong tolong tolong tolong tolong tolong",
+            desc = "INI DESKRIPSI EVENT",
             latitude = -7.574178450295152,
             longtitude = 110.81591618151339,
             startDate = LocalDate.of(2025, 6, 10),
             endDate = LocalDate.of(2025, 6, 10),
-            eventTime = "10 AM - 10 PM"
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
@@ -232,7 +289,7 @@ object DataProvider {
             longtitude = 110.81591618151339,
             startDate = LocalDate.of(2025, 6, 10),
             endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "10 AM - 10 PM"
+            eventTime = "19:00"
         ),
         EventItem(
             imgRes = R.drawable.img_tehtarik,
