@@ -118,7 +118,7 @@ fun TicketDetailBuyPage(
                 totalQuantity = totalQuantity,
                 totalPrice = totalPrice,
                 onPurchaseClick = {
-                    ticketViewModel.updateTicketOrders(ticketOrders, eventItem)
+                    ticketViewModel.updateTicketOrdersEvent(ticketOrders, eventItem)
                     navController.navigate("MidtransPaymentPage")
                 }
             )

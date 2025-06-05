@@ -3,7 +3,6 @@ package com.dev.lokabudaya.data
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
 import java.time.LocalDate
-import java.time.Month
 import java.util.UUID
 
 data class BlogCardClass(
@@ -19,6 +18,7 @@ data class KulinerItem(
     val id: String = UUID.randomUUID().toString(),
     val imgRes:Int,
     val title:String,
+    val kulinerTime: String,
     val price:Int,
     val rating:Double,
     val location:String,
@@ -56,6 +56,7 @@ data class TourItem(
     val id: String = UUID.randomUUID().toString(),
     val imgRes:Int,
     val title:String,
+    val time: String,
     val price:Int,
     val rating:Double,
     val location:String,
@@ -94,7 +95,7 @@ data class TicketOrder(
         get() = ticketType.price * quantity
 }
 
-data class TicketData(
+data class TicketDataEvent(
     val id: String = UUID.randomUUID().toString(),
     val eventId: String = "",
     val eventTitle: String = "",
@@ -117,6 +118,37 @@ data class TicketData(
         eventLocation = "",
         eventStartDate = "",
         eventTime = "",
+        ticketOrders = emptyList(),
+        totalAmount = 0,
+        totalQuantity = 0,
+        purchaseDate = System.currentTimeMillis(),
+        status = "active",
+        userId = ""
+    )
+}
+data class TicketDataTour(
+    val id: String = UUID.randomUUID().toString(),
+    val tourId: String = "",
+    val tourTitle: String = "",
+    val tourImageRes: Int = 0,
+    val tourLocation: String = "",
+    val tourStartDate: String = "",
+    val tourTime: String = "",
+    val ticketOrders: List<PaymentTicketOrder> = emptyList(),
+    val totalAmount: Int = 0,
+    val totalQuantity: Int = 0,
+    val purchaseDate: Long = System.currentTimeMillis(),
+    val status: String = "active", // active, used, expired
+    val userId: String = ""
+) {
+    constructor() : this(
+        id = UUID.randomUUID().toString(),
+        tourId = "",
+        tourTitle = "",
+        tourImageRes = 0,
+        tourLocation = "",
+        tourStartDate = "",
+        tourTime = "",
         ticketOrders = emptyList(),
         totalAmount = 0,
         totalQuantity = 0,
@@ -184,6 +216,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_bestik,
             title = "Bestik Pak Darmo",
+            kulinerTime = "10 AM - 10 PM",
             price = 15000,
             rating = 4.9,
             location = "Surakarta",
@@ -195,6 +228,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Bestik Pak Darmo 2",
+            kulinerTime = "10 AM - 10 PM",
             price = 15000,
             rating = 4.9,
             location = "Surakarta",
@@ -206,6 +240,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Gacoan Yummy",
+            kulinerTime = "10 AM",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -217,6 +252,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Gacoan Yummy 2",
+            kulinerTime = "10 AM - 10 PM",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -228,6 +264,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Gacoan Yummy 3",
+            kulinerTime = "10 AM",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -239,6 +276,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Gacoan Yummy 4",
+            kulinerTime = "10 PM",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -250,6 +288,7 @@ object DataProvider {
         KulinerItem(
             imgRes = R.drawable.img_tehtarik,
             title = "Gacoan Yummy 5",
+            kulinerTime = "10 AM - 9 PM",
             price = 999999,
             rating = 4.5,
             location = "Surakata",
@@ -372,6 +411,7 @@ object DataProvider {
             imgRes = R.drawable.img_tehtarik,
             title = "Tour Yummy",
             price = 999999,
+            time = "10 AM",
             rating = 4.5,
             location = "Surakarta",
             isFavorite = false,
@@ -383,6 +423,7 @@ object DataProvider {
             imgRes = R.drawable.img_tehtarik,
             title = "Tour Yummy 2",
             price = 999999,
+            time = "10 AM - 10 PM",
             rating = 4.5,
             location = "Yogyakarta",
             isFavorite = false,
@@ -394,6 +435,7 @@ object DataProvider {
             imgRes = R.drawable.img_tehtarik,
             title = "Tour Yummy 3",
             price = 999999,
+            time = "12 PM",
             rating = 4.5,
             location = "Yogyakarta",
             isFavorite = false,
@@ -405,6 +447,7 @@ object DataProvider {
             imgRes = R.drawable.img_tehtarik,
             title = "Tour Yummy 4",
             price = 999999,
+            time = "9 AM",
             rating = 4.5,
             location = "Surakarta",
             isFavorite = false,

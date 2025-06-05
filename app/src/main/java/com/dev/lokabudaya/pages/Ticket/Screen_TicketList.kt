@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
-import com.dev.lokabudaya.data.DataProvider.ticketItemLists
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
@@ -74,7 +71,7 @@ fun TicketListPage(
                     count = userTickets.size
                 ) { index ->
                     CreateTicketFromFirestore(
-                        ticketData = userTickets[index],
+                        ticketDataEvent = userTickets[index],
                         onClick = {
                             navController.navigate("DetailTicketFirestore/${userTickets[index].id}")
                         }

@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.data.PaymentTicketOrder
-import com.dev.lokabudaya.data.TicketData
+import com.dev.lokabudaya.data.TicketDataEvent
+import com.dev.lokabudaya.data.TicketDataTour
 import com.dev.lokabudaya.data.TicketOrder
+import com.dev.lokabudaya.data.TourItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -22,7 +24,10 @@ class TicketViewModel : ViewModel() {
     private val _selectedEventItem = MutableStateFlow<EventItem?>(null)
     val selectedEventItem = _selectedEventItem.asStateFlow()
 
-    private val _userTickets = MutableStateFlow<List<TicketData>>(emptyList())
+    private val _selectedTourItem = MutableStateFlow<TourItem?>(null)
+    val selectedTourItem = _selectedTourItem.asStateFlow()
+
+    private val _userTickets = MutableStateFlow<List<TicketDataEvent>>(emptyList())
     val userTickets = _userTickets.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
@@ -35,7 +40,7 @@ class TicketViewModel : ViewModel() {
         loadUserTickets()
     }
 
-    fun updateTicketOrders(orders: List<TicketOrder>, eventItem: EventItem) {
+    fun updateTicketOrdersEvent(orders: List<TicketOrder>, eventItem: EventItem) {
         val paymentOrders = orders
             .filter { it.quantity > 0 }
             .map { order ->
@@ -51,7 +56,23 @@ class TicketViewModel : ViewModel() {
         _selectedEventItem.value = eventItem
     }
 
-    fun saveTicketAfterPayment(
+    fun updateTicketOrdersTour(orders: List<TicketOrder>, tourItem: TourItem) {
+            val paymentOrders = orders
+                .filter { it.quantity > 0 }
+                .map { order ->
+                    PaymentTicketOrder(
+                        ticketTypeName = order.ticketType.name,
+                        quantity = order.quantity,
+                        price = order.ticketType.price,
+                        totalPrice = order.totalPrice
+                    )
+                }
+
+            _selectedTicketOrders.value = paymentOrders
+            _selectedTourItem.value = tourItem
+        }
+
+    fun saveTicketAfterPaymentEvent(
         eventItem: EventItem,
         ticketOrders: List<PaymentTicketOrder>,
         totalAmount: Int,
@@ -67,7 +88,7 @@ class TicketViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 // PERBAIKAN: Tidak set loading state di sini karena sudah di-handle di UI
-                val ticketData = TicketData(
+                val ticketDataEvent = TicketDataEvent(
                     eventId = eventItem.id,
                     eventTitle = eventItem.title,
                     eventImageRes = eventItem.imgRes,
@@ -84,8 +105,8 @@ class TicketViewModel : ViewModel() {
                 firestore.collection("users")
                     .document(currentUser.uid)
                     .collection("tickets")
-                    .document(ticketData.id)
-                    .set(ticketData)
+                    .document(ticketDataEvent.id)
+                    .set(ticketDataEvent)
                     .await()
 
                 // PERBAIKAN: Refresh tickets tanpa loading state
@@ -98,6 +119,53 @@ class TicketViewModel : ViewModel() {
             }
         }
     }
+
+    fun saveTicketAfterPaymentTour(
+            tourItem: TourItem,
+            ticketOrders: List<PaymentTicketOrder>,
+            totalAmount: Int,
+            onSuccess: () -> Unit = {},
+            onError: (Exception) -> Unit = {}
+        ) {
+            val currentUser = auth.currentUser
+            if (currentUser == null) {
+                onError(Exception("User not authenticated"))
+                return
+            }
+
+            viewModelScope.launch {
+                try {
+                    // PERBAIKAN: Tidak set loading state di sini karena sudah di-handle di UI
+                    val ticketDataTour = TicketDataTour(
+                        tourId = tourItem.id,
+                        tourTitle = tourItem.title,
+                        tourImageRes = tourItem.imgRes,
+                        tourLocation = tourItem.location,
+                        tourTime = tourItem.time,
+                        ticketOrders = ticketOrders,
+                        totalAmount = totalAmount,
+                        totalQuantity = ticketOrders.sumOf { it.quantity },
+                        userId = currentUser.uid
+                    )
+
+                    // Save ke Firestore
+                    firestore.collection("users")
+                        .document(currentUser.uid)
+                        .collection("tickets")
+                        .document(ticketDataTour.id)
+                        .set(ticketDataTour)
+                        .await()
+
+                    // PERBAIKAN: Refresh tickets tanpa loading state
+                    refreshTicketsQuietly()
+                    onSuccess()
+
+                } catch (e: Exception) {
+                    android.util.Log.e("TicketViewModel", "Save ticket error: ${e.message}")
+                    onError(e)
+                }
+            }
+        }
 
     private fun refreshTicketsQuietly() {
         val currentUser = auth.currentUser
@@ -113,7 +181,7 @@ class TicketViewModel : ViewModel() {
                     .await()
 
                 val tickets = ticketsSnapshot.documents.mapNotNull { doc ->
-                    doc.toObject(TicketData::class.java)
+                    doc.toObject(TicketDataEvent::class.java)
                 }
 
                 _userTickets.value = tickets
@@ -140,7 +208,7 @@ class TicketViewModel : ViewModel() {
                     .await()
 
                 val tickets = ticketsSnapshot.documents.mapNotNull { doc ->
-                    doc.toObject(TicketData::class.java)
+                    doc.toObject(TicketDataEvent::class.java)
                 }
 
                 _userTickets.value = tickets
@@ -153,7 +221,7 @@ class TicketViewModel : ViewModel() {
         }
     }
 
-    fun getTopThreeTickets(): List<TicketData> {
+    fun getTopThreeTickets(): List<TicketDataEvent> {
         return _userTickets.value.take(3)
     }
 

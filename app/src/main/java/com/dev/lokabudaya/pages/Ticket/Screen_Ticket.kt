@@ -47,9 +47,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
-import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.ticketItemLists
-import com.dev.lokabudaya.data.TicketData
+import com.dev.lokabudaya.data.TicketDataEvent
 import com.dev.lokabudaya.data.TicketItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
@@ -162,7 +161,7 @@ fun TicketPage(modifier: Modifier = Modifier,
             ) { index ->
                 Spacer(modifier = Modifier.height(16.dp))
                 CreateTicketFromFirestore(
-                    ticketData = topThreeTickets[index],
+                    ticketDataEvent = topThreeTickets[index],
                     onClick = {
                         navController.navigate("DetailTicketFirestore/${topThreeTickets[index].id}")
                     }
@@ -181,7 +180,7 @@ fun TicketPage(modifier: Modifier = Modifier,
 
 @Composable
 fun CreateTicketFromFirestore(
-    ticketData: TicketData,
+    ticketDataEvent: TicketDataEvent,
     onClick: () -> Unit
 ) {
     Box(
@@ -212,7 +211,7 @@ fun CreateTicketFromFirestore(
             ) {
                 Text(
                     textAlign = TextAlign.Left,
-                    text = ticketData.eventTitle,
+                    text = ticketDataEvent.eventTitle,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 44.sp,
                     lineHeight = 44.sp,
@@ -232,7 +231,7 @@ fun CreateTicketFromFirestore(
                     ) {
                         Text(
                             textAlign = TextAlign.Right,
-                            text = formatTicketDate(ticketData.eventStartDate, ticketData.eventTime),
+                            text = formatTicketDate(ticketDataEvent.eventStartDate, ticketDataEvent.eventTime),
                             fontWeight = FontWeight.Medium,
                             fontSize = 20.sp,
                             color = Color.White
@@ -240,7 +239,7 @@ fun CreateTicketFromFirestore(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             textAlign = TextAlign.Right,
-                            text = ticketData.eventLocation,
+                            text = ticketDataEvent.eventLocation,
                             lineHeight = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.White
@@ -281,7 +280,7 @@ fun CreateTicketFromFirestore(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = ticketData.id.take(12), // Gunakan ID ticket sebagai barcode
+                        text = ticketDataEvent.id.take(12), // Gunakan ID ticket sebagai barcode
                         fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
                         color = White,
                         modifier = Modifier

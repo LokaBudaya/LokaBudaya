@@ -9,7 +9,6 @@ import com.dev.lokabudaya.data.PaymentTicketOrder
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -469,7 +468,7 @@ fun processPayment(
     try {
         // TODO: Implement Midtrans payment integration
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            ticketViewModel.saveTicketAfterPayment(
+            ticketViewModel.saveTicketAfterPaymentEvent(
                 eventItem = eventItem,
                 ticketOrders = ticketOrders,
                 totalAmount = totalAmount,
