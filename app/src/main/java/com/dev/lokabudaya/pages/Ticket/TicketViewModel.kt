@@ -67,7 +67,7 @@ class TicketViewModel : ViewModel() {
                         totalPrice = order.totalPrice
                     )
                 }
-
+            _selectedEventItem.value = null
             _selectedTicketOrders.value = paymentOrders
             _selectedTourItem.value = tourItem
         }

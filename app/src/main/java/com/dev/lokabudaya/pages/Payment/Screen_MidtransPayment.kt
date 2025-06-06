@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.pages.Ticket.formatEventDateTimeRange
@@ -37,12 +38,13 @@ import java.util.*
 fun MidtransPaymentPage(
     modifier: Modifier = Modifier,
     navController: NavController,
-    ticketViewModel: TicketViewModel = viewModel()
+    ticketViewModel: TicketViewModel
 ) {
     val ticketOrdersList: List<PaymentTicketOrder> by ticketViewModel.selectedTicketOrders.collectAsState()
     val eventItem by ticketViewModel.selectedEventItem.collectAsState()
+    val tourItem by ticketViewModel.selectedTourItem.collectAsState()
 
-    if (eventItem == null || ticketOrdersList.isEmpty()) {
+    if ((eventItem == null && tourItem == null) || ticketOrdersList.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -53,19 +55,17 @@ fun MidtransPaymentPage(
                 CircularProgressIndicator(color = selectedCategoryColor)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Loading payment data...")
-            }
-        }
 
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(3000)
-            if (eventItem == null || ticketOrdersList.isEmpty()) {
-                navController.popBackStack()
+                Text(
+                    text = "Event: ${eventItem?.title ?: "null"}, Tour: ${tourItem?.title ?: "null"}, Orders: ${ticketOrdersList.size}",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
             }
         }
         return
     }
 
-    val nonNullEventItem = eventItem!!
     val context = LocalContext.current
     val totalAmount = ticketOrdersList.sumOf { order: PaymentTicketOrder -> order.totalPrice }
     val totalQuantity = ticketOrdersList.sumOf { order: PaymentTicketOrder -> order.quantity }
@@ -80,7 +80,8 @@ fun MidtransPaymentPage(
     ) {
         // Header
         PaymentHeader(
-            eventItem = nonNullEventItem,
+            eventItem = eventItem,
+            tourItem = tourItem,
             onBackClick = { navController.popBackStack() }
         )
 
@@ -90,9 +91,13 @@ fun MidtransPaymentPage(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Event Summary
+            // Event/Tour Summary
             item {
-                EventSummaryCard(eventItem = nonNullEventItem)
+                if (eventItem != null) {
+                    EventSummaryCard(eventItem = eventItem!!)
+                } else if (tourItem != null) {
+                    TourSummaryCard(tourItem = tourItem!!)
+                }
             }
 
             // Ticket Details
@@ -131,7 +136,8 @@ fun MidtransPaymentPage(
                 isLoading = true
                 processPayment(
                     context = context,
-                    eventItem = nonNullEventItem,
+                    eventItem = eventItem,
+                    tourItem = tourItem,
                     ticketOrders = ticketOrdersList,
                     totalAmount = totalAmount,
                     navController = navController,
@@ -145,7 +151,8 @@ fun MidtransPaymentPage(
 
 @Composable
 fun PaymentHeader(
-    eventItem: EventItem,
+    eventItem: EventItem?,
+    tourItem: TourItem?,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -154,8 +161,8 @@ fun PaymentHeader(
             .height(200.dp)
     ) {
         Image(
-            painter = painterResource(id = eventItem.imgRes),
-            contentDescription = eventItem.title,
+            painter = painterResource(id = eventItem?.imgRes ?: tourItem?.imgRes ?: R.drawable.img_event),
+            contentDescription = eventItem?.title ?: tourItem?.title,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -282,6 +289,66 @@ fun EventSummaryCard(eventItem: EventItem) {
                         endDate = eventItem.endDate,
                         eventTime = eventItem.eventTime
                     ),
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TourSummaryCard(tourItem: TourItem) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = tourItem.imgRes),
+                contentDescription = tourItem.title,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = tourItem.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = tourItem.location,
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                Text(
+                    text = tourItem.time,
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(top = 4.dp)
@@ -458,7 +525,8 @@ fun PaymentBottomSection(
 // Function untuk process payment dengan Midtrans
 fun processPayment(
     context: android.content.Context,
-    eventItem: EventItem,
+    eventItem: EventItem?,
+    tourItem: TourItem?,
     ticketOrders: List<PaymentTicketOrder>,
     totalAmount: Int,
     navController: NavController,
@@ -468,24 +536,45 @@ fun processPayment(
     try {
         // TODO: Implement Midtrans payment integration
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            ticketViewModel.saveTicketAfterPaymentEvent(
-                eventItem = eventItem,
-                ticketOrders = ticketOrders,
-                totalAmount = totalAmount,
-                onSuccess = {
-                    android.util.Log.d("Payment", "Ticket saved successfully")
-                    onComplete() // Reset loading state
-                    navController.navigate("PaymentSuccessPage") {
-                        // PERBAIKAN: Clear back stack untuk prevent back to payment
-                        popUpTo("MidtransPaymentPage") { inclusive = true }
+            if (eventItem != null) {
+                ticketViewModel.saveTicketAfterPaymentEvent(
+                    eventItem = eventItem,
+                    ticketOrders = ticketOrders,
+                    totalAmount = totalAmount,
+                    onSuccess = {
+                        android.util.Log.d("Payment", "Ticket saved successfully")
+                        onComplete() // Reset loading state
+                        navController.navigate("PaymentSuccessPage") {
+                            // PERBAIKAN: Clear back stack untuk prevent back to payment
+                            popUpTo("MidtransPaymentPage") { inclusive = true }
+                        }
+                    },
+                    onError = { error ->
+                        android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
+                        onComplete() // Reset loading state
+                        // TODO: Show error message to user
                     }
-                },
-                onError = { error ->
-                    android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
-                    onComplete() // Reset loading state
-                    // TODO: Show error message to user
-                }
-            )
+                )
+            } else if (tourItem != null) {
+                ticketViewModel.saveTicketAfterPaymentTour(
+                    tourItem = tourItem,
+                    ticketOrders = ticketOrders,
+                    totalAmount = totalAmount,
+                    onSuccess = {
+                        android.util.Log.d("Payment", "Ticket saved successfully")
+                        onComplete() // Reset loading state
+                        navController.navigate("PaymentSuccessPage") {
+                            // PERBAIKAN: Clear back stack untuk prevent back to payment
+                            popUpTo("MidtransPaymentPage") { inclusive = true }
+                        }
+                    },
+                    onError = { error ->
+                        android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
+                        onComplete() // Reset loading state
+                        // TODO: Show error message to user
+                    }
+                )
+            }
         }, 2000)
     } catch (e: Exception) {
         android.util.Log.e("Payment", "Process payment error: ${e.message}")

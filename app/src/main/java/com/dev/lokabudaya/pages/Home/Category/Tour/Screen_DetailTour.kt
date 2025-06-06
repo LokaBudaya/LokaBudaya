@@ -56,7 +56,7 @@ fun DetailTourPage(
     navController: NavController,
     authViewModel: AuthViewModel,
     tourItem: TourItem,
-    ticketViewModel: TicketViewModel = viewModel()
+    ticketViewModel: TicketViewModel
 ) {
     val context = LocalContext.current
     val apiKey = stringResource(id = R.string.google_map_api_key)
@@ -764,8 +764,10 @@ fun PurchaseSummaryBottom(
 
                 Button(
                     onClick = onPurchaseClick,
+                    enabled = false,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = selectedCategoryColor
+                        containerColor = selectedCategoryColor,
+                        disabledContainerColor = Color.Gray
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.height(48.dp)

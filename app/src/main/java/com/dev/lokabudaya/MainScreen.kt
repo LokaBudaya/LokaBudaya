@@ -263,7 +263,8 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                         modifier = modifier,
                         navController = navController,
                         authViewModel = authViewModel,
-                        eventItem = eventItem
+                        eventItem = eventItem,
+                        ticketViewModel = ticketViewModel
                     )
                 }
                 composable(
@@ -276,7 +277,8 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                         modifier = modifier,
                         navController = navController,
                         authViewModel = authViewModel,
-                        tourItem = tourItem
+                        tourItem = tourItem,
+                        ticketViewModel = ticketViewModel
                     )
                 }
                 composable(route = "TicketListPage") {
