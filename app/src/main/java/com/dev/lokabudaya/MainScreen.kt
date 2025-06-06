@@ -76,7 +76,12 @@ import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel,
+    navController: NavController? = null
+) {
+    val internalNavController = navController ?: rememberNavController()
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -314,7 +319,7 @@ fun MainScreen(modifier: Modifier = Modifier,authViewModel: AuthViewModel) {
                     AccessibilityPage(modifier, navController, authViewModel)
                 }
                 composable(route = ScreenRoute.Payment.route) {
-                    PaymentPage(modifier, navController, authViewModel)
+                    PaymentPage(modifier, navController, authViewModel, ticketViewModel)
                 }
                 composable(route = ScreenRoute.Map.route) {
                     MapPage(modifier, navController, authViewModel)

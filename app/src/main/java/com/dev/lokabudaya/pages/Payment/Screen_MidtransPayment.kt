@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Payment
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,14 +23,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Call
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.data.CustomerDetail
 import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.ItemDetail
+import com.dev.lokabudaya.data.MidtransRequest
+import com.dev.lokabudaya.data.MidtransResponse
 import com.dev.lokabudaya.data.TourItem
+import com.dev.lokabudaya.network.MidtransAPI
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.pages.Ticket.formatEventDateTimeRange
+import com.google.firebase.auth.FirebaseAuth
+import com.midtrans.sdk.corekit.core.MidtransSDK
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
@@ -534,51 +546,107 @@ fun processPayment(
     onComplete: () -> Unit
 ) {
     try {
-        // TODO: Implement Midtrans payment integration
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            if (eventItem != null) {
-                ticketViewModel.saveTicketAfterPaymentEvent(
-                    eventItem = eventItem,
-                    ticketOrders = ticketOrders,
-                    totalAmount = totalAmount,
-                    onSuccess = {
-                        android.util.Log.d("Payment", "Ticket saved successfully")
-                        onComplete() // Reset loading state
-                        navController.navigate("PaymentSuccessPage") {
-                            // PERBAIKAN: Clear back stack untuk prevent back to payment
-                            popUpTo("MidtransPaymentPage") { inclusive = true }
-                        }
-                    },
-                    onError = { error ->
-                        android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
-                        onComplete() // Reset loading state
-                        // TODO: Show error message to user
+        // Create Retrofit instance
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://midtrans-api-lokabudaya.vercel.app/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val midtransAPI = retrofit.create(MidtransAPI::class.java)
+
+        // Get current user info
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userEmail = currentUser?.email ?: "customer@example.com"
+        val userName = currentUser?.displayName ?: "Customer"
+
+        // Prepare payment data
+        val orderId = "ORDER-${System.currentTimeMillis()}"
+        val itemDetails = ticketOrders.map { order ->
+            ItemDetail(
+                id = order.ticketTypeName.replace(" ", "_").lowercase(),
+                price = order.price,
+                quantity = order.quantity,
+                name = order.ticketTypeName
+            )
+        }
+
+        val customerDetails = CustomerDetail(
+            first_name = userName.split(" ").firstOrNull() ?: "Customer",
+            last_name = userName.split(" ").drop(1).joinToString(" ").ifEmpty { "Name" },
+            email = userEmail,
+            phone = "08123456789"
+        )
+
+        val midtransRequest = MidtransRequest(
+            order_id = orderId,
+            gross_amount = totalAmount,
+            item_details = itemDetails,
+            customer_details = customerDetails
+        )
+
+        Log.d("Midtrans", "Sending request: $midtransRequest")
+
+        // Call backend API to get snap token
+        midtransAPI.createTransaction(midtransRequest).enqueue(object : Callback<MidtransResponse> {
+            override fun onResponse(call: Call<MidtransResponse>, response: Response<MidtransResponse>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+
+                    if (responseBody?.success == true && !responseBody.token.isNullOrEmpty()) {
+                        val snapToken = responseBody.token
+                        val paymentUrl = responseBody.redirect_url
+
+                        Log.d("Midtrans", "Got snap token: $snapToken")
+
+                        // TAMBAHKAN: Save order sebelum start payment UI
+                        ticketViewModel.saveOrderBeforePayment(
+                            eventItem = eventItem,
+                            tourItem = tourItem,
+                            ticketOrders = ticketOrders,
+                            totalAmount = totalAmount,
+                            snapToken = snapToken,
+                            paymentUrl = paymentUrl,
+                            orderId = orderId, // TAMBAHKAN order ID
+                            onSuccess = { savedOrderId ->
+                                Log.d("Midtrans", "Order saved with ID: $savedOrderId")
+
+                                // Start Midtrans payment UI
+                                val fragmentActivity = context as? androidx.fragment.app.FragmentActivity
+                                if (fragmentActivity != null) {
+                                    MidtransSDK.getInstance().startPaymentUiFlow(
+                                        fragmentActivity,
+                                        snapToken
+                                    )
+                                } else {
+                                    Log.e("Midtrans", "Context is not FragmentActivity")
+                                }
+
+                                onComplete()
+                            },
+                            onError = { error ->
+                                Log.e("Midtrans", "Failed to save order: ${error.message}")
+                                onComplete()
+                            }
+                        )
+                    } else {
+                        Log.e("Midtrans", "Invalid response: ${responseBody}")
+                        onComplete()
                     }
-                )
-            } else if (tourItem != null) {
-                ticketViewModel.saveTicketAfterPaymentTour(
-                    tourItem = tourItem,
-                    ticketOrders = ticketOrders,
-                    totalAmount = totalAmount,
-                    onSuccess = {
-                        android.util.Log.d("Payment", "Ticket saved successfully")
-                        onComplete() // Reset loading state
-                        navController.navigate("PaymentSuccessPage") {
-                            // PERBAIKAN: Clear back stack untuk prevent back to payment
-                            popUpTo("MidtransPaymentPage") { inclusive = true }
-                        }
-                    },
-                    onError = { error ->
-                        android.util.Log.e("Payment", "Failed to save ticket: ${error.message}")
-                        onComplete() // Reset loading state
-                        // TODO: Show error message to user
-                    }
-                )
+                } else {
+                    Log.e("Midtrans", "API Error: ${response.code()} - ${response.message()}")
+                    Log.e("Midtrans", "Error body: ${response.errorBody()?.string()}")
+                    onComplete()
+                }
             }
-        }, 2000)
+
+            override fun onFailure(call: Call<MidtransResponse>, t: Throwable) {
+                Log.e("Midtrans", "Network error: ${t.message}")
+                onComplete()
+            }
+        })
+
     } catch (e: Exception) {
-        android.util.Log.e("Payment", "Process payment error: ${e.message}")
+        Log.e("Midtrans", "Process payment error: ${e.message}")
         onComplete()
-        // TODO: Show error message
     }
 }

@@ -1,8 +1,10 @@
 package com.dev.lokabudaya.pages.Ticket
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.OrderData
 import com.dev.lokabudaya.data.PaymentTicketOrder
 import com.dev.lokabudaya.data.TicketDataEvent
 import com.dev.lokabudaya.data.TicketDataTour
@@ -36,8 +38,169 @@ class TicketViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    private val _userOrders = MutableStateFlow<List<OrderData>>(emptyList())
+    val userOrders = _userOrders.asStateFlow()
+
     init {
         loadUserTickets()
+    }
+
+    fun saveOrderBeforePayment(
+        eventItem: EventItem?,
+        tourItem: TourItem?,
+        ticketOrders: List<PaymentTicketOrder>,
+        totalAmount: Int,
+        snapToken: String,
+        paymentUrl: String,
+        orderId: String,
+        onSuccess: (String) -> Unit = {},
+        onError: (Exception) -> Unit = {}
+    ) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            onError(Exception("User not authenticated"))
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val orderId = "ORDER-${System.currentTimeMillis()}"
+
+                val orderData = when {
+                    eventItem != null -> OrderData(
+                        orderId = orderId,
+                        eventId = eventItem.id,
+                        eventTitle = eventItem.title,
+                        eventImageRes = eventItem.imgRes,
+                        eventLocation = eventItem.location,
+                        eventStartDate = eventItem.startDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        eventTime = eventItem.eventTime,
+                        ticketOrders = ticketOrders,
+                        totalAmount = totalAmount,
+                        totalQuantity = ticketOrders.sumOf { it.quantity },
+                        status = "pending",
+                        userId = currentUser.uid,
+                        snapToken = snapToken,
+                        paymentUrl = paymentUrl
+                    )
+                    tourItem != null -> OrderData(
+                        orderId = orderId,
+                        eventId = tourItem.id,
+                        eventTitle = tourItem.title,
+                        eventImageRes = tourItem.imgRes,
+                        eventLocation = tourItem.location,
+                        eventStartDate = "", // Tour tidak punya start date
+                        eventTime = tourItem.time,
+                        ticketOrders = ticketOrders,
+                        totalAmount = totalAmount,
+                        totalQuantity = ticketOrders.sumOf { it.quantity },
+                        status = "pending",
+                        userId = currentUser.uid,
+                        snapToken = snapToken,
+                        paymentUrl = paymentUrl
+                    )
+                    else -> throw Exception("No event or tour item provided")
+                }
+
+                // Save ke Firestore collection orders
+                firestore.collection("users")
+                    .document(currentUser.uid)
+                    .collection("orders")
+                    .document(orderData.id)
+                    .set(orderData)
+                    .await()
+
+                android.util.Log.d("TicketViewModel", "Order saved: ${orderData.orderId}")
+                loadUserOrders()
+                onSuccess(orderData.id)
+
+            } catch (e: Exception) {
+                android.util.Log.e("TicketViewModel", "Save order error: ${e.message}")
+                onError(e)
+            }
+        }
+    }
+
+    private fun loadUserOrders() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) return
+
+        viewModelScope.launch {
+            try {
+                val ordersSnapshot = firestore.collection("users")
+                    .document(currentUser.uid)
+                    .collection("orders")
+                    .orderBy("orderDate", Query.Direction.DESCENDING)
+                    .get()
+                    .await()
+
+                val orders = ordersSnapshot.documents.mapNotNull { doc ->
+                    doc.toObject(OrderData::class.java)
+                }
+
+                _userOrders.value = orders
+                android.util.Log.d("TicketViewModel", "Loaded ${orders.size} orders")
+
+            } catch (e: Exception) {
+                android.util.Log.e("TicketViewModel", "Load orders error: ${e.message}")
+                _userOrders.value = emptyList()
+            }
+        }
+    }
+
+    // Di TicketViewModel
+    fun updateOrderStatusByOrderId(orderId: String, status: String) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) return
+
+        viewModelScope.launch {
+            try {
+                // Find order dengan orderId dan update status
+                val ordersSnapshot = firestore.collection("users")
+                    .document(currentUser.uid)
+                    .collection("orders")
+                    .whereEqualTo("orderId", orderId)
+                    .get()
+                    .await()
+
+                ordersSnapshot.documents.forEach { doc ->
+                    doc.reference.update("status", status).await()
+                }
+
+                loadUserOrders()
+                Log.d("TicketViewModel", "Order status updated: $orderId -> $status")
+
+            } catch (e: Exception) {
+                Log.e("TicketViewModel", "Update order status error: ${e.message}")
+            }
+        }
+    }
+
+    fun updateOrderStatus(orderId: String, status: String) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) return
+
+        viewModelScope.launch {
+            try {
+                firestore.collection("users")
+                    .document(currentUser.uid)
+                    .collection("orders")
+                    .document(orderId)
+                    .update("status", status)
+                    .await()
+
+                loadUserOrders()
+                android.util.Log.d("TicketViewModel", "Order status updated: $orderId -> $status")
+
+            } catch (e: Exception) {
+                android.util.Log.e("TicketViewModel", "Update order status error: ${e.message}")
+            }
+        }
+    }
+
+    // TAMBAHKAN: Function untuk refresh orders
+    fun refreshOrders() {
+        loadUserOrders()
     }
 
     fun updateTicketOrdersEvent(orders: List<TicketOrder>, eventItem: EventItem) {
@@ -227,5 +390,6 @@ class TicketViewModel : ViewModel() {
 
     fun refreshTickets() {
         loadUserTickets()
+        loadUserOrders()
     }
 }
