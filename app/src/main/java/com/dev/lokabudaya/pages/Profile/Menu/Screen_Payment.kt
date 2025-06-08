@@ -50,17 +50,19 @@ fun PaymentPage(
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
             is AuthState.Authenticated -> {
                 ticketViewModel.refreshOrders()
+                ticketViewModel.syncOrderStatusWithMidtrans()
             }
             else -> Unit
         }
     }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.padding(16.dp)) {
         PaymentSection(navController)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (isLoading) {
+        if (isLoading || isRefreshing) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -86,8 +88,21 @@ fun PaymentPage(
                     OrderCard(
                         order = order,
                         onOrderClick = { orderData ->
-                            if (orderData.status == "pending") {
-                                continuePayment(orderData, navController, context)
+                            when (orderData.status) {
+                                "pending" -> {
+                                    // Check jika masih valid untuk payment
+                                    val hoursDiff = (System.currentTimeMillis() - orderData.orderDate) / (1000 * 60 * 60)
+                                    if (hoursDiff < 24) {
+                                        continuePayment(orderData, navController, context)
+                                    } else {
+                                        // Update status ke expired
+                                        ticketViewModel.updateOrderStatus(orderData.id, "expired")
+                                    }
+                                }
+                                "expired" -> {
+                                    // Show expired message atau create new order
+                                    android.util.Log.d("PaymentPage", "Order expired: ${orderData.orderId}")
+                                }
                             }
                         }
                     )
@@ -102,8 +117,11 @@ fun OrderCard(
     order: OrderData,
     onOrderClick: (OrderData) -> Unit
 ) {
+    val hoursDiff = (System.currentTimeMillis() - order.orderDate) / (1000 * 60 * 60)
+    val isExpiredByTime = hoursDiff > 24 && order.status == "pending"
     Card(
         modifier = Modifier
+            .padding(4.dp)
             .fillMaxWidth()
             .clickable { onOrderClick(order) },
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -188,14 +206,25 @@ fun OrderCard(
                 color = Color.Gray
             )
 
-            if (order.status == "pending") {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Tap to continue payment",
-                    fontSize = 12.sp,
-                    color = selectedCategoryColor,
-                    fontWeight = FontWeight.Medium
-                )
+            when {
+                isExpiredByTime || order.status == "expired" -> {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Order expired",
+                        fontSize = 12.sp,
+                        color = Color.Red,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                order.status == "pending" -> {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Tap to continue payment",
+                        fontSize = 12.sp,
+                        color = selectedCategoryColor,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

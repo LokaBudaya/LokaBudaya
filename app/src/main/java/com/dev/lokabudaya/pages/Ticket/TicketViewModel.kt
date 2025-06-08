@@ -139,6 +139,7 @@ class TicketViewModel : ViewModel() {
                 }
 
                 _userOrders.value = orders
+                syncOrderStatusWithMidtrans()
                 android.util.Log.d("TicketViewModel", "Loaded ${orders.size} orders")
 
             } catch (e: Exception) {
@@ -194,6 +195,33 @@ class TicketViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 android.util.Log.e("TicketViewModel", "Update order status error: ${e.message}")
+            }
+        }
+    }
+
+    // Di TicketViewModel, tambahkan function untuk sync status
+    fun syncOrderStatusWithMidtrans() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) return
+
+        viewModelScope.launch {
+            try {
+                val pendingOrders = _userOrders.value.filter { it.status == "pending" }
+
+                pendingOrders.forEach { order ->
+                    // Check jika order sudah lebih dari 24 jam (expired)
+                    val orderTime = order.orderDate
+                    val currentTime = System.currentTimeMillis()
+                    val hoursDiff = (currentTime - orderTime) / (1000 * 60 * 60)
+
+                    if (hoursDiff > 24) { // Expired setelah 24 jam
+                        updateOrderStatus(order.id, "expired")
+                        android.util.Log.d("TicketViewModel", "Order ${order.orderId} marked as expired")
+                    }
+                }
+
+            } catch (e: Exception) {
+                android.util.Log.e("TicketViewModel", "Sync status error: ${e.message}")
             }
         }
     }
