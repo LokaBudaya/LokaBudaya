@@ -338,7 +338,7 @@ fun HeaderSection(navController: NavController) {
                 )
             )
         }
-        TicketDetailIcon(navController = navController)
+        //TicketDetailIcon(navController = navController)
     }
 }
 

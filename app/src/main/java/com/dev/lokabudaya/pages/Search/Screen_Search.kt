@@ -61,8 +61,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,6 +83,8 @@ import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 
 // Main Screen
 @Composable
@@ -715,12 +720,14 @@ fun <T : Any> CreateSearchCard(
         isFav = favoriteViewModel.getFavoriteState(item)
     }
 
-    val formatter = DecimalFormat("#.###")
     val price = getPrice(item)
-    val priceFormatted = if (price % 1.0 == 0.0) {
-        formatter.format(price)
-    } else {
-        price.toString()
+    val priceFormatted = buildAnnotatedString {
+        withStyle(style = SpanStyle(fontSize = 12.sp)) {
+            append("Rp ")
+        }
+        withStyle(style = SpanStyle(fontSize = 16.sp)) {
+            append(NumberFormat.getNumberInstance(Locale("id", "ID")).format(price))
+        }
     }
 
     Card(
@@ -779,9 +786,9 @@ fun <T : Any> CreateSearchCard(
                         color = Color.Black
                     )
                     Text(
-                        text = "Rp $priceFormatted",
+                        text = priceFormatted,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xff2C4CA5)
+                        color = getBackgroundLabelColor(item)
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
