@@ -39,8 +39,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -59,6 +62,8 @@ import com.dev.lokabudaya.pages.Search.RatingFilter
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 
 //Event Page
 @Composable
@@ -310,7 +315,7 @@ fun CreateEvent(eventItem: EventItem,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .background(eventItem.backgroundLabelColor, RoundedCornerShape(4.dp))
+                                .background(eventItem.backgroundLabelColor, RoundedCornerShape(6.dp))
                                 .wrapContentSize()
                                 .padding(horizontal = 8.dp)
                         )
@@ -329,9 +334,17 @@ fun CreateEvent(eventItem: EventItem,
                         color = Color.Black
                     )
                     Text(
-                        text = "Rp $priceFormatted",
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 12.sp)) {
+                                append("Rp ")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 16.sp)) {
+                                append(NumberFormat.getNumberInstance(Locale("id", "ID")).format(eventItem.price))
+                            }
+                        },
+                        color = eventItem.backgroundLabelColor,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xff2C4CA5)
+                        modifier = Modifier
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),

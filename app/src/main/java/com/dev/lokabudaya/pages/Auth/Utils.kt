@@ -1,6 +1,7 @@
 package com.dev.lokabudaya.pages.Auth
 
 import android.content.Context
+import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -12,4 +13,25 @@ fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         .requestEmail()
         .build()
     return GoogleSignIn.getClient(context, gso)
+}
+
+object PaymentNavigationHelper {
+    private var navController: NavController? = null
+
+    fun setNavController(controller: NavController) {
+        navController = controller
+    }
+
+    fun navigateToPaymentSuccess() {
+        navController?.navigate("PaymentSuccessPage") {
+            // Clear back stack sampai ke home
+            popUpTo("MidtransPaymentPage") { inclusive = true }
+        }
+    }
+
+    fun navigateToTicketPage() {
+        navController?.navigate("TicketPage") {
+            popUpTo("MidtransPaymentPage") { inclusive = true }
+        }
+    }
 }

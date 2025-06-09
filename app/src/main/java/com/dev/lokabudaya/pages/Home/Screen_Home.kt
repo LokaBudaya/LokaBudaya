@@ -37,6 +37,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
@@ -67,11 +68,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.wear.compose.material.ripple
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.EventItem
@@ -87,6 +92,8 @@ import com.dev.lokabudaya.ui.theme.mediumTextColor
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.firebase.auth.FirebaseAuth
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.math.abs
 
 @Composable
@@ -264,9 +271,9 @@ fun TopAdsCarousel(
 fun CategoryRow(navController: NavController) {
     val context = LocalContext.current
     val categories = listOf(
-        Triple("Kuliner", R.drawable.ic_culinaryhome, Color(0xFFFFA76D)),
-        Triple("Wisata", R.drawable.ic_tourhome, Color(0xFF7AD7F0)),
-        Triple("Event", R.drawable.ic_eventhome, Color(0xFFF48DD6))
+        Triple("Kuliner", R.drawable.ic_culinaryhome, Color(0xFF9A5F38)),
+        Triple("Wisata", R.drawable.ic_tourhome, Color(0xFF466F79)),
+        Triple("Event", R.drawable.ic_eventhome, Color(0xFF76395F))
     )
     Row(
         modifier = Modifier
@@ -375,7 +382,10 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
                 color = mediumTextColor,
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .clickable {
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
                         navController.navigate(ScreenRoute.Search.route)
                     }
             )
@@ -528,11 +538,19 @@ fun ListEventCard(event: EventItem, navController: NavController) {
     } else {
         event.price.toString()
     }
+    val interactionSource = remember { MutableInteractionSource() }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .width(360.dp)
-            .height(296.dp),
+            .height(296.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                val originalIndex = DataProvider.eventItemLists.indexOf(event)
+                navController.navigate("DetailEventPage/$originalIndex")
+            },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Gray
@@ -591,10 +609,16 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                             contentAlignment = Alignment.TopEnd
                         ) {
                             Text(
-                                text = "Rp${priceFormatted}",
-                                color = Color(0xFF2C4CA5),
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontSize = 14.sp)) {
+                                        append("Rp ")
+                                    }
+                                    withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                                        append(NumberFormat.getNumberInstance(Locale("id", "ID")).format(event.price))
+                                    }
+                                },
+                                color = Color(0xFF466F79),
                                 fontWeight = FontWeight.Medium,
-                                fontSize = 20.sp,
                                 modifier = Modifier
                             )
                             Text(
@@ -625,12 +649,12 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                         )
                         // category
                         Text(
-                            text = event.category,
-                            color = Color(0xFF00B6EA),
+                            text = event.label,
+                            color = event.textLabelColor,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .background(Color(0xFFC3F2FF), RoundedCornerShape(6.dp))
+                                .background(event.backgroundLabelColor, RoundedCornerShape(6.dp))
                                 .wrapContentSize()
                                 .padding(horizontal = 8.dp)
                         )
@@ -677,13 +701,15 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                         }
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
                                 .background(Color(0xFF9D8C3A))
                                 .wrapContentSize()
                                 .padding(horizontal = 20.dp, vertical = 4.dp)
-                                .clickable {
-                                    val eventIndex = DataProvider.eventItemLists.indexOf(event)
-                                    navController.navigate("TicketDetailPage/$eventIndex")
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(radius = 12.dp, color = Color.Black)
+                                ) {
+                                    val originalIndex = DataProvider.eventItemLists.indexOf(event)
+                                    navController.navigate("DetailEventPage/$originalIndex")
                                 }
                         ) {
                                 Text(
@@ -801,6 +827,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                     Column {
                         Text(
                             text = title,
+                            color = Color.Black,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                             lineHeight = 16.sp
@@ -810,11 +837,10 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                                 .height(8.dp)
                         )
                         Text(
-//                            text = desc,
                             text = desc,
                             fontSize = 12.sp,
                             lineHeight = 12.sp,
-                            fontWeight = FontWeight.Light,
+                            color = Color.Black,
                             textAlign = TextAlign.Justify
                         )
                     }

@@ -27,8 +27,8 @@ data class KulinerItem(
     var latitude:Double,
     var longtitude:Double,
     val label: String = "Kuliner",
-    val backgroundLabelColor: Color = Color(0xFFFFEAC3),
-    val textLabelColor: Color = Color(0xFFEA8D00)
+    val backgroundLabelColor: Color = Color(0xFF9A5F38),
+    val textLabelColor: Color = Color(0xFFFFDAC2)
 )
 data class EventItem(
     val id: String = UUID.randomUUID().toString(),
@@ -49,8 +49,8 @@ data class EventItem(
 //    val eventDateMonth: String,
 //    val eventDateYear: String,
     val eventTime:String,
-    val backgroundLabelColor: Color = Color(0xFFFFC3E8),
-    val textLabelColor: Color = Color(0xFFEA00DB)
+    val backgroundLabelColor: Color = Color(0xFF76395F),
+    val textLabelColor: Color = Color(0xFFFFE8F6)
 )
 data class TourItem(
     val id: String = UUID.randomUUID().toString(),
@@ -65,8 +65,8 @@ data class TourItem(
     var latitude:Double,
     var longtitude:Double,
     val label:String = "Tour",
-    val backgroundLabelColor: Color = Color(0xFFC3F2FF),
-    val textLabelColor: Color = Color(0xFF00B6EA)
+    val backgroundLabelColor: Color = Color(0xFF466F79),
+    val textLabelColor: Color = Color(0xFFCCF5FF)
 )
 data class TicketItem(
     val id:String = UUID.randomUUID().toString().take(12),
@@ -166,6 +166,25 @@ data class PaymentTicketOrder(
 ) {
     constructor() : this("", 0, 0, 0)
 }
+
+data class OrderData(
+    val id: String = UUID.randomUUID().toString(),
+    val orderId: String = "",
+    val eventId: String = "",
+    val eventTitle: String = "",
+    val eventImageRes: Int = 0,
+    val eventLocation: String = "",
+    val eventStartDate: String = "",
+    val eventTime: String = "",
+    val ticketOrders: List<PaymentTicketOrder> = emptyList(),
+    val totalAmount: Int = 0,
+    val totalQuantity: Int = 0,
+    val orderDate: Long = System.currentTimeMillis(),
+    val status: String = "pending", // pending, paid, expired, cancelled
+    val userId: String = "",
+    val snapToken: String = "",
+    val paymentUrl: String = ""
+)
 
 object DataProvider {
     val blogCards = listOf(
@@ -396,6 +415,21 @@ object DataProvider {
             rating = 4.4,
             location = "Purwokerto",
             price = 35000,
+            isFavorite = false,
+            category = "Pertunjukan Seni",
+            desc = "INI DESKRIPSI EVENT",
+            latitude = -7.574178450295152,
+            longtitude = 110.81591618151339,
+            startDate = LocalDate.of(2025, 6, 10),
+            endDate = LocalDate.of(2025, 6, 12),
+            eventTime = "19:00"
+        ),
+        EventItem(
+            title = "Event test bayar",
+            imgRes = R.drawable.img_event,
+            rating = 4.4,
+            location = "Purwokerto",
+            price = 100,
             isFavorite = false,
             category = "Pertunjukan Seni",
             desc = "INI DESKRIPSI EVENT",

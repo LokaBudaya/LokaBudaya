@@ -61,7 +61,7 @@ fun DetailEventPage(
     navController: NavController,
     authViewModel: AuthViewModel,
     eventItem: EventItem,
-    ticketViewModel: TicketViewModel = viewModel()
+    ticketViewModel: TicketViewModel
 ) {
     val context = LocalContext.current
     val apiKey = stringResource(id = R.string.google_map_api_key)
