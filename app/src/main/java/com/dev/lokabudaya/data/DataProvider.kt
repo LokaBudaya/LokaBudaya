@@ -27,8 +27,8 @@ data class KulinerItem(
     var latitude:Double,
     var longtitude:Double,
     val label: String = "Kuliner",
-    val backgroundLabelColor: Color = Color(0xFFFFEAC3),
-    val textLabelColor: Color = Color(0xFFEA8D00)
+    val backgroundLabelColor: Color = Color(0xFF9A5F38),
+    val textLabelColor: Color = Color(0xFFFFDAC2)
 )
 data class EventItem(
     val id: String = UUID.randomUUID().toString(),
@@ -49,8 +49,8 @@ data class EventItem(
 //    val eventDateMonth: String,
 //    val eventDateYear: String,
     val eventTime:String,
-    val backgroundLabelColor: Color = Color(0xFFFFC3E8),
-    val textLabelColor: Color = Color(0xFFEA00DB)
+    val backgroundLabelColor: Color = Color(0xFF76395F),
+    val textLabelColor: Color = Color(0xFFFFE8F6)
 )
 data class TourItem(
     val id: String = UUID.randomUUID().toString(),
@@ -65,8 +65,8 @@ data class TourItem(
     var latitude:Double,
     var longtitude:Double,
     val label:String = "Tour",
-    val backgroundLabelColor: Color = Color(0xFFC3F2FF),
-    val textLabelColor: Color = Color(0xFF00B6EA)
+    val backgroundLabelColor: Color = Color(0xFF466F79),
+    val textLabelColor: Color = Color(0xFFCCF5FF)
 )
 data class TicketItem(
     val id:String = UUID.randomUUID().toString().take(12),
