@@ -12,7 +12,7 @@ class MyApplication : Application() {
         super.onCreate()
 
         SdkUIFlowBuilder.init()
-            .setClientKey("Mid-client-hPZlSLFW1FBSHSBj")
+            .setClientKey("SB-Mid-client-Qfvn78dMZ9wGWnj5")
             .setContext(this)
             .setTransactionFinishedCallback { result ->
                 handleTransactionResult(result)

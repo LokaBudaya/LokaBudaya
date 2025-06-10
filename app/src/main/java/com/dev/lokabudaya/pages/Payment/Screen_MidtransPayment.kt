@@ -548,6 +548,8 @@ fun processPayment(
     onComplete: () -> Unit
 ) {
     try {
+        val orderId = "ORDER-${System.currentTimeMillis()}"
+        android.util.Log.d("Payment", "Generated Order ID: $orderId")
         // Create Retrofit instance
         val retrofit = Retrofit.Builder()
             .baseUrl("https://midtrans-api-lokabudaya.vercel.app/")
@@ -560,9 +562,6 @@ fun processPayment(
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userEmail = currentUser?.email ?: "customer@example.com"
         val userName = currentUser?.displayName ?: "Customer"
-
-        // Prepare payment data
-        val orderId = "ORDER-${System.currentTimeMillis()}"
         val itemDetails = ticketOrders.map { order ->
             ItemDetail(
                 id = order.ticketTypeName.replace(" ", "_").lowercase(),
@@ -608,7 +607,7 @@ fun processPayment(
                             totalAmount = totalAmount,
                             snapToken = snapToken,
                             paymentUrl = paymentUrl,
-                            orderId = orderId, // TAMBAHKAN order ID
+                            orderId = orderId,
                             onSuccess = { savedOrderId ->
                                 Log.d("Midtrans", "Order saved with ID: $savedOrderId")
 

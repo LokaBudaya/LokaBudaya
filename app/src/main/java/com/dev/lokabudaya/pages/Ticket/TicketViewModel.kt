@@ -64,7 +64,6 @@ class TicketViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val orderId = "ORDER-${System.currentTimeMillis()}"
 
                 val orderData = when {
                     eventItem != null -> OrderData(
@@ -121,6 +120,41 @@ class TicketViewModel : ViewModel() {
         }
     }
 
+    fun autoUpdateRecentPendingOrders(timeThreshold: Long) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) return
+
+        viewModelScope.launch {
+            try {
+                val ordersSnapshot = firestore.collection("users")
+                    .document(currentUser.uid)
+                    .collection("orders")
+                    .whereEqualTo("status", "pending")
+                    .whereGreaterThan("orderDate", timeThreshold)
+                    .get()
+                    .await()
+
+                if (!ordersSnapshot.isEmpty) {
+                    android.util.Log.d("TicketViewModel", "Found ${ordersSnapshot.documents.size} recent pending orders")
+
+                    ordersSnapshot.documents.forEach { doc ->
+                        val order = doc.toObject(OrderData::class.java)
+                        if (order != null) {
+                            // Auto-update ke paid
+                            doc.reference.update("status", "paid").await()
+                            android.util.Log.d("TicketViewModel", "✅ Auto-updated order: ${order.orderId}")
+                        }
+                    }
+
+                    loadUserOrders()
+                }
+
+            } catch (e: Exception) {
+                android.util.Log.e("TicketViewModel", "Auto-update error: ${e.message}")
+            }
+        }
+    }
+
     private fun loadUserOrders() {
         val currentUser = auth.currentUser
         if (currentUser == null) return
@@ -152,10 +186,17 @@ class TicketViewModel : ViewModel() {
     // Di TicketViewModel
     fun updateOrderStatusByOrderId(orderId: String, status: String) {
         val currentUser = auth.currentUser
-        if (currentUser == null) return
+        if (currentUser == null) {
+            android.util.Log.e("TicketViewModel", "Cannot update status: User not authenticated")
+            return
+        }
 
         viewModelScope.launch {
             try {
+                android.util.Log.d("TicketViewModel", "=== UPDATING ORDER STATUS ===")
+                android.util.Log.d("TicketViewModel", "Order ID: $orderId")
+                android.util.Log.d("TicketViewModel", "New Status: $status")
+
                 // Find order dengan orderId dan update status
                 val ordersSnapshot = firestore.collection("users")
                     .document(currentUser.uid)
@@ -164,15 +205,25 @@ class TicketViewModel : ViewModel() {
                     .get()
                     .await()
 
-                ordersSnapshot.documents.forEach { doc ->
-                    doc.reference.update("status", status).await()
+                if (ordersSnapshot.isEmpty) {
+                    android.util.Log.e("TicketViewModel", "Order not found with ID: $orderId")
+                    return@launch
                 }
 
+                android.util.Log.d("TicketViewModel", "Found ${ordersSnapshot.documents.size} orders to update")
+
+                ordersSnapshot.documents.forEach { doc ->
+                    doc.reference.update("status", status).await()
+                    android.util.Log.d("TicketViewModel", "Updated order ${doc.id} to status: $status")
+                }
+
+                // Refresh orders setelah update
                 loadUserOrders()
-                Log.d("TicketViewModel", "Order status updated: $orderId -> $status")
+                android.util.Log.d("TicketViewModel", "Order status update completed")
 
             } catch (e: Exception) {
-                Log.e("TicketViewModel", "Update order status error: ${e.message}")
+                android.util.Log.e("TicketViewModel", "Update order status error: ${e.message}")
+                android.util.Log.e("TicketViewModel", "Stack trace: ${e.stackTraceToString()}")
             }
         }
     }
