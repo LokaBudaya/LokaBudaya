@@ -25,6 +25,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
@@ -137,7 +139,7 @@ fun MapPage(
                 Text(
                     text = "Find Location",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black,
                     modifier = Modifier.weight(1f)
                 )

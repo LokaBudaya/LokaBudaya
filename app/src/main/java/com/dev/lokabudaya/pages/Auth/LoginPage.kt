@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
@@ -134,7 +135,7 @@ fun LoginPage(
         Text(
             text = "Welcome Back!",
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black
         )
 

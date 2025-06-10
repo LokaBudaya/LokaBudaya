@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
@@ -138,7 +139,7 @@ fun SignupPage(
                 Text(
                     text = "Sign Up",
                     fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
             }
@@ -347,7 +348,7 @@ fun SignupPage(
                         text = "Sign In",
                         fontSize = 14.sp,
                         color = selectedCategoryColor,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         modifier = Modifier.clickable {
                             navController.navigate("LoginPage")
                         }

@@ -24,6 +24,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
 
 @Composable
 fun AccessibilityPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -60,7 +61,7 @@ fun AccessibilitySection(navController: NavController) {
             Text(
                 text = "Accessibility",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }

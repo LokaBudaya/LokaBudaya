@@ -40,6 +40,8 @@ import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -151,7 +153,7 @@ fun DetailTourPage(
                 ) {
                     Text(
                         text = "Ticket",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         fontSize = 20.sp
                     )
                 }
@@ -197,7 +199,7 @@ fun DetailTourPage(
                     Text(
                         text = "Preview",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
 
@@ -230,7 +232,7 @@ fun DetailTourPage(
                     Text(
                         text = "Maps",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
 
@@ -399,7 +401,7 @@ fun DetailTourItem(
                     text = tourItem.title,
                     fontSize = 48.sp,
                     lineHeight = 48.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color(0xFF01103A)
                 )
             }
@@ -435,13 +437,13 @@ fun DetailTourItem(
                         Text(
                             text = "Rating",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         Text(
                             text = tourItem.rating.toString(),
                             fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black
                         )
                     }
@@ -471,7 +473,7 @@ fun DetailTourItem(
                         Text(
                             text = "People Reviews",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         PeopleReviews()
@@ -502,13 +504,13 @@ fun DetailTourItem(
                         Text(
                             text = "Time",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         Text(
                             text = tourItem.time,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black
                         )
                     }
@@ -571,7 +573,7 @@ fun PeopleReviews(
                             text = "+$extraCount",
                             color = Color.White,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = interBold
                         )
                     }
                 }
@@ -601,7 +603,7 @@ fun DetailOverview(tourItem: TourItem) {
         Text(
             text = "Overview",
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black
         )
         Text(
@@ -656,7 +658,7 @@ fun TicketToBuy(
                     text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                         .format(ticketOrder.ticketType.price),
                     color = Color(0xFF2C4CA5),
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     fontSize = 18.sp
                 )
             }
@@ -757,7 +759,7 @@ fun PurchaseSummaryBottom(
                         text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                             .format(totalPrice),
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
                 }

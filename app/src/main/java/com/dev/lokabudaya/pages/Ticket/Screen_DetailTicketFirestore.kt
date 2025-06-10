@@ -27,6 +27,9 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.White
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
+import com.dev.lokabudaya.ui.theme.poppinsLight
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -140,7 +143,7 @@ fun DetailTicketFirestorePage(
                     Text(
                         text = ticketData.eventTitle,
                         fontSize = 28.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = White,
                         lineHeight = 28.sp,
                     )
@@ -162,7 +165,7 @@ fun DetailTicketFirestorePage(
                         textAlign = TextAlign.Justify,
                         fontSize = 12.sp,
                         lineHeight = 12.sp,
-                        fontWeight = FontWeight.Light,
+                        fontFamily = poppinsLight,
                         color = White
                     )
 
@@ -179,13 +182,13 @@ fun DetailTicketFirestorePage(
                                 Text(
                                     text = "Nama",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
+                                    fontFamily = poppinsLight,
                                     color = White
                                 )
                                 Text(
                                     text = displayName,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
                                     color = White
                                 )
@@ -197,13 +200,13 @@ fun DetailTicketFirestorePage(
                                 Text(
                                     text = "Time",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
+                                    fontFamily = poppinsLight,
                                     color = White
                                 )
                                 Text(
                                     text = ticketData.eventTime,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
                                     color = White
                                 )
@@ -216,13 +219,13 @@ fun DetailTicketFirestorePage(
                                 Text(
                                     text = "Date",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
+                                    fontFamily = poppinsLight,
                                     color = White
                                 )
                                 Text(
                                     text = formatTicketDate(ticketData.eventStartDate, ""),
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
                                     color = White
                                 )
@@ -234,13 +237,13 @@ fun DetailTicketFirestorePage(
                                 Text(
                                     text = "Quantity",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Light,
+                                    fontFamily = poppinsLight,
                                     color = White
                                 )
                                 Text(
                                     text = ticketData.totalQuantity.toString(),
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
                                     color = White
                                 )
@@ -254,7 +257,7 @@ fun DetailTicketFirestorePage(
                     Text(
                         text = "Scan This Barcode",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Light,
+                        fontFamily = poppinsLight,
                         color = White,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -291,7 +294,7 @@ fun DetailTicketFirestorePage(
             Text(
                 text = "Download Ticket",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(14.dp),

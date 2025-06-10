@@ -16,6 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
@@ -56,7 +58,7 @@ fun PaymentSuccessPage(
             Text(
                 text = "Payment Successful",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = Color.Black,
                 textAlign = TextAlign.Center
             )

@@ -88,7 +88,9 @@ import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.categoryColor
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.mediumTextColor
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.firebase.auth.FirebaseAuth
 import java.text.DecimalFormat
@@ -228,7 +230,7 @@ fun TopAdsCarousel(
                         lineHeight = 48.sp,
                         color = Color.White,
                         fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = interBold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -307,7 +309,7 @@ fun CategoryRow(navController: NavController) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = label,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
             }
@@ -372,7 +374,7 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
                 Text(
                     text = "What's in Solo?",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = bigTextColor
                 )
             }
@@ -449,7 +451,7 @@ fun WhatIsCard(place: TourItem,
                 Text(
                     text = place.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = White,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(top = 24.dp)
@@ -503,7 +505,7 @@ fun Recommended() {
     ){
         Text(
             text = "Rekomendasi",
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = bigTextColor,
             fontSize = 24.sp,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -597,7 +599,7 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                         Text(
                             text = event.title,
                             color = Color.Black,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             fontSize = 24.sp,
                             modifier = Modifier.weight(1f)
                         )
@@ -629,6 +631,7 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                                     .graphicsLayer {
                                         translationY = 48f
                                     }
+                                    .padding(vertical = 8.dp)
                             )
                         }
                     }
@@ -652,7 +655,7 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                             text = event.label,
                             color = event.textLabelColor,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             modifier = Modifier
                                 .background(event.backgroundLabelColor, RoundedCornerShape(6.dp))
                                 .wrapContentSize()
@@ -715,7 +718,7 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                                 Text(
                                     text = "Buy Now",
                                     color = Color.White,
-                                    fontWeight = FontWeight.Bold
+                                    fontFamily = interBold
                                 )
                         }
                     }
@@ -740,7 +743,7 @@ fun Blog(navController: NavController) {
             Text(
                 text = "Blog Journeys",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor,
             )
             Text(
@@ -826,9 +829,9 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                 ) {
                     Column {
                         Text(
-                            text = title,
+                            text = if (title.length > 20) title.take(20) + "..." else title,
                             color = Color.Black,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = poppinsSemiBold,
                             fontSize = 16.sp,
                             lineHeight = 16.sp
                         )
@@ -837,7 +840,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                                 .height(8.dp)
                         )
                         Text(
-                            text = desc,
+                            text = if (desc.length > 50) desc.take(50) + "..." else desc,
                             fontSize = 12.sp,
                             lineHeight = 12.sp,
                             color = Color.Black,

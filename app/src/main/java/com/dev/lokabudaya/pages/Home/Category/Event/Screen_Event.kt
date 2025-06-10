@@ -61,6 +61,8 @@ import com.dev.lokabudaya.pages.Search.PriceFilter
 import com.dev.lokabudaya.pages.Search.RatingFilter
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
@@ -173,7 +175,7 @@ fun HeaderEventSection(navController: NavController) {
             Text(
                 text = "Event",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }
@@ -313,7 +315,7 @@ fun CreateEvent(eventItem: EventItem,
                             text = eventItem.label,
                             color = eventItem.textLabelColor,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             modifier = Modifier
                                 .background(eventItem.backgroundLabelColor, RoundedCornerShape(6.dp))
                                 .wrapContentSize()
@@ -330,7 +332,7 @@ fun CreateEvent(eventItem: EventItem,
                     Text(
                         text = eventItem.title,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = Color.Black
                     )
                     Text(
@@ -343,7 +345,7 @@ fun CreateEvent(eventItem: EventItem,
                             }
                         },
                         color = eventItem.backgroundLabelColor,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         modifier = Modifier
                     )
                     Row(

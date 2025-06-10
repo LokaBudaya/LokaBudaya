@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.firebase.auth.FirebaseAuth
 
@@ -105,7 +106,7 @@ fun EmailVerificationPage(
         Text(
             text = if (isEmailUpdate) "Verify Your New Email" else "Verify Your Email",
             fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black,
             textAlign = TextAlign.Center
         )

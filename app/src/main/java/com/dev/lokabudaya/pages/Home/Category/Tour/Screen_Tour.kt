@@ -58,6 +58,8 @@ import com.dev.lokabudaya.pages.Search.PriceFilter
 import com.dev.lokabudaya.pages.Search.RatingFilter
 import com.dev.lokabudaya.pages.Ticket.SearchIcon
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import java.text.DecimalFormat
 
 //Tour Page
@@ -168,7 +170,7 @@ fun HeaderTourSection(navController: NavController) {
             Text(
                 text = "Wisata",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }
@@ -309,7 +311,7 @@ fun CreateTour(tourItem: TourItem,
                             text = tourItem.label,
                             color = tourItem.textLabelColor,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             modifier = Modifier
                                 .background(tourItem.backgroundLabelColor, RoundedCornerShape(4.dp))
                                 .wrapContentSize()
@@ -326,12 +328,12 @@ fun CreateTour(tourItem: TourItem,
                     Text(
                         text = tourItem.title,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = Color.Black
                     )
                     Text(
                         text = "Rp $priceFormatted", // Tambah spasi setelah Rp
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = Color(0xff2C4CA5)
                     )
                     Row(

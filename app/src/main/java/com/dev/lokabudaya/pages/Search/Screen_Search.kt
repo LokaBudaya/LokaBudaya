@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,6 +64,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -160,7 +163,7 @@ fun SearchPage(modifier: Modifier = Modifier,
             .fillMaxSize()
             .background(Color(0xFFF8F8F8))
             .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         HeaderSection()
@@ -169,26 +172,10 @@ fun SearchPage(modifier: Modifier = Modifier,
             onQueryChange = { searchQuery = it }
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilterList(
-                onFiltersChanged = { newFilters ->
-                    filterOptions = newFilters
-                }
-            )
-            SearchResultsHeader(
-                totalResults = filteredResults.size,
-                searchQuery = searchQuery,
-                filterOptions = filterOptions
-            )
-        }
-
         ExploreGridList(
             searchQuery = searchQuery,
             filterOptions = filterOptions,
+            onFilterChanged = { filterOptions = it },
             favoriteViewModel = favoriteViewModel,
             navController = navController
         )
@@ -208,7 +195,7 @@ fun HeaderSection() {
             Text(
                 text = "Explore",
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily(Font(R.font.inter_bold)),
                     color = bigTextColor
                 )
             )
@@ -336,7 +323,7 @@ fun FilterDialog(
             Text(
                 text = "Filter",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.inter_bold)),
                 color = bigTextColor
             )
         },
@@ -405,7 +392,7 @@ fun FilterSection(
         Text(
             text = title,
             fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily(Font(R.font.poppins_semibold)),
             color = bigTextColor,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -487,56 +474,48 @@ fun CombinerList() : List<CombinedItem> {
 
 @Composable
 fun ExploreGridList(
-    searchQuery: String = "",
-    filterOptions: FilterOptions = FilterOptions(),
+    searchQuery: String,
+    filterOptions: FilterOptions,
     favoriteViewModel: FavoriteViewModel,
-    navController: NavController
+    navController: NavController,
+    onFilterChanged: (FilterOptions) -> Unit
 ) {
     val combinedList = CombinerList()
-
     val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
 
     val filteredList = remember(searchQuery, filterOptions) {
         combinedList.filter { item ->
-            val matchesSearch = if (searchQuery.isBlank()) {
-                true
-            } else {
+            val matchesSearch = if (searchQuery.isBlank()) true else {
                 when (item) {
-                    is CombinedItem.EventItem -> item.eventItem.title.contains(searchQuery, ignoreCase = true) ||
-                            item.eventItem.location.contains(searchQuery, ignoreCase = true) ||
-                            item.eventItem.category.contains(searchQuery, ignoreCase = true)
-                    is CombinedItem.TourItem -> item.tourItem.title.contains(searchQuery, ignoreCase = true) ||
-                            item.tourItem.location.contains(searchQuery, ignoreCase = true)
-                    is CombinedItem.KulinerItem -> item.kulinerItem.title.contains(searchQuery, ignoreCase = true) ||
-                            item.kulinerItem.location.contains(searchQuery, ignoreCase = true)
+                    is CombinedItem.EventItem -> item.eventItem.title.contains(searchQuery, true) ||
+                            item.eventItem.location.contains(searchQuery, true) ||
+                            item.eventItem.category.contains(searchQuery, true)
+                    is CombinedItem.TourItem -> item.tourItem.title.contains(searchQuery, true) ||
+                            item.tourItem.location.contains(searchQuery, true)
+                    is CombinedItem.KulinerItem -> item.kulinerItem.title.contains(searchQuery, true) ||
+                            item.kulinerItem.location.contains(searchQuery, true)
                 }
             }
 
-            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
-                true
-            } else {
+            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) true else {
                 val rating = when (item) {
                     is CombinedItem.EventItem -> item.eventItem.rating
                     is CombinedItem.TourItem -> item.tourItem.rating
                     is CombinedItem.KulinerItem -> item.kulinerItem.rating
                 }
-                filterOptions.selectedRatings.any { selectedRating ->
-                    val ratingFilter = RatingFilter.values().find { it.label == selectedRating }
-                    ratingFilter?.range?.contains(rating) == true
+                filterOptions.selectedRatings.any {
+                    RatingFilter.values().find { rf -> rf.label == it }?.range?.contains(rating) == true
                 }
             }
 
-            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
-                true
-            } else {
+            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) true else {
                 val price = when (item) {
                     is CombinedItem.EventItem -> item.eventItem.price
                     is CombinedItem.TourItem -> item.tourItem.price
                     is CombinedItem.KulinerItem -> item.kulinerItem.price
                 }
-                filterOptions.selectedPriceRanges.any { selectedPrice ->
-                    val priceFilter = PriceFilter.values().find { it.label == selectedPrice }
-                    priceFilter?.range?.contains(price) == true
+                filterOptions.selectedPriceRanges.any {
+                    PriceFilter.values().find { pf -> pf.label == it }?.range?.contains(price) == true
                 }
             }
 
@@ -544,49 +523,57 @@ fun ExploreGridList(
         }
     }
 
-    if (filteredList.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "No Results",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(64.dp)
+                FilterList(onFiltersChanged = onFilterChanged)
+                SearchResultsHeader(
+                    totalResults = filteredList.size,
+                    searchQuery = searchQuery,
+                    filterOptions = filterOptions
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = if (searchQuery.isNotBlank()) {
-                        "Tidak ada hasil untuk \"$searchQuery\""
-                    } else {
-                        "Tidak ada hasil yang sesuai dengan filter"
-                    },
-                    fontSize = 16.sp,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-                if (filterOptions.selectedRatings.isNotEmpty() || filterOptions.selectedPriceRanges.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        if (filteredList.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_search),
+                        contentDescription = "No Results",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Coba ubah filter pencarian",
-                        fontSize = 14.sp,
-                        color = Color.LightGray,
+                        text = if (searchQuery.isNotBlank()) {
+                            "Tidak ada hasil untuk \"$searchQuery\""
+                        } else {
+                            "Tidak ada hasil yang sesuai dengan filter"
+                        },
+                        fontSize = 16.sp,
+                        color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
                 }
             }
-        }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(8.dp)
-        ) {
+        } else {
             items(
                 count = filteredList.size,
                 key = { index ->
@@ -677,6 +664,7 @@ fun ExploreGridList(
     }
 }
 
+
 @Composable
 fun SearchResultsHeader(
     totalResults: Int,
@@ -765,7 +753,7 @@ fun <T : Any> CreateSearchCard(
                             text = getLabel(item),
                             color = getTextLabelColor(item),
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily(Font(R.font.inter_bold)),
                             modifier = Modifier
                                 .background(getBackgroundLabelColor(item), RoundedCornerShape(4.dp))
                                 .wrapContentSize()
@@ -782,12 +770,12 @@ fun <T : Any> CreateSearchCard(
                     Text(
                         text = getTitle(item),
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                         color = Color.Black
                     )
                     Text(
                         text = priceFormatted,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                         color = getBackgroundLabelColor(item)
                     )
                     Row(

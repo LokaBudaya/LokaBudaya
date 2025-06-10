@@ -2,14 +2,32 @@ package com.dev.lokabudaya.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.dev.lokabudaya.R
+
+val interBold = FontFamily(
+    Font(R.font.inter_bold)
+)
+val interSemiBold = FontFamily(
+    Font(R.font.inter_semibold)
+)
+val poppinsRegular = FontFamily(
+    Font(R.font.poppins_regular)
+)
+val poppinsSemiBold = FontFamily(
+    Font(R.font.poppins_semibold)
+)
+val poppinsLight = FontFamily(
+    Font(R.font.poppins_light)
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = poppinsRegular,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,

@@ -27,6 +27,8 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.EventItem
 import com.dev.lokabudaya.data.TicketOrder
 import com.dev.lokabudaya.data.TicketType
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -88,7 +90,7 @@ fun TicketDetailBuyPage(
                 Text(
                     text = "Pilih Tiket",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
             }
@@ -176,7 +178,7 @@ fun TicketDetailHeader(
         Text(
             text = eventItem.title,
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.White,
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -297,7 +299,7 @@ fun TicketSelectionCard(
                     Text(
                         text = ticketOrder.ticketType.name,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
                     Text(
@@ -373,7 +375,7 @@ fun QuantitySelector(
         Text(
             text = quantity.toString(),
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black,
             modifier = Modifier.widthIn(min = 24.dp),
             textAlign = TextAlign.Center
@@ -433,7 +435,7 @@ fun PurchaseSummaryBottom(
                         text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                             .format(totalPrice),
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
                 }

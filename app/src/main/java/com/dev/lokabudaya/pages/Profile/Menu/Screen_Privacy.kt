@@ -44,6 +44,8 @@ import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.dev.lokabudaya.ui.theme.smallTextColor
 
@@ -129,7 +131,7 @@ fun HeaderPrivacySection(navController: NavController) {
             Text(
                 text = "Privacy & Security",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }
@@ -203,7 +205,7 @@ fun ChangePasswordDialog(
         title = {
             Text(
                 text = "Change Password",
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 fontSize = 18.sp
             )
         },

@@ -58,7 +58,10 @@ import com.dev.lokabudaya.pages.Book.WishlistListItem
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.White
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.mediumTextColor
+import com.dev.lokabudaya.ui.theme.poppinsLight
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 // Main Screen
@@ -106,7 +109,7 @@ fun TicketPage(modifier: Modifier = Modifier,
                 Text(
                     text = "Recent Orders",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     fontSize = 18.sp,
                     color = bigTextColor
                 )
@@ -212,7 +215,7 @@ fun CreateTicketFromFirestore(
                 Text(
                     textAlign = TextAlign.Left,
                     text = ticketDataEvent.eventTitle,
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = poppinsSemiBold,
                     fontSize = 44.sp,
                     lineHeight = 44.sp,
                     color = Color.White,
@@ -249,7 +252,7 @@ fun CreateTicketFromFirestore(
                     Text(
                         text = "Lihat Detail",
                         textAlign = TextAlign.Right,
-                        fontWeight = FontWeight.Light,
+                        fontFamily = poppinsLight,
                         fontSize = 14.sp,
                         color = Color.White
                     )
@@ -333,7 +336,7 @@ fun HeaderSection(navController: NavController) {
             Text(
                 text = "My Orders",
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = bigTextColor
                 )
             )
@@ -403,7 +406,7 @@ fun CreateTicket(
                 Text(
                     textAlign = TextAlign.Left,
                     text = ticketItem.title,
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = poppinsSemiBold,
                     fontSize = 44.sp,
                     lineHeight = 44.sp,
                     color = Color.White,
@@ -442,7 +445,7 @@ fun CreateTicket(
                     Text(
                         text = "Lihat Detail",
                         textAlign = TextAlign.Right,
-                        fontWeight = FontWeight.Light,
+                        fontFamily = poppinsLight,
                         fontSize = 14.sp,
                         color = Color.White
                     )
@@ -499,7 +502,7 @@ fun WishlistHeader(navController: NavController) {
         Text(
             text = "Your Wishlist",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             fontSize = 20.sp,
             color = bigTextColor,
             modifier = Modifier.padding(bottom = 8.dp)

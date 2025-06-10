@@ -43,6 +43,8 @@ import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -154,7 +156,7 @@ fun DetailEventPage(
                 ) {
                     Text(
                         text = "Ticket",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         fontSize = 20.sp
                     )
                 }
@@ -200,7 +202,7 @@ fun DetailEventPage(
                     Text(
                         text = "Preview",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
 
@@ -233,7 +235,7 @@ fun DetailEventPage(
                     Text(
                         text = "Maps",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
 
@@ -402,13 +404,13 @@ fun DetailEventItem(
                     text = eventItem.title,
                     fontSize = 48.sp,
                     lineHeight = 48.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color(0xFF01103A)
                 )
                 Box(
                     modifier = Modifier
                         .offset(x = 24.dp)
-                        .size(116.dp)
+                        .size(120.dp)
                         .shadow(elevation = 8.dp, shape = CircleShape, clip = false)
                         .clip(CircleShape)
                         .weight(.3f)
@@ -453,13 +455,13 @@ fun DetailEventItem(
                         Text(
                             text = "Time",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         Text(
                             text = eventItem.eventTime,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black
                         )
                     }
@@ -494,7 +496,7 @@ fun DetailEventItem(
                             Text(
                                 text = "Location",
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = interBold,
                                 color = Color.Black,
                             )
                             Image(
@@ -558,7 +560,7 @@ fun TicketToBuy(
                     text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                         .format(ticketOrder.ticketType.price),
                     color = Color(0xFF2C4CA5),
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     fontSize = 18.sp
                 )
             }
@@ -637,7 +639,7 @@ fun DetailOverview(eventItem: EventItem) {
         Text(
             text = "Overview",
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black
         )
         Text(
@@ -683,7 +685,7 @@ fun PurchaseSummaryBottom(
                         text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
                             .format(totalPrice),
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
                 }
@@ -722,7 +724,7 @@ fun FormatEventDate(
             }
         } else if (startDate.month == endDate.month && startDate.year == endDate.year) {
             buildAnnotatedString {
-                appendStyledText("${startDate.dayOfMonth} - ${endDate.dayOfMonth}", isDay = true)
+                appendStyledText("${startDate.dayOfMonth}-${endDate.dayOfMonth}", isDay = true)
                 append(" ")
                 appendStyledText(
                     startDate.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),

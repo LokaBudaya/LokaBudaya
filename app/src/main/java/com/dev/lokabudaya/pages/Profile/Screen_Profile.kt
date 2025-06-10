@@ -34,6 +34,8 @@ import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Auth.UserData
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
@@ -90,7 +92,7 @@ fun ProfileTopBar(interactionSource: MutableInteractionSource) {
         Text(
             text = "My Profile",
             style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             ),
             modifier = Modifier.weight(1f)
@@ -132,7 +134,7 @@ fun ProfileTag(
             // UBAH: Tampilkan displayName dari userData
             Text(
                 text = userData?.displayName ?: "Loading...",
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 fontSize = 18.sp,
                 color = Color(0xFF1A2758)
             )
@@ -215,7 +217,7 @@ fun ProfileMenuItem(title: String, subtitle: String, interactionSource: MutableI
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = bigTextColor
                 )
                 Text(
@@ -275,7 +277,7 @@ fun ProfileMyBlogMyTrip(blogCount: Int, tripCount: Int, interactionSource: Mutab
                 ) {
                     Text(
                         text = "My Blog",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         fontSize = 20.sp,
                         color = Color.White
                     )
@@ -336,7 +338,7 @@ fun ProfileMyBlogMyTrip(blogCount: Int, tripCount: Int, interactionSource: Mutab
                 ) {
                     Text(
                         text = "My Trip",
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.White,
                         fontSize = 20.sp
                     )

@@ -41,6 +41,9 @@ import com.dev.lokabudaya.data.DataProvider.blogCards
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsLight
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 
 @Composable
 fun BlogPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -83,7 +86,7 @@ fun HeaderBlogSection(navController: NavController) {
             Text(
                 text = "Blog Journeys",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }
@@ -141,7 +144,7 @@ fun BlogItem(blog: BlogCardClass) {
                             text = blog.title,
                             fontSize = 18.sp,
                             lineHeight = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = poppinsSemiBold,
                             modifier = Modifier
                                 .padding(bottom = 4.dp)
                         )
@@ -170,7 +173,7 @@ fun BlogItem(blog: BlogCardClass) {
                         Text(
                             text = blog.date,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Light,
+                            fontFamily = poppinsLight,
                             modifier = Modifier
                                 .alpha(.8f)
                         )
@@ -178,7 +181,7 @@ fun BlogItem(blog: BlogCardClass) {
                         Text(
                             text = blog.viewers,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Light,
+                            fontFamily = poppinsLight,
                             modifier = Modifier
                                 .alpha(.8f)
                         )

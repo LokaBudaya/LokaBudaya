@@ -27,6 +27,8 @@ import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.midtrans.sdk.corekit.core.MidtransSDK
 import java.text.NumberFormat
@@ -140,7 +142,7 @@ fun OrderCard(
                     Text(
                         text = order.eventTitle,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
 
@@ -157,7 +159,7 @@ fun OrderCard(
                     Text(
                         text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(order.totalAmount),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = selectedCategoryColor
                     )
                 }
@@ -299,7 +301,7 @@ fun PaymentSection(navController: NavController) {
             Text(
                 text = "Payment",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }

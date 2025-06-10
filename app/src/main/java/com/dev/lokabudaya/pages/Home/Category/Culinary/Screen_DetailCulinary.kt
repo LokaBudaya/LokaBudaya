@@ -58,6 +58,8 @@ import com.dev.lokabudaya.pages.Book.FavoriteViewModelFactory
 import com.dev.lokabudaya.pages.Home.Category.Event.FormatEventDate
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.ui.theme.LokaBudayaTheme
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -149,7 +151,7 @@ fun DetailCulinaryPage(
                 Text(
                     text = "Preview",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
 
@@ -190,7 +192,7 @@ fun DetailCulinaryPage(
                 Text(
                     text = "Maps",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
 
@@ -344,7 +346,7 @@ fun DetailCulinaryItem(
                     text = kulinerItem.title,
                     fontSize = 48.sp,
                     lineHeight = 48.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color(0xFF01103A)
                 )
             }
@@ -380,13 +382,13 @@ fun DetailCulinaryItem(
                         Text(
                             text = "Rating",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         Text(
                             text = kulinerItem.rating.toString(),
                             fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black
                         )
                     }
@@ -416,7 +418,7 @@ fun DetailCulinaryItem(
                         Text(
                             text = "People Reviews",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         PeopleReviews()
@@ -447,13 +449,13 @@ fun DetailCulinaryItem(
                         Text(
                             text = "Time",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black,
                         )
                         Text(
                             text = kulinerItem.kulinerTime,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             color = Color.Black
                         )
                     }
@@ -517,7 +519,7 @@ fun PeopleReviews(
                             text = "+$extraCount",
                             color = Color.White,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = interBold
                         )
                     }
                 }
@@ -558,7 +560,7 @@ fun DetailOverview(kulinerItem: KulinerItem) {
         Text(
             text = "Overview",
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.Black
         )
         Text(

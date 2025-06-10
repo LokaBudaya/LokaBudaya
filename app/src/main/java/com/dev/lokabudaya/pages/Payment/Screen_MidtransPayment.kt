@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 package com.dev.lokabudaya.pages.Payment
 
 import android.util.Log
@@ -40,6 +38,8 @@ import com.dev.lokabudaya.network.MidtransAPI
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.pages.Ticket.formatEventDateTimeRange
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.google.firebase.auth.FirebaseAuth
 import com.midtrans.sdk.corekit.core.MidtransSDK
 import retrofit2.Retrofit
@@ -119,7 +119,7 @@ fun MidtransPaymentPage(
                 Text(
                     text = "Detail Tiket",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
             }
@@ -216,7 +216,7 @@ fun PaymentHeader(
         Text(
             text = "Pembayaran",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = Color.White,
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -276,7 +276,7 @@ fun EventSummaryCard(eventItem: EventItem) {
                 Text(
                     text = eventItem.title,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
 
@@ -340,7 +340,7 @@ fun TourSummaryCard(tourItem: TourItem) {
                 Text(
                     text = tourItem.title,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
 
@@ -403,7 +403,7 @@ fun TicketOrderCard(ticketOrder: PaymentTicketOrder) {
             Text(
                 text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(ticketOrder.totalPrice),
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = selectedCategoryColor
             )
         }
@@ -426,7 +426,7 @@ fun PaymentSummaryCard(
             Text(
                 text = "Ringkasan Pembayaran",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = Color.Black
             )
 
@@ -460,13 +460,13 @@ fun PaymentSummaryCard(
                 Text(
                     text = "Total Pembayaran",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = Color.Black
                 )
                 Text(
                     text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(totalAmount),
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = selectedCategoryColor
                 )
             }
@@ -503,7 +503,7 @@ fun PaymentBottomSection(
                     Text(
                         text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(totalAmount),
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = interBold,
                         color = Color.Black
                     )
                 }
@@ -652,4 +652,3 @@ fun processPayment(
         onComplete()
     }
 }
->>>>>>> staging

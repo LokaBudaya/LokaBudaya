@@ -19,6 +19,7 @@ import com.dev.lokabudaya.R
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.bigTextColor
+import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 
 @Composable
@@ -115,7 +116,7 @@ fun TicketListHeader(
         Text(
             text = "My Tickets",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             color = bigTextColor
         )
     }

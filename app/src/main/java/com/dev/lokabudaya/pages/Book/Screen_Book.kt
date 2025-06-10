@@ -48,6 +48,7 @@ import com.dev.lokabudaya.data.KulinerItem
 import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
+import com.dev.lokabudaya.ui.theme.interBold
 import java.text.DecimalFormat
 
 // Main Screen
@@ -111,7 +112,7 @@ fun HeaderSection() {
             Text(
                 text = "My Wishlist",
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = interBold,
                     color = bigTextColor
                 )
             )
@@ -354,7 +355,7 @@ fun WishlistContent(item: Any) {
     Column {
         Text(
             text = title,
-            fontWeight = FontWeight.Bold,
+            fontFamily = interBold,
             fontSize = 18.sp,
             color = bigTextColor
         )

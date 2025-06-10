@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -371,7 +372,9 @@ fun BottomNavigationBar(
     )
 
     NavigationBar(
-        containerColor = Color.White
+        containerColor = Color.White,
+        modifier = Modifier
+            .height(108.dp)
     ) {
         navigationItems.forEach { item ->
             NavigationBarItem(

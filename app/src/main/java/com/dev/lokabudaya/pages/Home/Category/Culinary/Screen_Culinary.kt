@@ -58,6 +58,8 @@ import com.dev.lokabudaya.pages.Search.FilterList
 import com.dev.lokabudaya.pages.Search.FilterOptions
 import com.dev.lokabudaya.pages.Search.PriceFilter
 import com.dev.lokabudaya.pages.Search.RatingFilter
+import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import java.text.DecimalFormat
 
 //Culinary Page
@@ -167,7 +169,7 @@ fun HeaderCulinarySection(navController: NavController) {
             Text(
                 text = "Kuliner",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = interBold,
                 color = bigTextColor
             )
         }
@@ -308,7 +310,7 @@ fun CreateKuliner(kulinerItem: KulinerItem,
                             text = kulinerItem.label,
                             color = kulinerItem.textLabelColor,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontFamily = interBold,
                             modifier = Modifier
                                 .background(kulinerItem.backgroundLabelColor, RoundedCornerShape(4.dp))
                                 .wrapContentSize()
@@ -325,12 +327,12 @@ fun CreateKuliner(kulinerItem: KulinerItem,
                     Text(
                         text = kulinerItem.title,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = Color.Black
                     )
                     Text(
                         text = "Rp $priceFormatted",
-                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = poppinsSemiBold,
                         color = Color(0xff2C4CA5)
                     )
                     Row(
