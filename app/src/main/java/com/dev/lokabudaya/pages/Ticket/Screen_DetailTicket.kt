@@ -2,29 +2,13 @@ package com.dev.lokabudaya.pages.Ticket
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -34,50 +18,79 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
-import com.dev.lokabudaya.data.TicketItem
+import com.dev.lokabudaya.data.OrderData
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.White
-import com.dev.lokabudaya.ui.theme.poppinsLight
-import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.interBold
+import com.dev.lokabudaya.ui.theme.poppinsSemiBold
+import com.dev.lokabudaya.ui.theme.poppinsLight
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 
-// Detail ticket Screen
 @Composable
 fun DetailTicketPage(
-    modifier: Modifier = Modifier, 
-    navController: NavController, 
+    modifier: Modifier = Modifier,
+    navController: NavController,
     authViewModel: AuthViewModel,
-    ticketItem: TicketItem
+    ticketViewModel: TicketViewModel,
+    ticketId: String
 ) {
     val authState = authViewModel.authState.observeAsState()
-    var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
-    var displayName by remember { mutableStateOf("Loading...") }
+    val userTickets by ticketViewModel.userTickets.collectAsState()
+    val paidOrders by ticketViewModel.paidOrders.collectAsState()
+
+    val orderData = paidOrders.find { it.id == ticketId }
+
+    var displayName by remember { mutableStateOf("User") }
 
     LaunchedEffect(Unit) {
-        currentUser = FirebaseAuth.getInstance().currentUser
-        displayName = currentUser?.displayName ?: "User"
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        displayName = currentUser?.displayName ?: currentUser?.email?.substringBefore("@") ?: "User"
+
+        ticketViewModel.refreshTickets()
     }
 
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
-            else -> {
-                currentUser = FirebaseAuth.getInstance().currentUser
-                displayName = currentUser?.displayName ?: "User"
-            }
+            else -> Unit
         }
     }
 
+    when {
+        orderData != null -> {
+            DisplayOrderAsTicket(orderData, displayName, navController)
+        }
+        else -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Loading ticket details...")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DisplayOrderAsTicket(
+    orderData: OrderData,
+    displayName: String,
+    navController: NavController
+) {
     var heightPx by remember { mutableStateOf(0f) }
+
     Column(
         modifier = Modifier
             .onGloballyPositioned { coordinates ->
@@ -106,6 +119,7 @@ fun DetailTicketPage(
                 tint = Color.White
             )
         }
+
         Column {
             Box(
                 modifier = Modifier
@@ -114,14 +128,17 @@ fun DetailTicketPage(
                     .height(556.dp)
                     .background(Color.Black.copy(alpha = .35f))
             ) {
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 24.dp, bottom = 44.dp)
                         .padding(horizontal = 16.dp)
                 ) {
                     Image(
-                        painter = painterResource(ticketItem.image),
+                        painter = painterResource(
+                            id = if (orderData.eventImageRes != 0) orderData.eventImageRes
+                            else R.drawable.img_event
+                        ),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -129,9 +146,11 @@ fun DetailTicketPage(
                             .fillMaxWidth()
                             .height(164.dp)
                     )
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text =ticketItem.title,
+                        text = orderData.eventTitle,
                         fontSize = 28.sp,
                         fontFamily = poppinsSemiBold,
                         color = White,
@@ -140,10 +159,17 @@ fun DetailTicketPage(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    val ticketDescription = buildString {
+                        append("Tiket untuk event ${orderData.eventTitle}. ")
+                        orderData.ticketOrders.forEach { order ->
+                            append("${order.quantity}x ${order.ticketTypeName}. ")
+                        }
+                        append("Total: ${orderData.totalQuantity} tiket.")
+                    }
+
                     Text(
-                        text = ticketItem.detailedDesc,
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        text = ticketDescription,
+                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Justify,
                         fontSize = 12.sp,
                         lineHeight = 12.sp,
@@ -174,6 +200,7 @@ fun DetailTicketPage(
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
+
                             Column {
                                 Text(
                                     text = "Time",
@@ -182,7 +209,7 @@ fun DetailTicketPage(
                                     color = White
                                 )
                                 Text(
-                                    text = ticketItem.date,
+                                    text = orderData.eventTime,
                                     fontSize = 16.sp,
                                     fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
@@ -190,6 +217,7 @@ fun DetailTicketPage(
                                 )
                             }
                         }
+
                         Column {
                             Column {
                                 Text(
@@ -199,8 +227,7 @@ fun DetailTicketPage(
                                     color = White
                                 )
                                 Text(
-                                    // text = ticket.time
-                                    text = ticketItem.date,
+                                    text = formatTicketDate(orderData.eventStartDate, ""),
                                     fontSize = 16.sp,
                                     fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
@@ -208,16 +235,16 @@ fun DetailTicketPage(
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
+
                             Column {
                                 Text(
-                                    text = "Seat",
+                                    text = "Quantity",
                                     fontSize = 14.sp,
                                     fontFamily = poppinsLight,
                                     color = White
                                 )
                                 Text(
-                                    // text = ticket.seat
-                                    text = "4",
+                                    text = orderData.totalQuantity.toString(),
                                     fontSize = 16.sp,
                                     fontFamily = poppinsSemiBold,
                                     lineHeight = 16.sp,
@@ -226,9 +253,9 @@ fun DetailTicketPage(
                             }
                         }
                     }
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
                         text = "Scan This Barcode",
                         fontSize = 12.sp,
@@ -237,12 +264,11 @@ fun DetailTicketPage(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-                    // Barcode
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
-                        text = ticketItem.id,
+                        text = orderData.orderId.take(12),
                         fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
                         color = White,
                         modifier = Modifier.fillMaxWidth(),
@@ -252,17 +278,18 @@ fun DetailTicketPage(
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(40.dp))
+
         Button(
-            onClick = {},
-            colors = ButtonColors(
+            onClick = {
+                // TODO: download
+            },
+            colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF91ADFB),
-                contentColor = Color(0xFF0C1F54),
-                disabledContentColor = Color(0xFF0C1F54),
-                disabledContainerColor = Color(0xFF91ADFB)
+                contentColor = Color(0xFF0C1F54)
             ),
             shape = RoundedCornerShape(16.dp)
-
         ) {
             Text(
                 text = "Download Ticket",

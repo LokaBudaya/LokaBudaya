@@ -9,11 +9,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +33,13 @@ import com.dev.lokabudaya.ui.theme.bigTextColor
 import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.dev.lokabudaya.ui.theme.selectedCategoryColor
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.midtrans.sdk.corekit.core.MidtransSDK
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,67 +56,97 @@ fun PaymentPage(
     val isLoading by ticketViewModel.isLoading.collectAsState()
     val context = LocalContext.current
 
+    var isRefreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate("LoginPage")
             is AuthState.Authenticated -> {
                 ticketViewModel.refreshOrders()
-                ticketViewModel.syncOrderStatusWithMidtrans()
             }
             else -> Unit
         }
     }
-    var isRefreshing by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(16.dp)) {
-        PaymentSection(navController)
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = {
+            isRefreshing = true
+            ticketViewModel.syncOrderStatusWithMidtrans()
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (isLoading || isRefreshing) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = selectedCategoryColor)
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000)
+                isRefreshing = false
             }
-        } else if (userOrders.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+        }
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF8F8F8)
+        ) {
+            Column(
+                modifier = modifier
+                    .padding(16.dp)
+                    .background(Color(0xFFF8F8F8))
             ) {
-                Text(
-                    text = "Belum ada pesanan",
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-            }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(userOrders) { order ->
-                    OrderCard(
-                        order = order,
-                        onOrderClick = { orderData ->
-                            when (orderData.status) {
-                                "pending" -> {
-                                    // Check jika masih valid untuk payment
-                                    val hoursDiff = (System.currentTimeMillis() - orderData.orderDate) / (1000 * 60 * 60)
-                                    if (hoursDiff < 24) {
-                                        continuePayment(orderData, navController, context)
-                                    } else {
-                                        // Update status ke expired
-                                        ticketViewModel.updateOrderStatus(orderData.id, "expired")
+                PaymentSection(navController)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Recent Orders",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = bigTextColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = selectedCategoryColor)
+                    }
+                } else if (userOrders.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Belum ada pesanan",
+                            color = Color.Gray,
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(userOrders) { order ->
+                            OrderCard(
+                                order = order,
+                                onOrderClick = { orderData ->
+                                    when (orderData.status) {
+                                        "pending" -> {
+                                            continuePayment(orderData, navController, context)
+                                        }
+
+                                        "expired" -> {
+                                        }
                                     }
                                 }
-                                "expired" -> {
-                                    // Show expired message atau create new order
-                                    android.util.Log.d("PaymentPage", "Order expired: ${orderData.orderId}")
-                                }
-                            }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
@@ -119,8 +158,6 @@ fun OrderCard(
     order: OrderData,
     onOrderClick: (OrderData) -> Unit
 ) {
-    val hoursDiff = (System.currentTimeMillis() - order.orderDate) / (1000 * 60 * 60)
-    val isExpiredByTime = hoursDiff > 24 && order.status == "pending"
     Card(
         modifier = Modifier
             .padding(4.dp)
@@ -164,7 +201,6 @@ fun OrderCard(
                     )
                 }
 
-                // Status badge
                 Box(
                     modifier = Modifier
                         .background(
@@ -208,8 +244,8 @@ fun OrderCard(
                 color = Color.Gray
             )
 
-            when {
-                isExpiredByTime || order.status == "expired" -> {
+            when (order.status) {
+                "expired" -> {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Order expired",
@@ -218,12 +254,21 @@ fun OrderCard(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                order.status == "pending" -> {
+                "pending" -> {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Tap to continue payment",
                         fontSize = 12.sp,
                         color = selectedCategoryColor,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                "paid" -> {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Payment completed",
+                        fontSize = 12.sp,
+                        color = Color.Green,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -237,43 +282,30 @@ fun continuePayment(
     navController: NavController,
     context: android.content.Context
 ) {
-    android.util.Log.d("PaymentPage", "Continue payment for order: ${order.orderId}")
-    android.util.Log.d("PaymentPage", "Snap token: ${order.snapToken}")
-    android.util.Log.d("PaymentPage", "Payment URL: ${order.paymentUrl}")
-
     try {
-        // PERBAIKAN: Gunakan snap token yang sudah ada untuk lanjut payment
         val fragmentActivity = context as? androidx.fragment.app.FragmentActivity
         if (fragmentActivity != null && order.snapToken.isNotEmpty()) {
-            // Start Midtrans payment UI dengan snap token yang sudah ada
             MidtransSDK.getInstance().startPaymentUiFlow(
                 fragmentActivity,
                 order.snapToken
             )
         } else {
-            android.util.Log.e("PaymentPage", "Cannot continue payment: Invalid context or snap token")
-            // Alternative: Open payment URL di browser
             openPaymentUrlInBrowser(order.paymentUrl, context)
         }
     } catch (e: Exception) {
-        android.util.Log.e("PaymentPage", "Error continuing payment: ${e.message}")
-        // Fallback: Open payment URL di browser
         openPaymentUrlInBrowser(order.paymentUrl, context)
     }
 }
 
-// Helper function untuk open payment URL di browser
 fun openPaymentUrlInBrowser(paymentUrl: String, context: android.content.Context) {
     try {
         val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
         intent.data = android.net.Uri.parse(paymentUrl)
         context.startActivity(intent)
-    } catch (e: Exception) {
-        android.util.Log.e("PaymentPage", "Error opening payment URL: ${e.message}")
+    } catch (_: Exception) {
     }
 }
 
-// Header Payment Section
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 fun PaymentSection(navController: NavController) {

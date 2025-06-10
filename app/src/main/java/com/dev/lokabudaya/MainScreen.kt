@@ -38,7 +38,6 @@ import androidx.navigation.navArgument
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.eventItemLists
 import com.dev.lokabudaya.data.DataProvider.kulinerItemLists
-import com.dev.lokabudaya.data.DataProvider.ticketItemLists
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Auth.EmailVerificationPage
@@ -64,7 +63,6 @@ import com.dev.lokabudaya.pages.Profile.Menu.EditProfilePage
 import com.dev.lokabudaya.pages.Profile.Menu.Notification.NotificationPage
 import com.dev.lokabudaya.pages.Profile.Menu.PaymentPage
 import com.dev.lokabudaya.pages.Profile.Menu.PrivacyPage
-import com.dev.lokabudaya.pages.Ticket.DetailTicketFirestorePage
 import com.dev.lokabudaya.pages.Ticket.DetailTicketPage
 import com.dev.lokabudaya.pages.Ticket.TicketDetailBuyPage
 import com.dev.lokabudaya.pages.Ticket.TicketListPage
@@ -199,7 +197,7 @@ fun MainScreen(
                     arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
                 ) { backStackEntry ->
                     val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
-                    DetailTicketFirestorePage(
+                    DetailTicketPage(
                         navController = navController,
                         authViewModel = authViewModel,
                         ticketViewModel = ticketViewModel,
@@ -211,25 +209,12 @@ fun MainScreen(
                     arguments = listOf(navArgument("eventIndex") { type = NavType.IntType })
                 ) { backStackEntry ->
                     val eventIndex = backStackEntry.arguments?.getInt("eventIndex") ?: 0
-                    val eventItem = DataProvider.eventItemLists[eventIndex]
+                    val eventItem = eventItemLists[eventIndex]
                     TicketDetailBuyPage(
                         modifier = modifier,
                         navController = navController,
                         eventItem = eventItem,
                         ticketViewModel = ticketViewModel
-                    )
-                }
-                composable(
-                    route = "DetailTicketPage/{ticketIndex}",
-                    arguments = listOf(navArgument("ticketIndex") {type = NavType.IntType})
-                ) { backEntry ->
-                    val ticketIndex = backEntry.arguments?.getInt("ticketIndex") ?: 0
-                    val ticketItem = ticketItemLists[ticketIndex]
-                    DetailTicketPage(
-                        modifier,
-                        navController = navController,
-                        authViewModel = authViewModel,
-                        ticketItem = ticketItem
                     )
                 }
                 composable(route = "MidtransPaymentPage") {

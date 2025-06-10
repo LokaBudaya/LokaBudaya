@@ -2,12 +2,14 @@ package com.dev.lokabudaya.pages.Profile.Menu
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -92,15 +95,23 @@ fun PrivacyPage(modifier: Modifier = Modifier, navController: NavController, aut
             authViewModel = authViewModel
         )
     }
-
-    Column(modifier = modifier.padding(16.dp)) {
-        HeaderPrivacySection(navController)
-        Spacer(modifier = Modifier.height(32.dp))
-        PrivacySection(
-            onChangePasswordClick = {
-                showChangePasswordDialog = true
-            }
-        )
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFF8F8F8)
+    ) {
+        Column(
+            modifier = modifier
+                .padding(16.dp)
+                .background(Color(0xFFF8F8F8))
+        ) {
+            HeaderPrivacySection(navController)
+            Spacer(modifier = Modifier.height(32.dp))
+            PrivacySection(
+                onChangePasswordClick = {
+                    showChangePasswordDialog = true
+                }
+            )
+        }
     }
 }
 

@@ -7,13 +7,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.compose.rememberNavController
@@ -46,14 +48,20 @@ class MainActivity : FragmentActivity() {
 
         setContent {
             LokaBudayaTheme {
-                val navController = rememberNavController()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF8F8F8))
+                ) {
+                    val navController = rememberNavController()
 
-                PaymentNavigationHelper.setNavController(navController)
-                MainScreen(
-                    modifier = Modifier.padding(),
-                    authViewModel = authViewModel,
-                    navController = navController
-                )
+                    PaymentNavigationHelper.setNavController(navController)
+                    MainScreen(
+                        modifier = Modifier.padding(),
+                        authViewModel = authViewModel,
+                        navController = navController
+                    )
+                }
             }
         }
     }
@@ -65,16 +73,13 @@ class MainActivity : FragmentActivity() {
                 when (intent?.action) {
                     "MIDTRANS_PAYMENT_SUCCESS" -> {
                         val transactionId = intent.getStringExtra("transaction_id")
-                        android.util.Log.d("MainActivity", "Transaction ID: $transactionId")
                         saveTicketAfterPaymentSuccess()
                         PaymentNavigationHelper.navigateToPaymentSuccess()
                     }
                     "MIDTRANS_PAYMENT_PENDING" -> {
-                        android.util.Log.d("MainActivity", "Payment pending received")
                         // TODO: Show pending message
                     }
                     "MIDTRANS_PAYMENT_FAILED" -> {
-                        android.util.Log.d("MainActivity", "Payment failed received")
                         // TODO: Show error message
                     }
                 }
@@ -99,7 +104,6 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun saveTicketAfterPaymentSuccess() {
-        // Get current ticket data dari TicketViewModel
         val eventItem = ticketViewModel.selectedEventItem.value
         val tourItem = ticketViewModel.selectedTourItem.value
         val ticketOrders = ticketViewModel.selectedTicketOrders.value
@@ -107,11 +111,9 @@ class MainActivity : FragmentActivity() {
 
         val transactionId = intent.getStringExtra("transaction_id")
         if (transactionId != null) {
-            // Find order by transaction ID dan update status
             ticketViewModel.updateOrderStatus(transactionId, "paid")
         }
 
-        // TAMBAHKAN: Get order ID dari intent
         val orderId = intent.getStringExtra("order_id")
 
         when {
@@ -121,14 +123,11 @@ class MainActivity : FragmentActivity() {
                     ticketOrders = ticketOrders,
                     totalAmount = totalAmount,
                     onSuccess = {
-                        Log.d("MainActivity", "Event ticket saved successfully")
-                        // TAMBAHKAN: Update order status
                         if (orderId != null) {
                             ticketViewModel.updateOrderStatusByOrderId(orderId, "paid")
                         }
                     },
                     onError = { error ->
-                        Log.e("MainActivity", "Failed to save event ticket: ${error.message}")
                     }
                 )
             }
@@ -138,14 +137,11 @@ class MainActivity : FragmentActivity() {
                     ticketOrders = ticketOrders,
                     totalAmount = totalAmount,
                     onSuccess = {
-                        Log.d("MainActivity", "Tour ticket saved successfully")
-                        // TAMBAHKAN: Update order status
                         if (orderId != null) {
                             ticketViewModel.updateOrderStatusByOrderId(orderId, "paid")
                         }
                     },
                     onError = { error ->
-                        Log.e("MainActivity", "Failed to save tour ticket: ${error.message}")
                     }
                 )
             }

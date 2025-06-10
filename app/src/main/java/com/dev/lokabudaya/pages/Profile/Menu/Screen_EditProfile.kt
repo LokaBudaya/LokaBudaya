@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -137,120 +138,127 @@ fun EditProfilePage(modifier: Modifier = Modifier, navController: NavController,
             authViewModel = authViewModel
         )
     }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFF8F8F8)
     ) {
-        HeaderEditProfileSection(navController)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xFFF8F8F8))
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            HeaderEditProfileSection(navController)
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        ProfilePictureSection()
+            ProfilePictureSection()
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        EditProfileTextField(
-            value = displayName,
-            onValueChange = { displayName = it },
-            label = "Display name",
-            placeholder = "Enter your display name"
-        )
+            EditProfileTextField(
+                value = displayName,
+                onValueChange = { displayName = it },
+                label = "Display name",
+                placeholder = "Enter your display name"
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        EditProfileTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = "Username",
-            placeholder = "Enter your username"
-        )
+            EditProfileTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = "Username",
+                placeholder = "Enter your username"
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        EditProfileTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = "Email",
-            placeholder = "Enter your email",
-            keyboardType = KeyboardType.Email
-        )
+            EditProfileTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email",
+                placeholder = "Enter your email",
+                keyboardType = KeyboardType.Email
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        PhoneNumberField(
-            value = phoneNumber,
-            onValueChange = { phoneNumber = it },
-            label = "Phone number"
-        )
+            PhoneNumberField(
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                label = "Phone number"
+            )
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
-            onClick = {
-                val emailChanged = email != (userData.value?.email ?: "")
-                val displayNameChanged = displayName != (userData.value?.displayName ?: "")
-                val usernameChanged = username != (userData.value?.username ?: "")
-                val phoneChanged = phoneNumber != ((userData.value?.profile?.get("phonenumber") as? String) ?: "")
+            Button(
+                onClick = {
+                    val emailChanged = email != (userData.value?.email ?: "")
+                    val displayNameChanged = displayName != (userData.value?.displayName ?: "")
+                    val usernameChanged = username != (userData.value?.username ?: "")
+                    val phoneChanged =
+                        phoneNumber != ((userData.value?.profile?.get("phonenumber") as? String)
+                            ?: "")
 
-                val otherFieldsChanged = displayNameChanged || usernameChanged || phoneChanged
+                    val otherFieldsChanged = displayNameChanged || usernameChanged || phoneChanged
 
-                if (emailChanged) {
-                    pendingUpdate = {
+                    if (emailChanged) {
+                        pendingUpdate = {
+                            authViewModel.updateProfile(
+                                displayName = displayName,
+                                username = username,
+                                email = email,
+                                phoneNumber = phoneNumber,
+                                currentEmail = userData.value?.email ?: "",
+                                currentPassword = currentPassword
+                            )
+                        }
+                        showPasswordDialog = true
+                        isLoading = true
+                    } else if (otherFieldsChanged) {
+                        isLoading = true
                         authViewModel.updateProfile(
                             displayName = displayName,
                             username = username,
                             email = email,
                             phoneNumber = phoneNumber,
                             currentEmail = userData.value?.email ?: "",
-                            currentPassword = currentPassword
+                            currentPassword = ""
                         )
-                    }
-                    showPasswordDialog = true
-                    isLoading = true
-                } else if (otherFieldsChanged) {
-                    isLoading = true
-                    authViewModel.updateProfile(
-                        displayName = displayName,
-                        username = username,
-                        email = email,
-                        phoneNumber = phoneNumber,
-                        currentEmail = userData.value?.email ?: "",
-                        currentPassword = ""
-                    )
 
-                    Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                    navController.navigate(ScreenRoute.Profile.route) {
-                        popUpTo("EditProfilePage") { inclusive = true }
+                        Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT)
+                            .show()
+                        navController.navigate(ScreenRoute.Profile.route) {
+                            popUpTo("EditProfilePage") { inclusive = true }
+                        }
+                    } else {
+                        Toast.makeText(context, "No changes detected", Toast.LENGTH_SHORT).show()
                     }
+                },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selectedCategoryColor
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 } else {
-                    Toast.makeText(context, "No changes detected", Toast.LENGTH_SHORT).show()
+                    Text(
+                        text = "Save",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
-            },
-            enabled = !isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = selectedCategoryColor
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
-            } else {
-                Text(
-                    text = "Save",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
             }
         }
     }

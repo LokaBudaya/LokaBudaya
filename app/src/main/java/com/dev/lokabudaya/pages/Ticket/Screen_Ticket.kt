@@ -48,8 +48,7 @@ import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
 import com.dev.lokabudaya.data.DataProvider.ticketItemLists
-import com.dev.lokabudaya.data.TicketDataEvent
-import com.dev.lokabudaya.data.TicketItem
+import com.dev.lokabudaya.data.OrderData
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.pages.Book.FavoriteViewModel
@@ -76,6 +75,7 @@ fun TicketPage(modifier: Modifier = Modifier,
     )
     val authState = authViewModel.authState.observeAsState()
     val userTickets by ticketViewModel.userTickets.collectAsState()
+    val paidOrders by ticketViewModel.paidOrders.collectAsState()
     val isLoading by ticketViewModel.isLoading.collectAsState()
 
     LaunchedEffect(authState.value) {
@@ -113,16 +113,6 @@ fun TicketPage(modifier: Modifier = Modifier,
                     fontSize = 18.sp,
                     color = bigTextColor
                 )
-                if (userTickets.size > 3) {
-                    Text(
-                        text = "Selengkapnya >",
-                        fontSize = 12.sp,
-                        color = mediumTextColor,
-                        modifier = Modifier.clickable {
-                            navController.navigate("TicketListPage")
-                        }
-                    )
-                }
             }
         }
 
@@ -137,7 +127,7 @@ fun TicketPage(modifier: Modifier = Modifier,
                     CircularProgressIndicator(color = selectedCategoryColor)
                 }
             }
-        } else if (userTickets.isEmpty()) {
+        } else if (paidOrders.isEmpty()) {
             item {
                 Box(
                     modifier = Modifier
@@ -158,15 +148,15 @@ fun TicketPage(modifier: Modifier = Modifier,
                 }
             }
         } else {
-            val topThreeTickets = userTickets.take(3)
+            val topThreeOrders = paidOrders.take(3)
             items(
-                count = topThreeTickets.size
+                count = topThreeOrders.size
             ) { index ->
                 Spacer(modifier = Modifier.height(16.dp))
-                CreateTicketFromFirestore(
-                    ticketDataEvent = topThreeTickets[index],
+                CreateTicketFromPaidOrder(
+                    orderData = topThreeOrders[index],
                     onClick = {
-                        navController.navigate("DetailTicketFirestore/${topThreeTickets[index].id}")
+                        navController.navigate("DetailTicketFirestore/${topThreeOrders[index].id}")
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -182,8 +172,8 @@ fun TicketPage(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun CreateTicketFromFirestore(
-    ticketDataEvent: TicketDataEvent,
+fun CreateTicketFromPaidOrder(
+    orderData: OrderData,
     onClick: () -> Unit
 ) {
     Box(
@@ -214,7 +204,7 @@ fun CreateTicketFromFirestore(
             ) {
                 Text(
                     textAlign = TextAlign.Left,
-                    text = ticketDataEvent.eventTitle,
+                    text = orderData.eventTitle,
                     fontFamily = poppinsSemiBold,
                     fontSize = 44.sp,
                     lineHeight = 44.sp,
@@ -234,7 +224,7 @@ fun CreateTicketFromFirestore(
                     ) {
                         Text(
                             textAlign = TextAlign.Right,
-                            text = formatTicketDate(ticketDataEvent.eventStartDate, ticketDataEvent.eventTime),
+                            text = formatTicketDate(orderData.eventStartDate, orderData.eventTime),
                             fontWeight = FontWeight.Medium,
                             fontSize = 20.sp,
                             color = Color.White
@@ -242,7 +232,7 @@ fun CreateTicketFromFirestore(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             textAlign = TextAlign.Right,
-                            text = ticketDataEvent.eventLocation,
+                            text = orderData.eventLocation,
                             lineHeight = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = Color.White
@@ -283,7 +273,7 @@ fun CreateTicketFromFirestore(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = ticketDataEvent.id.take(12), // Gunakan ID ticket sebagai barcode
+                        text = orderData.orderId.take(12),
                         fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
                         color = White,
                         modifier = Modifier
@@ -341,7 +331,7 @@ fun HeaderSection(navController: NavController) {
                 )
             )
         }
-        //TicketDetailIcon(navController = navController)
+        TicketDetailIcon(navController = navController)
     }
 }
 
@@ -367,129 +357,6 @@ fun TicketDetailIcon(navController: NavController) {
                 navController.navigate("TicketListPage")
             }
     )
-}
-
-// Ticket section
-@Composable
-fun CreateTicket(
-    ticketItem: TicketItem,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(204.dp)
-            .clickable {
-                onClick()
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.img_ticket),
-            contentDescription = "Ticket image",
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.Crop
-        )
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(horizontal = 17.dp)
-                .padding(top = 16.dp)
-        ) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(.58f),
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    textAlign = TextAlign.Left,
-                    text = ticketItem.title,
-                    fontFamily = poppinsSemiBold,
-                    fontSize = 44.sp,
-                    lineHeight = 44.sp,
-                    color = Color.White,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 12.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Column (
-                        horizontalAlignment = Alignment.End
-                    ){
-                        Text(
-                            textAlign = TextAlign.Right,
-                            text = ticketItem.date,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            textAlign = TextAlign.Right,
-                            text = ticketItem.location,
-                            lineHeight = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color.White
-                        )
-                    }
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-                    Text(
-                        text = "Lihat Detail",
-                        textAlign = TextAlign.Right,
-                        fontFamily = poppinsLight,
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(.42f)
-                    .drawBehind {
-                        val borderSize = 2.dp.toPx()
-                        val y = borderSize / 2
-
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(0f, y),
-                            end = Offset(size.width, y),
-                            strokeWidth = borderSize,
-                            pathEffect = PathEffect.dashPathEffect(
-                                intervals = floatArrayOf(borderSize * 4, borderSize * 4),
-                                phase = 0f
-                            )
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = ticketItem.id,
-                        fontFamily = FontFamily(Font(R.font.libre_barcode_128)),
-                        color = White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        textAlign = TextAlign.Center,
-                        fontSize = 84.sp
-                    )
-                }
-            }
-        }
-    }
 }
 
 // Wishlist section
@@ -565,13 +432,5 @@ fun WishlistSectionTicket(favoriteViewModel: FavoriteViewModel, navController: N
                 }
             }
         }
-    }
-}
-
-val ticket = ticketItemLists[0]
-@Composable
-@Preview
-fun Preview() {
-    LokaBudayaTheme {
     }
 }

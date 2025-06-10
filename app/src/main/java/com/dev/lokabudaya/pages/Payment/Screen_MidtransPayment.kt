@@ -39,7 +39,6 @@ import com.dev.lokabudaya.ui.theme.selectedCategoryColor
 import com.dev.lokabudaya.pages.Ticket.TicketViewModel
 import com.dev.lokabudaya.pages.Ticket.formatEventDateTimeRange
 import com.dev.lokabudaya.ui.theme.interBold
-import com.dev.lokabudaya.ui.theme.poppinsSemiBold
 import com.google.firebase.auth.FirebaseAuth
 import com.midtrans.sdk.corekit.core.MidtransSDK
 import retrofit2.Retrofit
@@ -92,20 +91,17 @@ fun MidtransPaymentPage(
             .fillMaxSize()
             .background(Color(0xFFF8F8F8))
     ) {
-        // Header
         PaymentHeader(
             eventItem = eventItem,
             tourItem = tourItem,
             onBackClick = { navController.popBackStack() }
         )
 
-        // Content
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Event/Tour Summary
             item {
                 if (eventItem != null) {
                     EventSummaryCard(eventItem = eventItem!!)
@@ -114,7 +110,6 @@ fun MidtransPaymentPage(
                 }
             }
 
-            // Ticket Details
             item {
                 Text(
                     text = "Detail Tiket",
@@ -128,7 +123,6 @@ fun MidtransPaymentPage(
                 TicketOrderCard(ticketOrder = order)
             }
 
-            // Payment Summary
             item {
                 PaymentSummaryCard(
                     totalQuantity = totalQuantity,
@@ -136,13 +130,11 @@ fun MidtransPaymentPage(
                 )
             }
 
-            // Spacer untuk bottom button
             item {
                 Spacer(modifier = Modifier.height(100.dp))
             }
         }
 
-        // Bottom Payment Button
         PaymentBottomSection(
             totalAmount = totalAmount,
             isLoading = isLoading,
@@ -181,7 +173,6 @@ fun PaymentHeader(
             contentScale = ContentScale.Crop
         )
 
-        // Gradient overlay
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -195,7 +186,6 @@ fun PaymentHeader(
                 )
         )
 
-        // Back button
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
@@ -212,7 +202,6 @@ fun PaymentHeader(
             )
         }
 
-        // Title
         Text(
             text = "Pembayaran",
             fontSize = 24.sp,
@@ -226,7 +215,6 @@ fun PaymentHeader(
 }
 
 fun formatEventDateTime(startDate: LocalDate, eventTime: String): String {
-    // Format tanggal ke Bahasa Indonesia
     val dayOfMonth = startDate.dayOfMonth
     val month = when (startDate.monthValue) {
         1 -> "Januari"
@@ -536,7 +524,6 @@ fun PaymentBottomSection(
     }
 }
 
-// Function untuk process payment dengan Midtrans
 fun processPayment(
     context: android.content.Context,
     eventItem: EventItem?,
@@ -549,8 +536,6 @@ fun processPayment(
 ) {
     try {
         val orderId = "ORDER-${System.currentTimeMillis()}"
-        android.util.Log.d("Payment", "Generated Order ID: $orderId")
-        // Create Retrofit instance
         val retrofit = Retrofit.Builder()
             .baseUrl("https://midtrans-api-lokabudaya.vercel.app/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -558,7 +543,6 @@ fun processPayment(
 
         val midtransAPI = retrofit.create(MidtransAPI::class.java)
 
-        // Get current user info
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userEmail = currentUser?.email ?: "customer@example.com"
         val userName = currentUser?.displayName ?: "Customer"
@@ -585,9 +569,6 @@ fun processPayment(
             customer_details = customerDetails
         )
 
-        Log.d("Midtrans", "Sending request: $midtransRequest")
-
-        // Call backend API to get snap token
         midtransAPI.createTransaction(midtransRequest).enqueue(object : Callback<MidtransResponse> {
             override fun onResponse(call: Call<MidtransResponse>, response: Response<MidtransResponse>) {
                 if (response.isSuccessful) {
@@ -597,9 +578,6 @@ fun processPayment(
                         val snapToken = responseBody.token
                         val paymentUrl = responseBody.redirect_url
 
-                        Log.d("Midtrans", "Got snap token: $snapToken")
-
-                        // TAMBAHKAN: Save order sebelum start payment UI
                         ticketViewModel.saveOrderBeforePayment(
                             eventItem = eventItem,
                             tourItem = tourItem,
@@ -609,9 +587,6 @@ fun processPayment(
                             paymentUrl = paymentUrl,
                             orderId = orderId,
                             onSuccess = { savedOrderId ->
-                                Log.d("Midtrans", "Order saved with ID: $savedOrderId")
-
-                                // Start Midtrans payment UI
                                 val fragmentActivity = context as? androidx.fragment.app.FragmentActivity
                                 if (fragmentActivity != null) {
                                     MidtransSDK.getInstance().startPaymentUiFlow(
@@ -619,35 +594,28 @@ fun processPayment(
                                         snapToken
                                     )
                                 } else {
-                                    Log.e("Midtrans", "Context is not FragmentActivity")
                                 }
 
                                 onComplete()
                             },
                             onError = { error ->
-                                Log.e("Midtrans", "Failed to save order: ${error.message}")
                                 onComplete()
                             }
                         )
                     } else {
-                        Log.e("Midtrans", "Invalid response: ${responseBody}")
                         onComplete()
                     }
                 } else {
-                    Log.e("Midtrans", "API Error: ${response.code()} - ${response.message()}")
-                    Log.e("Midtrans", "Error body: ${response.errorBody()?.string()}")
                     onComplete()
                 }
             }
 
             override fun onFailure(call: Call<MidtransResponse>, t: Throwable) {
-                Log.e("Midtrans", "Network error: ${t.message}")
                 onComplete()
             }
         })
 
     } catch (e: Exception) {
-        Log.e("Midtrans", "Process payment error: ${e.message}")
         onComplete()
     }
 }

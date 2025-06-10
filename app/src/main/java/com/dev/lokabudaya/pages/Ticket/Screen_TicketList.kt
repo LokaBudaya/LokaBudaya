@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -31,6 +31,7 @@ fun TicketListPage(
 ) {
     val authState = authViewModel.authState.observeAsState()
     val userTickets by ticketViewModel.userTickets.collectAsState()
+    val paidOrders by ticketViewModel.paidOrders.collectAsState()
     val isLoading by ticketViewModel.isLoading.collectAsState()
 
     LaunchedEffect(authState.value) {
@@ -48,7 +49,6 @@ fun TicketListPage(
             .fillMaxSize()
             .background(Color(0xFFF8F8F8))
     ) {
-        // Header dengan back button
         TicketListHeader(
             onBackClick = { navController.popBackStack() }
         )
@@ -60,6 +60,29 @@ fun TicketListPage(
             ) {
                 CircularProgressIndicator(color = selectedCategoryColor)
             }
+        } else if (paidOrders.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Belum ada tiket",
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Tiket akan muncul setelah pembayaran berhasil",
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -69,12 +92,12 @@ fun TicketListPage(
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
                 items(
-                    count = userTickets.size
+                    count = paidOrders.size
                 ) { index ->
-                    CreateTicketFromFirestore(
-                        ticketDataEvent = userTickets[index],
+                    CreateTicketFromPaidOrder(
+                        orderData = paidOrders[index],
                         onClick = {
-                            navController.navigate("DetailTicketFirestore/${userTickets[index].id}")
+                            navController.navigate("DetailTicketFirestore/${paidOrders[index].id}")
                         }
                     )
                 }
@@ -93,7 +116,6 @@ fun TicketListHeader(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Back button
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
@@ -112,7 +134,6 @@ fun TicketListHeader(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Title
         Text(
             text = "My Tickets",
             fontSize = 24.sp,
