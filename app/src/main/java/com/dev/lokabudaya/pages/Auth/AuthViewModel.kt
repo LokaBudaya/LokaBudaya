@@ -74,6 +74,7 @@ open class AuthViewModel : ViewModel() {
                             username = document.getString("username") ?: "",
                             displayName = firebaseUser.displayName ?: document.getString("username") ?: "",
                             isEmailVerified = document.getBoolean("isEmailVerified") ?: false,
+                            role = document.getString("role") ?: "user",
                             profile = document.get("profile") as? Map<String, Any> ?: emptyMap()
                         )
                         _userData.value = userData
@@ -166,6 +167,7 @@ open class AuthViewModel : ViewModel() {
                                                     "email" to email,
                                                     "username" to username,
                                                     "isEmailVerified" to false,
+                                                    "role" to "user",
                                                     "createdAt" to FieldValue.serverTimestamp(),
                                                     "profile" to hashMapOf<String, Any>(
                                                         "displayname" to username,
@@ -274,6 +276,7 @@ open class AuthViewModel : ViewModel() {
                                         "email" to email,
                                         "username" to displayName,
                                         "isEmailVerified" to firebaseUser.isEmailVerified,
+                                        "role" to "user",
                                         "createdAt" to FieldValue.serverTimestamp(),
                                         "profile" to hashMapOf(
                                             "displayname" to displayName,
@@ -479,6 +482,7 @@ open class AuthViewModel : ViewModel() {
                             username = document.getString("username") ?: "",
                             displayName = displayName,
                             isEmailVerified = document.getBoolean("isEmailVerified") ?: false,
+                            role = document.getString("role") ?: "user",
                             profile = profile
                         )
                         callback(userData)
@@ -542,6 +546,7 @@ data class UserData(
     val username: String,
     val displayName: String,
     val isEmailVerified: Boolean,
+    val role: String = "user",
     val profile: Map<String, Any>
 )
 
