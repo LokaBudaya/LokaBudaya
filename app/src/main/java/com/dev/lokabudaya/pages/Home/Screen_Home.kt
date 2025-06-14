@@ -109,8 +109,7 @@ import kotlin.math.abs
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     val favoriteViewModel: FavoriteViewModel = viewModel(
-        factory = FavoriteViewModelFactory(authViewModel),
-        key = "global_favorite_vm"
+        factory = FavoriteViewModelFactory(authViewModel)
     )
     val homeViewModel: HomeViewModel = viewModel()
     val authState = authViewModel.authState.observeAsState()
@@ -431,17 +430,7 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
 fun WhatIsCard(place: TourItem,
                navController: NavController,
                favoriteViewModel: FavoriteViewModel = viewModel()) {
-    var isFavorite by remember(place.title) {
-        mutableStateOf(favoriteViewModel.getFavoriteState(place))
-    }
-    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
-
-    LaunchedEffect(favoriteItems) {
-        val newFavState = favoriteViewModel.getFavoriteState(place)
-        if (isFavorite != newFavState) {
-            isFavorite = newFavState
-        }
-    }
+    var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(place)) }
 
     Card(
         modifier = Modifier
@@ -505,17 +494,23 @@ fun WhatIsCard(place: TourItem,
                         fontSize = 10.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        tint = if (isFavorite) Color.Red else Color.White,
-                        modifier = Modifier
-                            .clickable {
-                                favoriteViewModel.toggleFavorite(place)
-                                isFavorite = favoriteViewModel.getFavoriteState(place)
-                            }
-                            .padding(4.dp)
-                    )
+                    IconToggleButton(checked = isFav, onCheckedChange = {
+                        isFav = !isFav
+                    }) {
+                        Icon(
+                            painter = if (isFav)
+                                painterResource(R.drawable.ic_love_filled)
+                            else
+                                painterResource(R.drawable.ic_love_outlined),
+                            contentDescription = "Favorite",
+                            tint = if (isFav) Color.Red else Color.White,
+                            modifier = Modifier
+                                .clickable {
+                                    favoriteViewModel.toggleFavorite(place)
+                                    isFav = favoriteViewModel.getFavoriteState(place)
+                                }
+                        )
+                    }
                 }
             }
         }
