@@ -122,7 +122,7 @@ fun ProfileTag(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.img_banner),
+            painter = painterResource(id = R.drawable.img_logo),
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier

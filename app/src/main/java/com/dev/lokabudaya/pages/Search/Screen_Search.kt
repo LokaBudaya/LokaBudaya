@@ -528,7 +528,11 @@ fun ExploreGridList(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            bottom = 8.dp
+        )
+
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Row(

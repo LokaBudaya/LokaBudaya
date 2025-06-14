@@ -1,6 +1,5 @@
 package com.dev.lokabudaya.pages.Home
 
-import HomeViewModel
 import NetworkImage
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
@@ -39,9 +38,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,7 +51,6 @@ import com.dev.lokabudaya.R
 import kotlinx.coroutines.delay
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
@@ -65,7 +60,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
@@ -111,9 +105,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
     val favoriteViewModel: FavoriteViewModel = viewModel(
         factory = FavoriteViewModelFactory(authViewModel)
     )
-    val homeViewModel: HomeViewModel = viewModel()
     val authState = authViewModel.authState.observeAsState()
-    val isLoading by homeViewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         favoriteViewModel.refreshFavorites()
@@ -131,16 +123,8 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
             else -> Unit
         }
     }
-    if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        HomePageContent(navController, favoriteViewModel)
-    }
+
+    HomePageContent(navController, favoriteViewModel)
 }
 
 // Top ads section
@@ -149,9 +133,9 @@ fun TopAdsCarousel(
     modifier: Modifier = Modifier
 ) {
     val imageList = listOf(
-        R.drawable.img_pestapora,
-        R.drawable.img_jatengfestival,
-        R.drawable.img_voluntrip
+        R.drawable.img_reogponorogo,
+        R.drawable.img_event,
+        R.drawable.img_pantaimarina
     )
 
     var currentPage by remember { mutableStateOf(0) }
@@ -210,15 +194,15 @@ fun TopAdsCarousel(
         ) { page ->
             val actualPage = page
             val bannerText = when (actualPage) {
-                0 -> "Latihan Pestapora Solo"
-                1 -> "Jateng Fair Festival"
-                2 -> "Voluntrip kitabisa"
+                0 -> "Reog\nPonorogo"
+                1 -> "Festival Tari Ratoh Jaroe"
+                2 -> "Pantai Marina"
                 else -> ""
             }
             val bannerDateTime = when (bannerText) {
-                "Latihan Pestapora Solo" -> "Surakarta, 15 Juni 2025\t\t\t\t\t08:00 WIB"
-                "Jateng Fair Festival" -> "Semarang, 27 Juni 2025\t\t\t\t\t08:00 WIB"
-                "Voluntrip kitabisa" -> "Yogyakarta, 13 Juni 2025\t\t\t\t\t10:00 WIB"
+                "Reog\nPonorogo" -> "Surakarta, 24 Maret 2025\t\t\t\t\t10:00 WIB"
+                "Festival Tari Ratoh Jaroe" -> "Bandung, 4 April 2025\t\t\t\t\t08:00 WIB"
+                "Pantai Marina" -> "Semarang, 12 Februari 2025\t\t\t\t\t09:00 WIB"
                 else -> ""
             }
             Box(
@@ -430,7 +414,11 @@ fun CurrentLocation(navController: NavController, favoriteViewModel: FavoriteVie
 fun WhatIsCard(place: TourItem,
                navController: NavController,
                favoriteViewModel: FavoriteViewModel = viewModel()) {
+    val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
     var isFav by remember { mutableStateOf(favoriteViewModel.getFavoriteState(place)) }
+    LaunchedEffect(favoriteItems) {
+        isFav = favoriteViewModel.getFavoriteState(place)
+    }
 
     Card(
         modifier = Modifier
@@ -454,7 +442,8 @@ fun WhatIsCard(place: TourItem,
                 imageUrl = place.imageUrl,
                 fallbackRes = place.imgRes,
                 contentDescription = place.title,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
             Image(
                 painter = painterResource(R.drawable.img_banner),
@@ -588,7 +577,8 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                 imageUrl = event.imageUrl,
                 fallbackRes = event.imgRes,
                 contentDescription = event.title,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
             Box(
                 modifier = Modifier
@@ -737,11 +727,11 @@ fun ListEventCard(event: EventItem, navController: NavController) {
                                     navController.navigate("DetailEventPage/$originalIndex")
                                 }
                         ) {
-                                Text(
-                                    text = "Buy Now",
-                                    color = Color.White,
-                                    fontFamily = interBold
-                                )
+                            Text(
+                                text = "Buy Now",
+                                color = Color.White,
+                                fontFamily = interBold
+                            )
                         }
                     }
                 }
@@ -875,7 +865,7 @@ fun BlogCard(title: String, desc: String, imageId: Int) {
                         .align(
                             alignment = Alignment.TopStart
                         )
-                        .size(68.dp)
+                        .size(72.dp)
                         .clip(CircleShape)
                         .border(
                             border = BorderStroke(3.dp, Color.White),
@@ -925,10 +915,7 @@ fun HomePageContent(navController: NavController, favoriteViewModel: FavoriteVie
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 CategoryRow(navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
-                CurrentLocation(
-                    navController = navController,
-                    favoriteViewModel = favoriteViewModel
-                )
+                CurrentLocation(navController = navController, favoriteViewModel = favoriteViewModel)
                 Spacer(modifier = Modifier.height(16.dp))
                 Recommended()
                 Spacer(modifier = Modifier.height(16.dp))
