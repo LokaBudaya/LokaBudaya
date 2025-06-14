@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Book
 
+import NetworkImage
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -324,14 +325,21 @@ fun WishlistImage(item: Any) {
         else -> R.drawable.img_mangkunegaran
     }
 
+    val imageUrl = when (item) {
+        is KulinerItem -> item.imageUrl
+        is TourItem -> item.imageUrl
+        is EventItem -> item.imageUrl
+        else -> ""
+    }
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.size(80.dp)
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
+        NetworkImage(
+            imageUrl = imageUrl,
+            fallbackRes = imageRes,
             contentDescription = "Wishlist Image",
-            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
     }
