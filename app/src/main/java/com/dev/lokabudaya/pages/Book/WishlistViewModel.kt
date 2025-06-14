@@ -25,6 +25,10 @@ class FavoriteViewModel(private val authViewModel: AuthViewModel) : ViewModel() 
         loadUserFavorites()
     }
 
+    fun refreshFavorites() {
+        loadUserFavorites()
+    }
+
     fun toggleFavorite(item: Any) {
         val currentUser = auth.currentUser
         if (currentUser == null) return

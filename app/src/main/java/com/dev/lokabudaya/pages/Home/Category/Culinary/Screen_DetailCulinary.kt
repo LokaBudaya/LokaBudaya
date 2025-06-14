@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Culinary
 
+import NetworkImage
 import android.content.res.Resources.Theme
 import android.widget.Space
 import androidx.compose.foundation.Image
@@ -169,11 +170,11 @@ fun DetailCulinaryPage(
                             shape = RoundedCornerShape(8.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            Image(
-                                painter = painterResource(id = imageRes),
+                            NetworkImage(
+                                imageUrl = kulinerItem.imageUrl,
+                                fallbackRes = imageRes,
                                 contentDescription = "Preview",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
@@ -253,8 +254,9 @@ fun DetailCulinaryItem(
             .fillMaxWidth()
             .height(450.dp)
     ) {
-        Image(
-            painter = painterResource(id = kulinerItem.imgRes),
+        NetworkImage(
+            imageUrl = kulinerItem.imageUrl,
+            fallbackRes = kulinerItem.imgRes,
             contentDescription = kulinerItem.title,
             modifier = Modifier
                 .fillMaxWidth()

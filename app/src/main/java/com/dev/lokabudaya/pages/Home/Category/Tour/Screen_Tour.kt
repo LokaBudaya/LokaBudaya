@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home.Category.Tour
 
+import NetworkImage
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -291,10 +292,10 @@ fun CreateTour(tourItem: TourItem,
                 verticalArrangement = Arrangement.Center
             ) {
                 Box {
-                    Image(
-                        painter = painterResource(tourItem.imgRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                    NetworkImage(
+                        imageUrl = tourItem.imageUrl,
+                        fallbackRes = tourItem.imgRes,
+                        contentDescription = tourItem.title,
                         modifier = Modifier
                             .fillMaxHeight(.65f)
                             .fillMaxWidth()

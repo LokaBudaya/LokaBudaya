@@ -27,6 +27,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Call
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.CustomerDetail
 import com.dev.lokabudaya.data.EventItem
@@ -166,11 +167,18 @@ fun PaymentHeader(
             .fillMaxWidth()
             .height(200.dp)
     ) {
-        Image(
-            painter = painterResource(id = eventItem?.imgRes ?: tourItem?.imgRes ?: R.drawable.img_event),
+        AsyncImage(
+            model = when {
+                eventItem != null && eventItem.imageUrl.isNotEmpty() -> eventItem.imageUrl
+                tourItem != null && tourItem.imageUrl.isNotEmpty() -> tourItem.imageUrl
+                else -> eventItem?.imgRes ?: tourItem?.imgRes ?: R.drawable.img_event
+            },
             contentDescription = eventItem?.title ?: tourItem?.title,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(id = eventItem?.imgRes ?: tourItem?.imgRes ?: R.drawable.img_event),
+            error = painterResource(id = eventItem?.imgRes ?: tourItem?.imgRes ?: R.drawable.img_event),
+            fallback = painterResource(id = R.drawable.img_event)
         )
 
         Box(
@@ -247,13 +255,16 @@ fun EventSummaryCard(eventItem: EventItem) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = eventItem.imgRes),
+            AsyncImage(
+                model = if (eventItem.imageUrl.isNotEmpty()) eventItem.imageUrl else eventItem.imgRes,
                 contentDescription = eventItem.title,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = eventItem.imgRes),
+                error = painterResource(id = eventItem.imgRes),
+                fallback = painterResource(id = eventItem.imgRes)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -311,13 +322,16 @@ fun TourSummaryCard(tourItem: TourItem) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = tourItem.imgRes),
+            AsyncImage(
+                model = if (tourItem.imageUrl.isNotEmpty()) tourItem.imageUrl else tourItem.imgRes,
                 contentDescription = tourItem.title,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = tourItem.imgRes),
+                error = painterResource(id = tourItem.imgRes),
+                fallback = painterResource(id = tourItem.imgRes)
             )
 
             Spacer(modifier = Modifier.width(12.dp))

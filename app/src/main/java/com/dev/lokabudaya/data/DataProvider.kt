@@ -1,9 +1,53 @@
 package com.dev.lokabudaya.data
 
+import FirebaseRepository
 import androidx.compose.ui.graphics.Color
 import com.dev.lokabudaya.R
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.util.UUID
+
+data class KulinerItemFirebase(
+    val title: String = "",
+    val desc: String = "",
+    val imgRes: String = "",
+    val kulinerTime: String = "",
+    val price: Long = 0,
+    val rating: Double = 0.0,
+    val location: String = "",
+    val isFavorite: Boolean = false,
+    val latitude: Double = 0.0,
+    val longtitude: Double = 0.0
+)
+
+data class EventItemFirebase(
+    val title: String = "",
+    val desc: String = "",
+    val imgRes: String = "",
+    val price: Long = 0,
+    val rating: Double = 0.0,
+    val location: String = "",
+    val isFavorite: Boolean = false,
+    val category: String = "",
+    val latitude: Double = 0.0,
+    val longtitude: Double = 0.0,
+    val startDate: String = "",
+    val endDate: String = "",
+    val eventTime: String = ""
+)
+
+data class TourItemFirebase(
+    val title: String = "",
+    val desc: String = "",
+    val imgRes: String = "",
+    val price: Long = 0,
+    val time: String = "",
+    val rating: Double = 0.0,
+    val location: String = "",
+    val isFavorite: Boolean = false,
+    val latitude: Double = 0.0,
+    val longtitude: Double = 0.0
+)
 
 data class BlogCardClass(
     // kurang user
@@ -26,6 +70,7 @@ data class KulinerItem(
     var desc:String,
     var latitude:Double,
     var longtitude:Double,
+    val imageUrl: String = "",
     val label: String = "Kuliner",
     val backgroundLabelColor: Color = Color(0xFF9A5F38),
     val textLabelColor: Color = Color(0xFFFFDAC2)
@@ -49,6 +94,7 @@ data class EventItem(
 //    val eventDateMonth: String,
 //    val eventDateYear: String,
     val eventTime:String,
+    val imageUrl: String = "",
     val backgroundLabelColor: Color = Color(0xFF76395F),
     val textLabelColor: Color = Color(0xFFFFE8F6)
 )
@@ -64,6 +110,7 @@ data class TourItem(
     var desc:String,
     var latitude:Double,
     var longtitude:Double,
+    val imageUrl: String = "",
     val label:String = "Tour",
     val backgroundLabelColor: Color = Color(0xFF466F79),
     val textLabelColor: Color = Color(0xFFCCF5FF)
@@ -173,6 +220,7 @@ data class OrderData(
     val eventId: String = "",
     val eventTitle: String = "",
     val eventImageRes: Int = 0,
+    val eventImageUrl: String = "",
     val eventLocation: String = "",
     val eventStartDate: String = "",
     val eventTime: String = "",
@@ -187,317 +235,99 @@ data class OrderData(
 )
 
 object DataProvider {
+    private val firebaseRepository = FirebaseRepository()
+
+    private var _kulinerItemLists: List<KulinerItem>? = null
+    private var _eventItemLists: List<EventItem>? = null
+    private var _tourItemLists: List<TourItem>? = null
     val blogCards = listOf(
         BlogCardClass(
-            title = "Ya Allah Mudahkanlah Segala Urusanku",
-            content = "wow tempat ini sangat seru kalian harus datang kesini sama siapapun yang kalian mau cocok untuk semua orang",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
+            title = "Menjelajahi Keindahan Candi Borobudur di Pagi Hari",
+            content = "Pengalaman magis menyaksikan sunrise di Candi Borobudur. Tips terbaik untuk berkunjung dan spot foto terbaik yang wajib dicoba.",
+            imageId = R.drawable.img_blog_borobudur,
+            date = "15 Juni 2025",
+            viewers = "2.8K"
         ),
         BlogCardClass(
-            title = "My Blog #2",
-            content = "ini blog keduaku ges, salam kenal semuanya!! woowowoo bla bla bla ble bleb le",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
+            title = "Festival Budaya Yogyakarta: Tradisi yang Tak Pernah Pudar",
+            content = "Merasakan kemeriahan Festival Budaya Yogyakarta dengan berbagai pertunjukan seni tradisional, kuliner khas, dan workshop batik.",
+            imageId = R.drawable.img_blog_festival,
+            date = "12 Juni 2025",
+            viewers = "1.9K"
         ),
         BlogCardClass(
-            title = "My Blog #3",
-            content = "ini blog ketigaku ges, salam kenal semuanya!! oke gas oke gas oke gas",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
-        ),
-        BlogCardClass(
-            title = "My Blog #4",
-            content = "ini blog keempatku ges, salam kenal semuanya!! cape mau tidur cape mau tidur",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
-        ),
-        BlogCardClass(
-            title = "My Blog #5",
-            content = "ini blog kelimaku ges, salam kenal semuanya!! malas pingin hiling malas pingin hiling malas pingin hiling malas pingin hiling",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
-        ),
-        BlogCardClass(
-            title = "My Blog #6",
-            content = "ini blog keenamku ges, salam kenal semuanya!! mau belajar uas mau belajar mau belajar mau belajar mau belajar uas mau bleajar uas pls",
-            imageId = R.drawable.img_event,
-            date = "25 September 2025",
-            viewers = "1.4K"
+            title = "Kuliner Legendaris Malioboro yang Wajib Dicoba",
+            content = "Panduan lengkap kuliner khas Yogyakarta di sepanjang Jalan Malioboro. Dari gudeg hingga bakpia, semua ada di sini!",
+            imageId = R.drawable.img_blog_kulinerjogja,
+            date = "10 Juni 2025",
+            viewers = "3.2K"
         )
     )
-    val kulinerItemLists = listOf(
-        KulinerItem(
-            imgRes = R.drawable.img_bestik,
-            title = "Bestik Pak Darmo",
-            kulinerTime = "10 AM - 10 PM",
-            price = 15000,
-            rating = 4.9,
-            location = "Surakarta",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Bestik Pak Darmo 2",
-            kulinerTime = "10 AM - 10 PM",
-            price = 15000,
-            rating = 4.9,
-            location = "Surakarta",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy",
-            kulinerTime = "10 AM",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakata",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy 2",
-            kulinerTime = "10 AM - 10 PM",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakata",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy 3",
-            kulinerTime = "10 AM",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakata",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy 4",
-            kulinerTime = "10 PM",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakata",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
-        KulinerItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Gacoan Yummy 5",
-            kulinerTime = "10 AM - 9 PM",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakata",
-            isFavorite = false,
-            desc = "INI DESKRIPSI MAKANAN",
-            latitude = -7.5709241,
-            longtitude = 110.7926132
-        ),
+    val kulinerItemLists: List<KulinerItem>
+        get() {
+            if (_kulinerItemLists == null) {
+                _kulinerItemLists = runBlocking {
+                    firebaseRepository.getKulinerItems().ifEmpty {
+                        getDefaultKulinerItems()
+                    }
+                }
+            }
+            return _kulinerItemLists!!
+        }
+    val eventItemLists: List<EventItem>
+        get() {
+            if (_eventItemLists == null) {
+                _eventItemLists = runBlocking {
+                    firebaseRepository.getEventItems().ifEmpty {
+                        getDefaultEventItems()
+                    }
+                }
+            }
+            return _eventItemLists!!
+        }
+    val tourItemLists: List<TourItem>
+        get() {
+            if (_tourItemLists == null) {
+                _tourItemLists = runBlocking {
+                    firebaseRepository.getTourItems().ifEmpty {
+                        getDefaultTourItems()
+                    }
+                }
+            }
+            return _tourItemLists!!
+        }
+    suspend fun refreshData() {
+        _kulinerItemLists = firebaseRepository.getKulinerItems()
+        _eventItemLists = firebaseRepository.getEventItems()
+        _tourItemLists = firebaseRepository.getTourItems()
+    }
 
-    )
-    val eventItemLists = listOf(
-        EventItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 10),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy 2",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy 3",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Event Yummy 4",
-            price = 999999,
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            imgRes = R.drawable.img_reogponorogo,
-            title = "Wayang Kulit",
-            price = 90000,
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            title = "Tari Saman",
-            imgRes = R.drawable.img_event,
-            rating = 4.8,
-            location = "Yogyakarta",
-            price = 20000,
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            title = "Tari Tor-tor",
-            imgRes = R.drawable.img_event,
-            rating = 4.4,
-            location = "Purwokerto",
-            price = 35000,
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
-        ),
-        EventItem(
-            title = "Event test bayar",
-            imgRes = R.drawable.img_event,
-            rating = 4.4,
-            location = "Purwokerto",
-            price = 100,
-            isFavorite = false,
-            category = "Pertunjukan Seni",
-            desc = "INI DESKRIPSI EVENT",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339,
-            startDate = LocalDate.of(2025, 6, 10),
-            endDate = LocalDate.of(2025, 6, 12),
-            eventTime = "19:00"
+    private fun getDefaultKulinerItems(): List<KulinerItem> {
+        return listOf(
+            KulinerItem(
+                imgRes = R.drawable.img_bestik,
+                title = "Bestik Pak Darmo",
+                kulinerTime = "10 AM - 10 PM",
+                price = 15000,
+                rating = 4.9,
+                location = "Surakarta",
+                isFavorite = false,
+                desc = "INI DESKRIPSI MAKANAN",
+                latitude = -7.574178450295152,
+                longtitude = 110.81591618151339
+            )
         )
-    )
-    val tourItemLists = listOf(
-        TourItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy",
-            price = 999999,
-            time = "10 AM",
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            desc = "INI DESKIRPSI TOUR",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339
-        ),
-        TourItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy 2",
-            price = 999999,
-            time = "10 AM - 10 PM",
-            rating = 4.5,
-            location = "Yogyakarta",
-            isFavorite = false,
-            desc = "INI DESKIRPSI TOUR",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339
-        ),
-        TourItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy 3",
-            price = 999999,
-            time = "12 PM",
-            rating = 4.5,
-            location = "Yogyakarta",
-            isFavorite = false,
-            desc = "INI DESKIRPSI TOUR",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339
-        ),
-        TourItem(
-            imgRes = R.drawable.img_tehtarik,
-            title = "Tour Yummy 4",
-            price = 999999,
-            time = "9 AM",
-            rating = 4.5,
-            location = "Surakarta",
-            isFavorite = false,
-            desc = "INI DESKIRPSI TOUR",
-            latitude = -7.574178450295152,
-            longtitude = 110.81591618151339
+    }
+
+    private fun getDefaultEventItems(): List<EventItem> {
+        return listOf(
+            // default event items
         )
-    )
-    val ticketItemLists = listOf(
-        TicketItem(
-            title = "Artjog 2025",
-            detailedDesc = "pantai indah dengan pemandangan yang fantastis aaaaanjayyyyy aku gatau harus yapiing apa lagi padahal ini gacoan ya bukan pantai kak? sehat? allahuakbar ya Allah nulis apalagi tolong tolong tolong tolong tolong tolong",
-            date = "25 Agustus 2525",
-            location = "Universitas Sebelas Maret, Yogyakarta",
-            qrCode = R.drawable.img_qrcode_dummy,
-            image = R.drawable.img_event
+    }
+
+    private fun getDefaultTourItems(): List<TourItem> {
+        return listOf(
+            // default tour items
         )
-    )
+    }
 }

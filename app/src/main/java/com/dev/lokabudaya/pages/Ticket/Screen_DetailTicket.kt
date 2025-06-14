@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.OrderData
 import com.dev.lokabudaya.pages.Auth.AuthState
@@ -134,17 +135,26 @@ fun DisplayOrderAsTicket(
                         .padding(top = 24.dp, bottom = 44.dp)
                         .padding(horizontal = 16.dp)
                 ) {
-                    Image(
-                        painter = painterResource(
-                            id = if (orderData.eventImageRes != 0) orderData.eventImageRes
-                            else R.drawable.img_event
-                        ),
+                    AsyncImage(
+                        model = if (orderData.eventImageUrl.isNotEmpty())
+                            orderData.eventImageUrl
+                        else if (orderData.eventImageRes != 0)
+                            orderData.eventImageRes
+                        else
+                            R.drawable.img_event,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
                             .fillMaxWidth()
-                            .height(164.dp)
+                            .height(164.dp),
+                        placeholder = painterResource(
+                            id = if (orderData.eventImageRes != 0) orderData.eventImageRes else R.drawable.img_event
+                        ),
+                        error = painterResource(
+                            id = if (orderData.eventImageRes != 0) orderData.eventImageRes else R.drawable.img_event
+                        ),
+                        fallback = painterResource(id = R.drawable.img_event)
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

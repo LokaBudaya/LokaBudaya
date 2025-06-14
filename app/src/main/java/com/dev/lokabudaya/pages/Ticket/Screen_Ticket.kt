@@ -47,7 +47,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.ScreenRoute
-import com.dev.lokabudaya.data.DataProvider.ticketItemLists
 import com.dev.lokabudaya.data.OrderData
 import com.dev.lokabudaya.pages.Auth.AuthState
 import com.dev.lokabudaya.pages.Auth.AuthViewModel

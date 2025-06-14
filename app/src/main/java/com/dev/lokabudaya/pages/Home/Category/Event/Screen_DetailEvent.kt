@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home.Category.Event
 
+import NetworkImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -220,11 +221,11 @@ fun DetailEventPage(
                                 shape = RoundedCornerShape(8.dp),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = imageRes),
+                                NetworkImage(
+                                    imageUrl = eventItem.imageUrl,
+                                    fallbackRes = imageRes,
                                     contentDescription = "Preview",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                                    modifier = Modifier.fillMaxSize()
                                 )
                             }
                         }
@@ -312,8 +313,9 @@ fun DetailEventItem(
             .fillMaxWidth()
             .height(450.dp)
     ) {
-        Image(
-            painter = painterResource(id = eventItem.imgRes),
+        NetworkImage(
+            imageUrl = eventItem.imageUrl,
+            fallbackRes = eventItem.imgRes,
             contentDescription = eventItem.title,
             modifier = Modifier
                 .fillMaxWidth()

@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home.Category.Event
 
+import NetworkImage
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -296,10 +297,10 @@ fun CreateEvent(eventItem: EventItem,
                 verticalArrangement = Arrangement.Center
             ) {
                 Box {
-                    Image(
-                        painter = painterResource(eventItem.imgRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                    NetworkImage(
+                        imageUrl = eventItem.imageUrl,
+                        fallbackRes = eventItem.imgRes,
+                        contentDescription = eventItem.title,
                         modifier = Modifier
                             .fillMaxHeight(.65f)
                             .fillMaxWidth()

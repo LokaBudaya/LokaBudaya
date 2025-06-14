@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.dev.lokabudaya.R
 import com.dev.lokabudaya.data.DataProvider
 import com.dev.lokabudaya.data.DataProvider.tourItemLists
@@ -578,9 +579,9 @@ fun ExploreGridList(
                 count = filteredList.size,
                 key = { index ->
                     when (val item = filteredList[index]) {
-                        is CombinedItem.EventItem -> "event_${index}_${item.eventItem.hashCode()}"
-                        is CombinedItem.TourItem -> "tour_${index}_${item.tourItem.hashCode()}"
-                        is CombinedItem.KulinerItem -> "kuliner_${index}_${item.kulinerItem.hashCode()}"
+                        is CombinedItem.EventItem -> "event_${item.eventItem.title}_$index"
+                        is CombinedItem.TourItem -> "tour_${item.tourItem.title}_$index"
+                        is CombinedItem.KulinerItem -> "kuliner_${item.kulinerItem.title}_$index"
                     }
                 }
             ) { index ->
@@ -605,11 +606,13 @@ fun ExploreGridList(
                         },
                     contentAlignment = Alignment.Center
                 ) {
+                    // PERBAIKAN: Hanya satu CreateSearchCard di sini
                     when (val item = filteredList[index]) {
                         is CombinedItem.EventItem -> {
                             CreateSearchCard(
                                 item = item.eventItem,
                                 getImgRes = { it.imgRes },
+                                getImageUrl = { it.imageUrl },
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
@@ -627,6 +630,7 @@ fun ExploreGridList(
                             CreateSearchCard(
                                 item = item.tourItem,
                                 getImgRes = { it.imgRes },
+                                getImageUrl = { it.imageUrl },
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
@@ -644,6 +648,7 @@ fun ExploreGridList(
                             CreateSearchCard(
                                 item = item.kulinerItem,
                                 getImgRes = { it.imgRes },
+                                getImageUrl = { it.imageUrl },
                                 getTitle = { it.title },
                                 getPrice = { it.price },
                                 getRating = { it.rating },
@@ -692,6 +697,7 @@ fun SearchResultsHeader(
 fun <T : Any> CreateSearchCard(
     item: T,
     getImgRes: (T) -> Int,
+    getImageUrl: (T) -> String,
     getTitle: (T) -> String,
     getPrice: (T) -> Int,
     getRating: (T) -> Double,
@@ -734,13 +740,15 @@ fun <T : Any> CreateSearchCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Box {
-                    Image(
-                        painter = painterResource(getImgRes(item)),
+                    AsyncImage(
+                        model = getImageUrl(item).ifEmpty { getImgRes(item) },
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxHeight(.65f)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        placeholder = painterResource(getImgRes(item)),
+                        error = painterResource(getImgRes(item))
                     )
                     Box(
                         modifier = Modifier

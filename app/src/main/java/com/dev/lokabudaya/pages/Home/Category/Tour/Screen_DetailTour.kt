@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home.Category.Tour
 
+import NetworkImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -217,11 +218,11 @@ fun DetailTourPage(
                                 shape = RoundedCornerShape(8.dp),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = imageRes),
+                                NetworkImage(
+                                    imageUrl = tourItem.imageUrl,
+                                    fallbackRes = imageRes,
                                     contentDescription = "Preview",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                                    modifier = Modifier.fillMaxSize()
                                 )
                             }
                         }
@@ -308,8 +309,9 @@ fun DetailTourItem(
             .fillMaxWidth()
             .height(450.dp)
     ) {
-        Image(
-            painter = painterResource(id = tourItem.imgRes),
+        NetworkImage(
+            imageUrl = tourItem.imageUrl,
+            fallbackRes = tourItem.imgRes,
             contentDescription = tourItem.title,
             modifier = Modifier
                 .fillMaxWidth()

@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Home.Category.Culinary
 
+import NetworkImage
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -291,10 +292,10 @@ fun CreateKuliner(kulinerItem: KulinerItem,
                 verticalArrangement = Arrangement.Center
             ) {
                 Box {
-                    Image(
-                        painter = painterResource(kulinerItem.imgRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                    NetworkImage(
+                        imageUrl = kulinerItem.imageUrl,
+                        fallbackRes = kulinerItem.imgRes,
+                        contentDescription = kulinerItem.title,
                         modifier = Modifier
                             .fillMaxHeight(.65f)
                             .fillMaxWidth()

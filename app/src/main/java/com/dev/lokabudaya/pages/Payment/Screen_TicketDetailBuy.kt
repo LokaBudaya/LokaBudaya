@@ -1,5 +1,6 @@
 package com.dev.lokabudaya.pages.Ticket
 
+import NetworkImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -138,10 +139,12 @@ fun TicketDetailHeader(
             .fillMaxWidth()
             .height(250.dp)
     ) {
-        Image(
-            painter = painterResource(id = eventItem.imgRes),
+        NetworkImage(
+            imageUrl = eventItem.imageUrl,
+            fallbackRes = eventItem.imgRes,
             contentDescription = eventItem.title,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
