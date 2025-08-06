@@ -23,9 +23,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,10 +68,20 @@ import java.text.DecimalFormat
 @Composable
 fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
     var filterOptions by remember { mutableStateOf(FilterOptions()) }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
 
     val allKulinerItems = DataProvider.kulinerItemLists
-    val filteredResults = remember(filterOptions) {
+    val filteredResults = remember(filterOptions, searchQuery) {
         allKulinerItems.filter { item ->
+            val matchesSearch = if (searchQuery.isBlank()) {
+                true
+            } else {
+                item.title.contains(searchQuery, ignoreCase = true) ||
+                item.location.contains(searchQuery, ignoreCase = true) ||
+                item.desc.contains(searchQuery, ignoreCase = true)
+            }
+
             val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
                 true
             } else {
@@ -89,7 +100,7 @@ fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, au
                 }
             }
 
-            matchesRating && matchesPrice
+            matchesSearch && matchesRating && matchesPrice
         }
     }
 
@@ -97,7 +108,13 @@ fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, au
         .padding(16.dp)
         .background(Color(0xFFF8F8F8))
     ) {
-        HeaderCulinarySection(navController)
+        HeaderCulinarySection(
+            navController = navController,
+            searchQuery = searchQuery,
+            onSearchQueryChange = { searchQuery = it },
+            isSearchActive = isSearchActive,
+            onSearchActiveChange = { isSearchActive = it }
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -118,7 +135,7 @@ fun CulinaryPage(modifier: Modifier = Modifier, navController: NavController, au
 
         Spacer(modifier = Modifier.height(16.dp))
         Screen_Kuliner(
-            filterOptions = filterOptions,
+            filteredItems = filteredResults,
             navController = navController,
             authViewModel = authViewModel)
     }
@@ -144,72 +161,118 @@ fun CulinaryResultsHeader(
 // Header Culinary Section
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun HeaderCulinarySection(navController: NavController) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
+fun HeaderCulinarySection(
+    navController: NavController,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    isSearchActive: Boolean,
+    onSearchActiveChange: (Boolean) -> Unit
+) {
+    Column {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back Icon",
+                    tint = bigTextColor,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) {
+                            navController.navigate(ScreenRoute.Home.route)
+                        }
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "Kuliner",
+                    fontSize = 24.sp,
+                    fontFamily = interBold,
+                    color = bigTextColor
+                )
+            }
+            
             Icon(
-                painter = painterResource(id = R.drawable.ic_back),
-                contentDescription = "Back Icon",
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = "Search",
                 tint = bigTextColor,
                 modifier = Modifier
-                    .size(24.dp)
-                    .clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = null
-                    ) {
-                        navController.navigate(ScreenRoute.Home.route)
+                    .size(20.dp)
+                    .clickable {
+                        onSearchActiveChange(!isSearchActive)
                     }
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = "Kuliner",
-                fontSize = 24.sp,
-                fontFamily = interBold,
-                color = bigTextColor
+        }
+        
+        // Search Bar (shown when search is active)
+        if (isSearchActive) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                placeholder = {
+                    Text(
+                        text = "Cari kuliner...",
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = Color.Gray
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                onSearchQueryChange("")
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Clear",
+                                tint = Color.Gray
+                            )
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = true
             )
         }
-        SearchIcon()
     }
 }
 
 @Composable
-fun Screen_Kuliner(filterOptions: FilterOptions = FilterOptions(),
-                   navController: NavController,
-                   authViewModel: AuthViewModel
+fun Screen_Kuliner(
+    filteredItems: List<KulinerItem>,
+    navController: NavController,
+    authViewModel: AuthViewModel
 ) {
     val favoriteViewModel: FavoriteViewModel = viewModel(
         factory = FavoriteViewModelFactory(authViewModel)
     )
-    val allKulinerItems = DataProvider.kulinerItemLists
-    val filteredItems = remember(filterOptions) {
-        allKulinerItems.filter { item ->
-            val matchesRating = if (filterOptions.selectedRatings.isEmpty()) {
-                true
-            } else {
-                filterOptions.selectedRatings.any { selectedRating ->
-                    val ratingFilter = RatingFilter.entries.find { it.label == selectedRating }
-                    ratingFilter?.range?.contains(item.rating) == true
-                }
-            }
-
-            val matchesPrice = if (filterOptions.selectedPriceRanges.isEmpty()) {
-                true
-            } else {
-                filterOptions.selectedPriceRanges.any { selectedPrice ->
-                    val priceFilter = PriceFilter.entries.find { it.label == selectedPrice }
-                    priceFilter?.range?.contains(item.price) == true
-                }
-            }
-
-            matchesRating && matchesPrice
-        }
-    }
 
     if (filteredItems.isEmpty()) {
         Box(

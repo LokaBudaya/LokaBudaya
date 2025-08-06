@@ -173,10 +173,18 @@ fun SearchPage(modifier: Modifier = Modifier,
             onQueryChange = { searchQuery = it }
         )
 
+        // Filter section - Fixed at top
+        FilterBarSection(
+            filterOptions = filterOptions,
+            onFilterChanged = { filterOptions = it },
+            searchQuery = searchQuery,
+            filteredResultsCount = filteredResults.size
+        )
+        
+        // Grid list - Scrollable content
         ExploreGridList(
             searchQuery = searchQuery,
             filterOptions = filterOptions,
-            onFilterChanged = { filterOptions = it },
             favoriteViewModel = favoriteViewModel,
             navController = navController
         )
@@ -279,6 +287,31 @@ enum class PriceFilter(val label: String, val range: IntRange) {
     MEDIUM("50rb - 100rb", 50001..100000),
     HIGH("100rb - 500rb", 100001..500000),
     VERY_HIGH("> 500rb", 500001..Int.MAX_VALUE)
+}
+
+// Filter Bar Section - Fixed at top like search bar
+@Composable
+fun FilterBarSection(
+    filterOptions: FilterOptions,
+    onFilterChanged: (FilterOptions) -> Unit,
+    searchQuery: String,
+    filteredResultsCount: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilterList(onFiltersChanged = onFilterChanged)
+        
+        SearchResultsHeader(
+            totalResults = filteredResultsCount,
+            searchQuery = searchQuery,
+            filterOptions = filterOptions
+        )
+    }
 }
 
 @Composable
@@ -478,8 +511,7 @@ fun ExploreGridList(
     searchQuery: String,
     filterOptions: FilterOptions,
     favoriteViewModel: FavoriteViewModel,
-    navController: NavController,
-    onFilterChanged: (FilterOptions) -> Unit
+    navController: NavController
 ) {
     val combinedList = CombinerList()
     val favoriteItems by favoriteViewModel.favoriteItems.collectAsState()
@@ -532,25 +564,7 @@ fun ExploreGridList(
         contentPadding = PaddingValues(
             bottom = 8.dp
         )
-
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilterList(onFiltersChanged = onFilterChanged)
-                SearchResultsHeader(
-                    totalResults = filteredList.size,
-                    searchQuery = searchQuery,
-                    filterOptions = filterOptions
-                )
-            }
-        }
-
         if (filteredList.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Column(

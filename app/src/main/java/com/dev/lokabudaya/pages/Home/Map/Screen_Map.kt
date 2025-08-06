@@ -5,10 +5,12 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +26,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.dev.lokabudaya.R
+import com.dev.lokabudaya.data.DataProvider
+import com.dev.lokabudaya.data.EventItem
+import com.dev.lokabudaya.data.KulinerItem
+import com.dev.lokabudaya.data.TourItem
 import com.dev.lokabudaya.pages.Auth.AuthViewModel
 import com.dev.lokabudaya.ui.theme.interBold
 import com.dev.lokabudaya.ui.theme.poppinsSemiBold
@@ -39,6 +45,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.maps.android.compose.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 @Composable
 fun MapPage(
@@ -67,6 +74,9 @@ fun MapPage(
     var showPredictions by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
     var selectedLocationName by remember { mutableStateOf("") }
+    
+    // State for managing which marker is selected to show InfoWindow
+    var selectedMarkerId by remember { mutableStateOf<String?>(null) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -109,6 +119,7 @@ fun MapPage(
                 zoomControlsEnabled = false
             )
         ) {
+            // Marker untuk lokasi yang dipilih user
             selectedLocation?.let { location ->
                 Marker(
                     state = MarkerState(position = location),
@@ -116,7 +127,92 @@ fun MapPage(
                     snippet = "Selected Location"
                 )
             }
+            
+            // Marker untuk semua Tour locations (Blue markers)
+            DataProvider.tourItemLists.forEachIndexed { index, tour ->
+                if (tour.latitude != 0.0 && tour.longtitude != 0.0) {
+                    val markerId = "tour_$index"
+                    val markerPosition = LatLng(tour.latitude, tour.longtitude)
+                    
+                    Marker(
+                        state = MarkerState(position = markerPosition),
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE),
+                        onClick = {
+                            if (selectedMarkerId == markerId) {
+                                // Second click - navigate to detail page
+                                val originalIndex = DataProvider.tourItemLists.indexOf(tour)
+                                navController.navigate("DetailTourPage/$originalIndex")
+                            } else {
+                                // First click - set as selected
+                                selectedMarkerId = markerId
+                            }
+                            true
+                        },
+                        title = tour.title,
+                        snippet = "🏛️ Wisata • ${tour.location}"
+                    )
+                }
+            }
+            
+            // Marker untuk semua Event locations (Purple/Magenta markers)
+            DataProvider.eventItemLists.forEachIndexed { index, event ->
+                if (event.latitude != 0.0 && event.longtitude != 0.0) {
+                    val markerId = "event_$index"
+                    val markerPosition = LatLng(event.latitude, event.longtitude)
+                    
+                    Marker(
+                        state = MarkerState(position = markerPosition),
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA),
+                        onClick = {
+                            if (selectedMarkerId == markerId) {
+                                // Second click - navigate to detail page
+                                val originalIndex = DataProvider.eventItemLists.indexOf(event)
+                                navController.navigate("DetailEventPage/$originalIndex")
+                            } else {
+                                // First click - set as selected
+                                selectedMarkerId = markerId
+                            }
+                            true
+                        },
+                        title = event.title,
+                        snippet = "🎉 Event • ${event.location}"
+                    )
+                }
+            }
+            
+            // Marker untuk semua Culinary locations (Orange markers)
+            DataProvider.kulinerItemLists.forEachIndexed { index, kuliner ->
+                if (kuliner.latitude != 0.0 && kuliner.longtitude != 0.0) {
+                    val markerId = "kuliner_$index"
+                    val markerPosition = LatLng(kuliner.latitude, kuliner.longtitude)
+                    
+                    Marker(
+                        state = MarkerState(position = markerPosition),
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE),
+                        onClick = {
+                            if (selectedMarkerId == markerId) {
+                                // Second click - navigate to detail page
+                                val originalIndex = DataProvider.kulinerItemLists.indexOf(kuliner)
+                                navController.navigate("DetailCulinaryPage/$originalIndex")
+                            } else {
+                                // First click - set as selected
+                                selectedMarkerId = markerId
+                            }
+                            true
+                        },
+                        title = kuliner.title,
+                        snippet = "🍴 Kuliner • ${kuliner.location}"
+                    )
+                }
+            }
         }
+
+        // Legend at bottom right
+        MapLegend(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
 
         Column(
             modifier = Modifier
@@ -137,7 +233,7 @@ fun MapPage(
                     )
                 }
                 Text(
-                    text = "Find Location",
+                    text = "Explore Map",
                     fontSize = 20.sp,
                     fontFamily = interBold,
                     color = Color.Black,
@@ -256,6 +352,71 @@ fun PredictionItem(
     }
     Divider(color = Color.LightGray, thickness = 0.5.dp)
 }
+
+@Composable
+fun MapLegend(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "Legenda",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            
+            // Tour marker legend
+            LegendItem(
+                color = Color(0xFF2196F3), // Blue
+                label = "Wisata"
+            )
+            
+            // Event marker legend
+            LegendItem(
+                color = Color(0xFFFF00FF), // Magenta/Purple (matches BitmapDescriptorFactory.HUE_MAGENTA)
+                label = "Event"
+            )
+            
+            // Culinary marker legend
+            LegendItem(
+                color = Color(0xFFFF9800), // Orange
+                label = "Kuliner"
+            )
+        }
+    }
+}
+
+@Composable
+fun LegendItem(
+    color: Color,
+    label: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(color, CircleShape)
+        )
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = Color.Black
+        )
+    }
+}
+
 
 fun searchPlaces(
     placesClient: PlacesClient,

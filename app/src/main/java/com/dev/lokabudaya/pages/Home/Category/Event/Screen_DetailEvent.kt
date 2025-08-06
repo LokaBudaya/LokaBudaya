@@ -1,10 +1,20 @@
 package com.dev.lokabudaya.pages.Home.Category.Event
 
 import NetworkImage
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -270,6 +280,11 @@ fun DetailEventPage(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Go Now Section
+                    GoNowSectionEvent(eventItem)
+                    
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
@@ -771,4 +786,247 @@ private fun AnnotatedString.Builder.appendStyledDayAndMonth(date: LocalDate) {
         date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
         isDay = false
     )
+}
+
+// Helper function to calculate distance using Haversine formula
+fun calculateDistanceEvent(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+    val results = FloatArray(1)
+    Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+    return results[0] / 1000 // Convert to kilometers
+}
+
+// Helper function to estimate travel time (rough estimation)
+fun estimateTravelTimeEvent(distanceKm: Float): String {
+    return when {
+        distanceKm < 5 -> "${(distanceKm * 10).toInt()} menit"
+        distanceKm < 20 -> "${(distanceKm * 8).toInt()} menit"
+        distanceKm < 50 -> "${String.format("%.1f", distanceKm / 60 * 45)} jam"
+        else -> "${String.format("%.1f", distanceKm / 60)} jam"
+    }
+}
+
+@Composable
+fun GoNowSectionEvent(eventItem: EventItem) {
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    
+    var userLocation by remember { mutableStateOf<Location?>(null) }
+    var distance by remember { mutableStateOf<Float?>(null) }
+    var isLocationPermissionGranted by remember { mutableStateOf(false) }
+    var isLoadingLocation by remember { mutableStateOf(false) }
+    
+    // Permission launcher
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        isLocationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        
+        if (isLocationPermissionGranted) {
+            isLoadingLocation = true
+            getCurrentLocationEvent(fusedLocationClient) { location ->
+                userLocation = location
+                location?.let {
+                    distance = calculateDistanceEvent(
+                        it.latitude, it.longitude,
+                        eventItem.latitude, eventItem.longtitude
+                    )
+                }
+                isLoadingLocation = false
+            }
+        }
+    }
+    
+    // Check initial permission
+    LaunchedEffect(Unit) {
+        isLocationPermissionGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED || 
+        ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        
+        if (isLocationPermissionGranted) {
+            isLoadingLocation = true
+            getCurrentLocationEvent(fusedLocationClient) { location ->
+                userLocation = location
+                location?.let {
+                    distance = calculateDistanceEvent(
+                        it.latitude, it.longitude,
+                        eventItem.latitude, eventItem.longtitude
+                    )
+                }
+                isLoadingLocation = false
+            }
+        }
+    }
+    
+    Column {
+        Text(
+            text = "Navigation",
+            fontSize = 20.sp,
+            fontFamily = interBold,
+            color = Color.Black
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                // Distance Info Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "📍 ${eventItem.location}",
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium
+                        )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        if (isLoadingLocation) {
+                            Text(
+                                text = "🔄 Mengukur jarak...",
+                                fontSize = 12.sp,
+                                color = Color(0xFF2C4CA5)
+                            )
+                        } else if (distance != null) {
+                            Text(
+                                text = "📏 ${String.format("%.1f", distance)} km dari lokasi Anda",
+                                fontSize = 12.sp,
+                                color = Color(0xFF2C4CA5),
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "⏱️ Estimasi: ${estimateTravelTimeEvent(distance!!)}",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        } else {
+                            Text(
+                                text = if (isLocationPermissionGranted) "❌ Tidak dapat mengakses lokasi" else "📍 Aktifkan lokasi untuk melihat jarak",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Action Buttons Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Get Location Button
+                    if (!isLocationPermissionGranted) {
+                        Button(
+                            onClick = {
+                                locationPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF2C4CA5)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_location),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Aktifkan Lokasi",
+                                color = Color.White,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                    
+                    // Go Now Button
+                    Button(
+                        onClick = {
+                            // Open Google Maps with navigation
+                            val uri = if (userLocation != null) {
+                                // With user location (navigation mode)
+                                Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${userLocation!!.latitude},${userLocation!!.longitude}&destination=${eventItem.latitude},${eventItem.longtitude}&travelmode=driving")
+                            } else {
+                                // Without user location (just show destination)
+                                Uri.parse("geo:${eventItem.latitude},${eventItem.longtitude}?q=${eventItem.latitude},${eventItem.longtitude}(${Uri.encode(eventItem.title)})")
+                            }
+                            
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            intent.setPackage("com.google.android.apps.maps")
+                            
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback to browser if Google Maps not installed
+                                val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+                                context.startActivity(browserIntent)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = selectedCategoryColor
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Go Now",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to get current location
+fun getCurrentLocationEvent(
+    fusedLocationClient: FusedLocationProviderClient,
+    onLocationReceived: (Location?) -> Unit
+) {
+    try {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            onLocationReceived(location)
+        }.addOnFailureListener {
+            onLocationReceived(null)
+        }
+    } catch (e: SecurityException) {
+        onLocationReceived(null)
+    }
 }
