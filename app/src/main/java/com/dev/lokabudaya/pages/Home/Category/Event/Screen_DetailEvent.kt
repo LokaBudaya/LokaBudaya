@@ -68,6 +68,14 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
 
+fun formatPrice(price: Int): String {
+    return if (price <= 0) {
+        "FREE"
+    } else {
+        NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(price)
+    }
+}
+
 @Composable
 fun DetailEventPage(
     modifier: Modifier = Modifier,
@@ -574,8 +582,7 @@ fun TicketToBuy(
                 )
                 // Harga
                 Text(
-                    text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                        .format(ticketOrder.ticketType.price),
+                    text = formatPrice(ticketOrder.ticketType.price),
                     color = Color(0xFF2C4CA5),
                     fontFamily = interBold,
                     fontSize = 18.sp
@@ -699,8 +706,7 @@ fun PurchaseSummaryBottom(
                         color = Color.Gray
                     )
                     Text(
-                        text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                            .format(totalPrice),
+                        text = formatPrice(totalPrice),
                         fontSize = 18.sp,
                         fontFamily = interBold,
                         color = Color.Black

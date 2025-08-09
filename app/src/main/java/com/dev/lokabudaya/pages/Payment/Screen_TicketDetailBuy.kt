@@ -35,6 +35,14 @@ import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
 
+fun formatPrice(price: Int): String {
+    return if (price <= 0) {
+        "FREE"
+    } else {
+        NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(price)
+    }
+}
+
 @Composable
 fun TicketDetailBuyPage(
     modifier: Modifier = Modifier,
@@ -312,8 +320,7 @@ fun TicketSelectionCard(
                         modifier = Modifier.padding(top = 4.dp)
                     )
                     Text(
-                        text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                            .format(ticketOrder.ticketType.price),
+                        text = formatPrice(ticketOrder.ticketType.price),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = selectedCategoryColor,
@@ -331,7 +338,7 @@ fun TicketSelectionCard(
             if (ticketOrder.quantity > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Subtotal: ${NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(ticketOrder.totalPrice)}",
+                    text = "Subtotal: ${formatPrice(ticketOrder.totalPrice)}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -435,8 +442,7 @@ fun PurchaseSummaryBottom(
                         color = Color.Gray
                     )
                     Text(
-                        text = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-                            .format(totalPrice),
+                        text = formatPrice(totalPrice),
                         fontSize = 18.sp,
                         fontFamily = interBold,
                         color = Color.Black
